@@ -9,9 +9,15 @@ def home():
 def login():
     if request.method == "POST":
         user = request.form["usuario"]
-        password = request.form["contraseña"]
-        cohorte = request.form["cohorte"] #enviar esto a una base de datos
-        return render_template("saludo.html" , usuario=user) #hacer que lo busque en la base de datos
+        carnet = request.form["contraseña"]
+        cohorte = request.form["cohorte"] # en variable local
+
+        # Aquí "guardo" en variables del back-end; luego puedes insertar en DB si quieres
+        usuario = user
+        carnet_us = carnet
+        cohorte_sel = cohorte
+
+        return render_template("saludo.html", usuario=usuario)
     else:
         return render_template("login.html") #hacer la page login
 
