@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for
 import pyodbc
-import os
-from dotenv import load_dotenv
+import os #os lee variables del sistema
+from dotenv import load_dotenv #carga datos secretos.
 
-load_dotenv()
+load_dotenv() #carga variables ocultas (servidor, usuario, contraseña, etc) desde el archivo .env
 
 app = Flask(__name__)
 
