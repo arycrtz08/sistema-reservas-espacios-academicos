@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import pyodbc
 import os #os lee variables del sistema
 from dotenv import load_dotenv #carga datos secretos.
@@ -6,6 +6,9 @@ from dotenv import load_dotenv #carga datos secretos.
 load_dotenv() #carga variables ocultas (servidor, usuario, contraseña, etc) desde el archivo .env
 
 app = Flask(__name__)
+
+#agrego a continuación porque necesita "session" para cifrar los logins
+app.secret_key = os.getenv('SECRET_KEY', "Passwort")
 
  #conexión a la base de datos, cambiar los datos en el archivo .env (esto cambia por maquina)   
 def get_db_connection():
@@ -33,6 +36,10 @@ def get_db_connection():
 #página de home
 @app.route('/')
 def home():
+    # Si "usuario" NO está en la sesión, lo mandamos al login
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    
     return render_template('home.html')
 
 #página de login
@@ -53,10 +60,13 @@ def login():
             cursor.close()
             conn.close()
             print("Datos guardados exitosamente")
+
+            #crear la sesión 
+            session['usuario'] = user
+            return redirect(url_for('home'))
+            
         except Exception as e:
             print(f"Error al conectar o insertar: {e}")
-
-        return render_template("saludo.html", usuario=user) #saluda al usuario
     else:
         return render_template("login.html") #muestra el formulario de login
 
