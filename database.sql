@@ -1,12 +1,12 @@
 CREATE DATABASE InformationUSR;
 GO
-USE InformationUSR; # que es information USR 
+USE InformationUSR; 
 GO
 CREATE TABLE Usuarios (
     id_usuario INT PRIMARY KEY IDENTITY(1,1),
     usuario NVARCHAR(100) NOT NULL, 
     carnet_us NVARCHAR(50) NOT NULL UNIQUE,
-    cohorte_sel NVARCHAR(50) NOT NULL
+    cohorte_sel NVARCHAR(50) NOT NULL,
     fecha_registro DATETIME DEFAULT GETDATE()
 );
 
@@ -28,7 +28,7 @@ CREATE TABLE RecursosKite (
     nombre NVARCHAR(100) NOT NULL,
     id_categoria INT NOT NULL,
     codigo NVARCHAR(50) NOT NULL UNIQUE,
-    disponible BIT DEFAULT 1
+    disponible BIT DEFAULT 1,
     FOREIGN KEY (id_categoria) REFERENCES CategoriasKite(id_categoria)
 );
 
@@ -64,12 +64,12 @@ VALUES ('Sala KEY001'), ('Sala KEY002'), ('Sala KEY003'), ('Sala KEY004'), ('Sal
 INSERT INTO CategoriasKite (nombre)
 VALUES ('Mesa'), ('Herramienta'), ('Maquinaria');
 
-INSERT INTO RecursosKite (nombre, categoria, codigo)
-VALUES
-('Mesa 1', 'Mesa', 'M001'),
-('Mesa 2', 'Mesa', 'M002'),
-('Pie de rey', 'Herramienta', 'H001'),
-('Serrucho', 'Herramienta', 'H002'),
-('Cinta métrica', 'Herramienta', 'H003'),
-('Impresora 3D', 'Maquinaria', 'MAQ001'),
-('Cortadora láser', 'Maquinaria', 'MAQ002');
+INSERT INTO RecursosKite (nombre, id_categoria, codigo)
+VALUES --cambie lo que decia mesa, herramienta y maquinaria para que lo pudierea buscar
+('Mesa 1', (SELECT id_categoria FROM CategoriasKite WHERE nombre = 'Mesa'), 'M001'),
+('Mesa 2', (SELECT id_categoria FROM CategoriasKite WHERE nombre = 'Mesa'), 'M002'),
+('Pie de rey', (SELECT id_categoria FROM CategoriasKite WHERE nombre = 'Herramienta'), 'H001'),
+('Serrucho', (SELECT id_categoria FROM CategoriasKite WHERE nombre = 'Herramienta'), 'H002'),
+('Cinta métrica', (SELECT id_categoria FROM CategoriasKite WHERE nombre = 'Herramienta'), 'H003'),
+('Impresora 3D', (SELECT id_categoria FROM CategoriasKite WHERE nombre = 'Maquinaria'), 'MAQ001'),
+('Cortadora láser', (SELECT id_categoria FROM CategoriasKite WHERE nombre = 'Maquinaria'), 'MAQ002');

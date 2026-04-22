@@ -70,6 +70,10 @@ def login():
     else:
         return render_template("login.html") #muestra el formulario de login
 
+#página de reserva de salas
+@app.route("/reserva_salas", #methods =[#aun no se que poner])
+def salas():
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
