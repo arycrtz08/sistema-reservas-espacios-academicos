@@ -45,6 +45,18 @@ CREATE TABLE ReservasSalas (
     FOREIGN KEY (id_sala) REFERENCES Salas(id_sala)
 );
 
+-- 1. Agregamos una tabla para los acompañantes
+CREATE TABLE AcompañantesReserva (
+    id_asistente INT PRIMARY KEY IDENTITY(1,1),
+    id_reserva INT NOT NULL, -- Relación con la tabla ReservasSalas
+    nombre_completo NVARCHAR(150) NOT NULL,
+    carnet NVARCHAR(50) NOT NULL,
+    cohorte NVARCHAR(50) NOT NULL,
+    FOREIGN KEY (id_reserva) REFERENCES ReservasSalas(id_reserva)
+);
+
+
+
 CREATE TABLE ReservasKite (
     id_reserva INT PRIMARY KEY IDENTITY(1,1),
     id_usuario INT NOT NULL,

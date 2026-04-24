@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salas Kite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container">
+        <span class="navbar-brand">Proyecto Kite - Reservas</span>
+        <span class="text-white">Bienvenido, {{ session['usuario'] }}</span>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        {% for sala in salas %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">{{ sala.nombre }}</h5>
+                    <p class="badge bg-success">Disponible</p>
+                    <p class="text-muted small">Capacidad: {{ sala.capacidad_max }} personas</p>
+                    <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#modal{{ sala.id_sala }}">
+                        Reservar Sala
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modal{{ sala.id_sala }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <form action="/reservar_sala" method="POST" class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detalles de Acompañante</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id_sala" value="{{ sala.id_sala }}">
+                        
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label">Hora Inicio</label>
+                                <input type="time" name="hora_inicio" class="form-control" min="06:00" max="18:00" required>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">Hora Fin</label>
+                                <input type="time" name="hora_fin" class="form-control" min="06:00" max="18:00" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Cantidad de Personas (2-6)</label>
+                            <input type="number" name="cantidad_personas" class="form-control" min="2" max="6" value="2" required>
+                        </div>
+
+                        <hr>
+                        <h6>Datos del primer acompañante</h6>
+                        <div class="mb-3">
+                            <input type="text" name="acomp_nombre" class="form-control" placeholder="Nombre completo" required>
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" name="acomp_carnet" class="form-control" placeholder="Carnet" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="acomp_cohorte" class="form-control" placeholder="Cohorte" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-success">Confirmar y Bloquear Sala</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
