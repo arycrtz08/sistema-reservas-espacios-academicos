@@ -1,34 +1,54 @@
-<!Doctype html>
-<html lang="en">  
-<html>
-    <head>
-        <link rel = "stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
-        <title>Home</title>
-    </head>
-    <body>
-        <div class="container">
-            <div class="row">
-                <div class="col d-flex justify-content-center">
-                    <h1>Bienvenido a la página de reservas de Salas y maquinaria del Kite</h1>
-                </div>
-            </div>
-            <div class="row">   
-                <div class="col d-flex justify-content-center">
-                    <p>¿Qué deseas reservar?</p>
-            </div>
-            <div class ="row">
-                <div class="col-md-6 bg-warning border">
-                    <p>Poner aquí un botón que lleve a la página de reservas de salas</p>
-                </div>
-                <div class="col-md-6 bg-info border">
-                    <p>Poner aquí un botón que lleve a la página de reservas del Kite</p>
-                </div>
-            </div>
-            <div class="row my-3">
-                <div class="col d-flex justify-content-center">
-                    <p>Espero tengas un lindo día</p>
-                </div>
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <title>Home</title>
+</head>
+<body>
+    <div class="container">
+
+        <div class="row mt-4">
+            <div class="col d-flex justify-content-center">
+                <h1>Bienvenido a la página de reservas de Salas y maquinaria del Kite</h1>
             </div>
         </div>
-    </body>
+
+        <div class="row">   
+            <div class="col d-flex justify-content-center">
+                <p>¿Qué deseas reservar?</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 bg-warning border p-3">
+                <a href="/salas" class="btn btn-dark w-100">
+                    Reservar salas
+                </a>
+            </div>
+
+            <div class="col-md-6 bg-info border p-3">
+                <a href="/kite" class="btn btn-dark w-100">
+                    Reservar maquinaria del Kite
+                </a>
+            </div>
+        </div>
+
+        <div class="row my-3">
+            <div class="col d-flex justify-content-center">
+                <p>Espero tengas un lindo día</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col d-flex justify-content-center">
+                <a href="/logout" class="btn btn-danger">
+                    Cerrar sesión
+                </a>
+            </div>
+        </div>
+
+    </div>
+</body>
 </html>

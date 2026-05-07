@@ -13,25 +13,20 @@ app.secret_key = os.getenv('SECRET_KEY', "Passwort")
 
  #conexión a la base de datos, cambiar los datos en el archivo .env (esto cambia por maquina)   
 def get_db_connection():
-    # Usamos triples llaves para que el resultado final tenga llaves reales {}
     driver = os.getenv('DB_DRIVER')
     server = os.getenv('DB_SERVER')
     database = os.getenv('DB_NAME')
-    user = os.getenv('DB_USER')
-    password = os.getenv('DB_PASSWORD')
 
     conn_str = (
         f"DRIVER={{{driver}}};"
         f"SERVER={server};"
         f"DATABASE={database};"
-        f"UID={user};"
-        f"PWD={password};"
+        "Trusted_Connection=yes;"
+        "TrustServerCertificate=yes;"
     )
-    
-    # Esto imprimirá en tu consola de VS Code exactamente qué se está enviando.
-    # Verifica que no salgan llaves dobles o espacios raros.
-    print(f"Intentando conectar con: {conn_str}") 
-    
+
+    print(f"Intentando conectar con: {conn_str}")
+
     return pyodbc.connect(conn_str)
 
 #página de home
@@ -43,33 +38,98 @@ def home():
     
     return render_template('home.html')
 
-#página de login
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+# página de login
 @app.route("/login", methods=["POST", "GET"])
 def login():
     if request.method == "POST":
         user = request.form["usuario"]
         carnet = request.form["carnet_us"]
-        cohorte = request.form["cohorte"] # en variable local
+        cohorte = request.form["cohorte"]
 
-        # Inserción en la Base de Datos:
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-            query = "INSERT INTO Usuarios (usuario, carnet_us, cohorte_sel) VALUES (?, ?, ?)"
+
+            # Revisar si el carnet ya existe
+            cursor.execute("SELECT COUNT(*) FROM Usuarios WHERE carnet_us = ?", (carnet,))
+            existe = cursor.fetchone()[0]
+
+            if existe > 0:
+                cursor.close()
+                conn.close()
+
+                return render_template(
+                    "login.html",
+                    error="Ese carnet ya está registrado. Probá con otro."
+                )
+
+            # Insertar usuario si el carnet no existe
+            query = """
+                INSERT INTO Usuarios (usuario, carnet_us, cohorte_sel)
+                VALUES (?, ?, ?)
+            """
             cursor.execute(query, (user, carnet, cohorte))
+
             conn.commit()
             cursor.close()
             conn.close()
+
             print("Datos guardados exitosamente")
 
-            #crear la sesión 
-            session['usuario'] = user
-            return redirect(url_for('home'))
-            
+            # Crear la sesión
+            session["usuario"] = user
+
+            return redirect(url_for("home"))
+
         except Exception as e:
             print(f"Error al conectar o insertar: {e}")
-    else:
-        return render_template("login.html") #muestra el formulario de login
+
+            return render_template(
+                "login.html",
+                error="Ocurrió un error al registrar los datos. Revisá la conexión o intentá de nuevo."
+            )
+
+    return render_template("login.html")
+
+# página para mostrar las salas
+@app.route('/salas')
+def lista_salas():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id_sala, nombre, capacidad_max, disponible
+            FROM Salas
+            WHERE disponible = 1
+        """)
+
+        filas = cursor.fetchall()
+
+        salas = []
+        for fila in filas:
+            salas.append({
+                'id_sala': fila.id_sala,
+                'nombre': fila.nombre,
+                'capacidad_max': fila.capacidad_max,
+                'disponible': fila.disponible
+            })
+
+        cursor.close()
+        conn.close()
+
+        return render_template('salas.html', salas=salas)
+
+    except Exception as e:
+        return f"Error al cargar salas: {e}", 500
 
 #Página salas
 @app.route('/reservar_sala', methods=['POST'])
