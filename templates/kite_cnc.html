@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNC - Kite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container">
+        <span class="navbar-brand">Kite - Máquinas CNC</span>
+        <span class="text-white">{{ session['usuario'] }}</span>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- Mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <h4 class="mb-3">Máquinas CNC disponibles</h4>
+
+    {% if not maquinas %}
+        <div class="alert alert-info">No hay máquinas CNC disponibles en este momento.</div>
+    {% endif %}
+
+    <div class="row g-3">
+        {% for maq in maquinas %}
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="display-5 mb-2">⚙️</div>
+                    <h5 class="card-title">{{ maq.nombre }}</h5>
+                    <p class="badge bg-success">Disponible</p>
+                    <p class="text-muted small">Código: {{ maq.codigo }}</p>
+                    <button class="btn btn-warning w-100"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalCNC{{ maq.id }}">
+                        Reservar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de reserva CNC -->
+        <div class="modal fade" id="modalCNC{{ maq.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <form action="/reservar_cnc" method="POST" class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reservar {{ maq.nombre }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id_cnc" value="{{ maq.id }}">
+
+                        <div class="mb-3">
+                            <label class="form-label">Tiempo de uso</label>
+                            <input type="text" name="tiempo_uso" class="form-control"
+                                   placeholder="Ej: 3 horas" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de trabajo</label>
+                            <select name="tipo_trabajo" class="form-select" required>
+                                <option value="">Selecciona...</option>
+                                <option value="Individual">Individual</option>
+                                <option value="Grupal">Grupal</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Material en que se trabajará</label>
+                            <input type="text" name="material" class="form-control"
+                                   placeholder="Ej: MDF, acrílico, madera blanda..." required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning">Confirmar reserva</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-4">
+        <a href="/kite" class="btn btn-outline-secondary">← Volver al Kite</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

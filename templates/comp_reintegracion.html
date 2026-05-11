@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reintegración de Computadoras - Guardian</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container">
+        <span class="navbar-brand">🛡️ Guardian — Reintegración de Computadoras</span>
+        <a href="/computadoras" class="btn btn-outline-light btn-sm">← Volver</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- Mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <h4 class="mb-3">Computadoras actualmente prestadas</h4>
+    <p class="text-muted">Confirma la devolución verificando el estado de cada equipo.</p>
+
+    {% if not reservas %}
+        <div class="alert alert-info">No hay computadoras prestadas en este momento. ✅</div>
+    {% endif %}
+
+    {% for r in reservas %}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-info text-dark d-flex justify-content-between align-items-center">
+            <span><strong>{{ r.codigo }}</strong> — {{ r.comp_nombre }}</span>
+            <span class="badge bg-dark">En uso — {{ r.tiempo_prestado }}</span>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <!-- Datos del usuario -->
+                <div class="col-md-6">
+                    <h6 class="text-muted">👤 Persona que lo prestó</h6>
+                    <table class="table table-sm table-borderless mb-0">
+                        <tr><th>Nombre:</th><td>{{ r.usuario }}</td></tr>
+                        <tr><th>Carné:</th><td><code>{{ r.carnet }}</code></td></tr>
+                        <tr><th>Cohorte:</th><td>{{ r.cohorte }}</td></tr>
+                    </table>
+                </div>
+                <!-- Datos de la reserva -->
+                <div class="col-md-6">
+                    <h6 class="text-muted">📋 Información del préstamo</h6>
+                    <table class="table table-sm table-borderless mb-0">
+                        <tr><th>Razón:</th><td>{{ r.razon }}</td></tr>
+                        <tr><th>Hora de préstamo:</th><td>{{ r.hora_inicio }}</td></tr>
+                        <tr><th>Tiempo transcurrido:</th><td><strong>{{ r.tiempo_prestado }}</strong></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Formulario de confirmación de devolución -->
+            <form action="/computadoras/confirmar_devolucion" method="POST">
+                <input type="hidden" name="id_reserva"    value="{{ r.id_reserva }}">
+                <input type="hidden" name="id_computadora" value="{{ loop.index }}"><!-- Se resuelve en el back via id_reserva -->
+
+                <h6 class="mb-2">✅ Verificación de devolución</h6>
+                <p class="text-muted small">Marca únicamente lo que se está recibiendo en buen estado:</p>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox"
+                           name="en_buen_estado" id="estado{{ r.id_reserva }}">
+                    <label class="form-check-label" for="estado{{ r.id_reserva }}">
+                        💻 La computadora está en buen estado (sin daños físicos)
+                    </label>
+                </div>
+
+                {% if r.tiene_cargador %}
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox"
+                           name="cargador_devuelto" id="cargador{{ r.id_reserva }}">
+                    <label class="form-check-label" for="cargador{{ r.id_reserva }}">
+                        🔌 Cargador devuelto en buen estado
+                    </label>
+                </div>
+                {% endif %}
+
+                {% if r.tiene_mouse %}
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox"
+                           name="mouse_devuelto" id="mouse{{ r.id_reserva }}">
+                    <label class="form-check-label" for="mouse{{ r.id_reserva }}">
+                        🖱️ Mouse devuelto en buen estado
+                    </label>
+                </div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary"
+                        onclick="return confirm('¿Confirmar la devolución de {{ r.codigo }}?');">
+                    🔄 Confirmar devolución
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
