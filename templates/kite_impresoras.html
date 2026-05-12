@@ -3,156 +3,484 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impresoras 3D - Kite</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+    <title>CampusHub | Impresoras 3D</title>
 
-<nav class="navbar navbar-dark bg-dark mb-4">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+
+        body{
+            background:#f4f7fb;
+            font-family:'Segoe UI',sans-serif;
+            color:#102542;
+        }
+
+        .navbar-custom{
+            background:linear-gradient(90deg,#0b2a5b,#173b9b);
+            padding:14px 0;
+            box-shadow:0 6px 18px rgba(0,0,0,.10);
+        }
+
+        .brand span{
+            color:#18c29c;
+        }
+
+        .hero{
+            background:linear-gradient(135deg,#2364e8,#173b9b);
+            color:white;
+            border-radius:28px;
+            padding:40px;
+            margin-bottom:35px;
+            box-shadow:0 16px 35px rgba(0,0,0,.12);
+        }
+
+        .hero h1{
+            font-weight:800;
+        }
+
+        .usage-card{
+            background:white;
+            border:none;
+            border-radius:24px;
+            padding:28px;
+            box-shadow:0 12px 28px rgba(0,0,0,.08);
+            margin-bottom:35px;
+        }
+
+        .printer-card{
+            background:white;
+            border:none;
+            border-radius:24px;
+            overflow:hidden;
+            box-shadow:0 12px 28px rgba(0,0,0,.08);
+            transition:.2s ease;
+            height:100%;
+        }
+
+        .printer-card:hover{
+            transform:translateY(-6px);
+            box-shadow:0 18px 35px rgba(0,0,0,.12);
+        }
+
+        .printer-top{
+            background:linear-gradient(135deg,#2364e8,#173b9b);
+            color:white;
+            padding:26px;
+            text-align:center;
+        }
+
+        .printer-top i{
+            font-size:50px;
+        }
+
+        .printer-body{
+            padding:24px;
+            text-align:center;
+        }
+
+        .status{
+            display:inline-block;
+            background:#d1fae5;
+            color:#047857;
+            padding:6px 12px;
+            border-radius:12px;
+            font-size:12px;
+            font-weight:700;
+        }
+
+        .btn-main{
+            background:linear-gradient(135deg,#2364e8,#173b9b);
+            border:none;
+            border-radius:14px;
+            padding:12px;
+            font-weight:700;
+        }
+
+        .btn-main:hover{
+            opacity:.92;
+        }
+
+        .modal-content{
+            border:none;
+            border-radius:24px;
+            overflow:hidden;
+        }
+
+        .modal-header{
+            background:linear-gradient(135deg,#2364e8,#173b9b);
+            color:white;
+            border:none;
+            padding:22px;
+        }
+
+        .modal-body{
+            background:#f8faff;
+            padding:26px;
+        }
+
+        .modal-footer{
+            border:none;
+            background:#f8faff;
+            padding:20px 26px;
+        }
+
+        .form-control,
+        .form-select{
+            border-radius:14px;
+            padding:12px;
+            border:1px solid #dbe3ef;
+        }
+
+        .form-control:focus,
+        .form-select:focus{
+            border-color:#2364e8;
+            box-shadow:0 0 0 .2rem rgba(35,100,232,.15);
+        }
+
+        .progress{
+            height:24px;
+            border-radius:20px;
+        }
+
+        .alert{
+            border-radius:16px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark navbar-custom mb-4">
     <div class="container">
-        <span class="navbar-brand">Kite - Impresoras 3D</span>
-        <span class="text-white">{{ session['usuario'] }}</span>
+
+        <a href="/" class="navbar-brand fw-bold brand">
+            Campus<span>Hub</span>
+        </a>
+
+        <span class="text-white">
+            <i class="bi bi-person-circle"></i>
+            {{ session['usuario'] }}
+        </span>
+
     </div>
 </nav>
 
 <div class="container">
 
-    <!-- Mensajes flash de éxito -->
+    <div class="hero">
+
+        <h1>
+            <i class="bi bi-printer"></i>
+            Impresoras 3D
+        </h1>
+
+        <p class="mb-0">
+            Reserva impresoras 3D para tus proyectos y controla tu uso de filamento.
+        </p>
+
+    </div>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                    </button>
+
                 </div>
+
             {% endfor %}
         {% endif %}
     {% endwith %}
 
-    <!-- Error de validación (exceso de gramos) -->
     {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
     {% endif %}
 
-    <!-- Indicador de gramos usados en el ciclo -->
-    <div class="card mb-4 border-0 shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title">📊 Tu consumo de filamento en este ciclo</h5>
-            <div class="progress mb-2" style="height: 22px;">
-                <div class="progress-bar
-                    {% if gramos_usados >= 500 %} bg-warning
-                    {% else %} bg-success
-                    {% endif %}"
-                    role="progressbar"
-                    style="width: {{ [gramos_usados / 750 * 100, 100] | min }}%;">
-                    {{ gramos_usados }}g / 750g
-                </div>
+    <div class="usage-card">
+
+        <h5 class="fw-bold mb-3">
+            📊 Consumo de filamento en este ciclo
+        </h5>
+
+        <div class="progress mb-3">
+
+            <div class="progress-bar
+                {% if gramos_usados >= 500 %} bg-warning
+                {% else %} bg-success
+                {% endif %}"
+
+                role="progressbar"
+
+                style="width: {{ [gramos_usados / 750 * 100, 100] | min }}%;">
+
+                {{ gramos_usados }}g / 750g
+
             </div>
-            {% if gramos_usados >= 500 and gramos_usados < 750 %}
-                <div class="alert alert-warning mb-0">
-                    ⚠️ Atención: llevas <strong>{{ gramos_usados }}g</strong> usados.
-                    Solo te quedan <strong>{{ 750 - gramos_usados }}g</strong> disponibles hasta que finalice el ciclo.
-                </div>
-            {% elif gramos_usados >= 750 %}
-                <div class="alert alert-danger mb-0">
-                    🚫 Has alcanzado el límite de 750g para este ciclo. No puedes hacer más reservas de filamento.
-                </div>
-            {% endif %}
+
         </div>
+
+        {% if gramos_usados >= 500 and gramos_usados < 750 %}
+
+            <div class="alert alert-warning mb-0">
+
+                ⚠️ Has usado <strong>{{ gramos_usados }}g</strong>.
+                Te quedan <strong>{{ 750 - gramos_usados }}g</strong> disponibles.
+
+            </div>
+
+        {% elif gramos_usados >= 750 %}
+
+            <div class="alert alert-danger mb-0">
+
+                🚫 Has alcanzado el límite de 750g para este ciclo.
+
+            </div>
+
+        {% endif %}
+
     </div>
 
-    <h4 class="mb-3">Impresoras disponibles</h4>
+    <h4 class="fw-bold mb-4">
+        Impresoras disponibles
+    </h4>
 
     {% if not impresoras %}
-        <div class="alert alert-info">No hay impresoras disponibles en este momento.</div>
-    {% endif %}
 
-    <div class="row g-3">
-        {% for imp in impresoras %}
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="display-5 mb-2">🖨️</div>
-                    <h5 class="card-title">{{ imp.nombre }}</h5>
-                    <p class="badge bg-success">Disponible</p>
-                    <p class="text-muted small">Código: {{ imp.codigo }}</p>
-                    {% if gramos_usados < 750 %}
-                        <button class="btn btn-primary w-100"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modal{{ imp.id }}">
-                            Reservar
-                        </button>
-                    {% else %}
-                        <button class="btn btn-secondary w-100" disabled>Límite alcanzado</button>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="alert alert-info">
+            No hay impresoras disponibles en este momento.
         </div>
 
-        <!-- Modal de reserva para esta impresora -->
-        <div class="modal fade" id="modal{{ imp.id }}" tabindex="-1" aria-hidden="true">
+    {% endif %}
+
+    <div class="row g-4">
+
+        {% for imp in impresoras %}
+
+        <div class="col-md-4">
+
+            <div class="printer-card">
+
+                <div class="printer-top">
+
+                    <i class="bi bi-printer-fill"></i>
+
+                    <h4 class="mt-3 fw-bold">
+                        {{ imp.nombre }}
+                    </h4>
+
+                </div>
+
+                <div class="printer-body">
+
+                    <span class="status">
+                        Disponible
+                    </span>
+
+                    <p class="text-muted mt-3">
+                        Código: {{ imp.codigo }}
+                    </p>
+
+                    {% if gramos_usados < 750 %}
+
+                        <button class="btn btn-main text-white w-100"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modal{{ imp.id }}">
+
+                            Reservar impresora
+
+                        </button>
+
+                    {% else %}
+
+                        <button class="btn btn-secondary w-100" disabled>
+
+                            Límite alcanzado
+
+                        </button>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- MODAL -->
+
+        <div class="modal fade"
+             id="modal{{ imp.id }}"
+             tabindex="-1">
+
             <div class="modal-dialog">
-                <form action="/reservar_impresora" method="POST" class="modal-content">
+
+                <form action="/reservar_impresora"
+                      method="POST"
+                      class="modal-content">
+
                     <div class="modal-header">
-                        <h5 class="modal-title">Reservar {{ imp.nombre }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+                        <h5 class="modal-title fw-bold">
+                            Reservar {{ imp.nombre }}
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal">
+                        </button>
+
                     </div>
+
                     <div class="modal-body">
-                        <input type="hidden" name="id_impresora" value="{{ imp.id }}">
+
+                        <input type="hidden"
+                               name="id_impresora"
+                               value="{{ imp.id }}">
 
                         <div class="mb-3">
-                            <label class="form-label">Tiempo de uso</label>
-                            <input type="text" name="tiempo_uso" class="form-control"
-                                   placeholder="Ej: 2 horas" required>
+
+                            <label class="form-label">
+                                Tiempo de uso
+                            </label>
+
+                            <input type="text"
+                                   name="tiempo_uso"
+                                   class="form-control"
+                                   placeholder="Ej: 2 horas"
+                                   required>
+
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Tipo de trabajo</label>
-                            <select name="tipo_trabajo" class="form-select" required>
-                                <option value="">Selecciona...</option>
-                                <option value="Individual">Individual</option>
-                                <option value="Grupal">Grupal</option>
+
+                            <label class="form-label">
+                                Tipo de trabajo
+                            </label>
+
+                            <select name="tipo_trabajo"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    Selecciona...
+                                </option>
+
+                                <option value="Individual">
+                                    Individual
+                                </option>
+
+                                <option value="Grupal">
+                                    Grupal
+                                </option>
+
                             </select>
+
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Filamento a utilizar</label>
-                            <select name="filamento" class="form-select" required>
-                                <option value="">Selecciona tipo de filamento...</option>
+
+                            <label class="form-label">
+                                Tipo de filamento
+                            </label>
+
+                            <select name="filamento"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    Selecciona...
+                                </option>
+
                                 <option value="PLA">PLA</option>
                                 <option value="ABS">ABS</option>
                                 <option value="PETG">PETG</option>
                                 <option value="TPU">TPU</option>
                                 <option value="Resina">Resina</option>
                                 <option value="Otro">Otro</option>
+
                             </select>
+
                         </div>
 
                         <div class="mb-3">
+
                             <label class="form-label">
-                                Cantidad de gramos a usar
-                                <small class="text-muted">(disponibles: {{ 750 - gramos_usados }}g)</small>
+
+                                Cantidad de gramos
+
+                                <small class="text-muted">
+                                    (Disponibles: {{ 750 - gramos_usados }}g)
+                                </small>
+
                             </label>
-                            <input type="number" name="gramos" class="form-control"
-                                   min="1" max="{{ 750 - gramos_usados }}"
-                                   placeholder="Gramos" required>
+
+                            <input type="number"
+                                   name="gramos"
+                                   class="form-control"
+                                   min="1"
+                                   max="{{ 750 - gramos_usados }}"
+                                   placeholder="Gramos"
+                                   required>
+
                         </div>
+
                     </div>
+
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Confirmar reserva</button>
+
+                        <button type="button"
+                                class="btn btn-light"
+                                data-bs-dismiss="modal">
+
+                            Cancelar
+
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-success">
+
+                            Confirmar reserva
+
+                        </button>
+
                     </div>
+
                 </form>
+
             </div>
+
         </div>
+
         {% endfor %}
+
     </div>
 
     <div class="mt-4">
-        <a href="/kite" class="btn btn-outline-secondary">← Volver al Kite</a>
+
+        <a href="/kite"
+           class="btn btn-outline-secondary">
+
+            ← Volver al KITE
+
+        </a>
+
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

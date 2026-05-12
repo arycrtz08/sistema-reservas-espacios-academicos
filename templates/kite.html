@@ -3,31 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kite - Préstamos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+    <title>CampusHub | KITE</title>
 
-<nav class="navbar navbar-dark bg-dark mb-4">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f7fb;
+            font-family: 'Segoe UI', sans-serif;
+            color: #102542;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(90deg, #0b2a5b, #173b9b);
+            padding: 14px 0;
+            box-shadow: 0 6px 18px rgba(0,0,0,.10);
+        }
+
+        .brand span {
+            color: #18c29c;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #10b981, #087d61);
+            color: white;
+            border-radius: 28px;
+            padding: 40px;
+            margin-bottom: 35px;
+            box-shadow: 0 16px 35px rgba(0,0,0,.12);
+        }
+
+        .hero h1 {
+            font-weight: 800;
+        }
+
+        .hero p {
+            opacity: .9;
+        }
+
+        .kite-card {
+            background: white;
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 12px 28px rgba(0,0,0,.08);
+            transition: .2s ease;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .kite-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 35px rgba(0,0,0,.12);
+        }
+
+        .card-icon {
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 48px;
+        }
+
+        .printer {
+            background: linear-gradient(135deg, #2364e8, #173b9b);
+        }
+
+        .cnc {
+            background: linear-gradient(135deg, #f59e0b, #b45309);
+        }
+
+        .tools {
+            background: linear-gradient(135deg, #10b981, #087d61);
+        }
+
+        .kite-card .card-body {
+            padding: 26px;
+        }
+
+        .kite-card h4 {
+            font-weight: 800;
+        }
+
+        .kite-card p {
+            color: #65738a;
+            min-height: 48px;
+        }
+
+        .btn-main {
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 700;
+        }
+
+        .info-box {
+            background: white;
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,.06);
+        }
+
+        .alert {
+            border-radius: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark navbar-custom mb-4">
     <div class="container">
-        <span class="navbar-brand">Proyecto Kite - Préstamos</span>
-        <span class="text-white">Bienvenido, {{ session['usuario'] }}</span>
+        <a href="/" class="navbar-brand fw-bold brand">
+            Campus<span>Hub</span>
+        </a>
+
+        <span class="text-white">
+            <i class="bi bi-person-circle"></i>
+            {{ session['usuario'] }}
+        </span>
     </div>
 </nav>
 
 <div class="container">
-    <div class="row mb-4">
-        <div class="col text-center">
-            <h2>¿Qué deseas reservar o prestar?</h2>
-            <p class="text-muted">Selecciona una categoría para continuar</p>
-        </div>
+
+    <div class="hero">
+        <h1>Recursos KITE</h1>
+        <p class="mb-0">
+            Selecciona el tipo de recurso que necesitas reservar o prestar para tus proyectos.
+        </p>
     </div>
 
-    <!-- Mensajes flash -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -35,51 +145,86 @@
         {% endif %}
     {% endwith %}
 
-    <div class="row g-4 justify-content-center">
-        <!-- Impresora 3D -->
+    <div class="row g-4">
+
         <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm text-center">
-                <div class="card-body p-4">
-                    <div class="display-4 mb-3">🖨️</div>
-                    <h4 class="card-title">Impresora 3D</h4>
-                    <p class="card-text text-muted">Reserva una de las 7 impresoras 3D disponibles.</p>
-                    <a href="/kite/impresoras" class="btn btn-primary w-100">Seleccionar</a>
+            <div class="kite-card">
+                <div class="card-icon printer">
+                    <i class="bi bi-printer"></i>
+                </div>
+
+                <div class="card-body text-center">
+                    <h4>Impresora 3D</h4>
+                    <p>Reserva una de las impresoras 3D disponibles para tus trabajos.</p>
+
+                    <a href="/kite/impresoras" class="btn btn-primary btn-main w-100">
+                        Seleccionar
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- CNC -->
         <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm text-center">
-                <div class="card-body p-4">
-                    <div class="display-4 mb-3">⚙️</div>
-                    <h4 class="card-title">Máquina CNC</h4>
-                    <p class="card-text text-muted">Reserva una de las 5 máquinas CNC Router.</p>
-                    <a href="/kite/cnc" class="btn btn-warning w-100">Seleccionar</a>
+            <div class="kite-card">
+                <div class="card-icon cnc">
+                    <i class="bi bi-gear-wide-connected"></i>
+                </div>
+
+                <div class="card-body text-center">
+                    <h4>Máquina CNC</h4>
+                    <p>Reserva una máquina CNC Router para fabricación o corte.</p>
+
+                    <a href="/kite/cnc" class="btn btn-warning btn-main w-100 text-white">
+                        Seleccionar
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- Herramientas -->
         <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm text-center">
-                <div class="card-body p-4">
-                    <div class="display-4 mb-3">🔧</div>
-                    <h4 class="card-title">Herramientas</h4>
-                    <p class="card-text text-muted">Préstamo de herramientas (Dremel, taladro, EPP, etc.)</p>
-                    <a href="/kite/herramientas" class="btn btn-success w-100">Seleccionar</a>
+            <div class="kite-card">
+                <div class="card-icon tools">
+                    <i class="bi bi-tools"></i>
+                </div>
+
+                <div class="card-body text-center">
+                    <h4>Herramientas</h4>
+                    <p>Solicita herramientas como Dremel, taladro, EPP y más.</p>
+
+                    <a href="/kite/herramientas" class="btn btn-success btn-main w-100">
+                        Seleccionar
+                    </a>
                 </div>
             </div>
         </div>
+
     </div>
 
     <div class="row mt-4">
-        <div class="col text-center">
-            <a href="/" class="btn btn-outline-secondary">← Volver al inicio</a>
+        <div class="col-lg-8">
+            <div class="info-box">
+                <h5 class="fw-bold">Reglas generales KITE</h5>
+                <ul class="mb-0 mt-3">
+                    <li>Revisa disponibilidad antes de seleccionar un recurso.</li>
+                    <li>Devuelve los recursos en buen estado.</li>
+                    <li>Algunas herramientas requieren aceptación de responsabilidad.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="info-box">
+                <h5 class="fw-bold">Acceso rápido</h5>
+                <a href="/" class="btn btn-outline-secondary w-100 mt-3">
+                    ← Volver al dashboard
+                </a>
+            </div>
         </div>
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

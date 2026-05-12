@@ -3,25 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirmación de Préstamo - Guardian</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+    <title>CampusHub | Confirmación</title>
 
-<nav class="navbar navbar-dark bg-dark mb-4">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f7fb;
+            font-family: 'Segoe UI', sans-serif;
+            color: #102542;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(90deg, #0b2a5b, #173b9b);
+            padding: 14px 0;
+            box-shadow: 0 6px 18px rgba(0,0,0,.10);
+        }
+
+        .brand span {
+            color: #18c29c;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #f59e0b, #b45309);
+            color: white;
+            border-radius: 28px;
+            padding: 38px;
+            margin-bottom: 30px;
+            box-shadow: 0 16px 35px rgba(0,0,0,.12);
+        }
+
+        .hero h1 {
+            font-weight: 800;
+        }
+
+        .request-card {
+            background: white;
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(0,0,0,.08);
+            margin-bottom: 22px;
+        }
+
+        .request-header {
+            background: #fff7ed;
+            padding: 18px 24px;
+            border-bottom: 1px solid #ffedd5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-box {
+            font-weight: 800;
+            color: #92400e;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 7px 13px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .info-panel {
+            background: #f8faff;
+            border-radius: 18px;
+            padding: 18px;
+            height: 100%;
+        }
+
+        .info-panel h6 {
+            font-weight: 800;
+            color: #173b9b;
+            margin-bottom: 14px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #e7edf7;
+            padding: 8px 0;
+            gap: 14px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row span:first-child {
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #10b981, #087d61);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-weight: 800;
+        }
+
+        .btn-confirm:hover {
+            color: white;
+            opacity: .92;
+        }
+
+        .alert {
+            border-radius: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark navbar-custom mb-4">
     <div class="container">
-        <span class="navbar-brand">🛡️ Guardian — Confirmación de Préstamo</span>
-        <a href="/computadoras" class="btn btn-outline-light btn-sm">← Volver</a>
+        <a href="/" class="navbar-brand fw-bold brand">
+            Campus<span>Hub</span>
+        </a>
+
+        <a href="/computadoras" class="btn btn-outline-light btn-sm">
+            ← Volver
+        </a>
     </div>
 </nav>
 
 <div class="container">
 
-    <!-- Mensajes flash -->
+    <div class="hero">
+        <h1><i class="bi bi-shield-check"></i> Confirmación de Préstamos</h1>
+        <p class="mb-0">Panel del encargado para aprobar solicitudes pendientes de computadoras.</p>
+    </div>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -29,50 +152,90 @@
         {% endif %}
     {% endwith %}
 
-    <h4 class="mb-3">Reservas pendientes de confirmación</h4>
+    <h4 class="fw-bold mb-3">Reservas pendientes</h4>
 
     {% if not reservas %}
-        <div class="alert alert-info">No hay reservas pendientes en este momento. ✅</div>
+        <div class="alert alert-info">
+            No hay reservas pendientes en este momento. ✅
+        </div>
     {% endif %}
 
     {% for r in reservas %}
-    <div class="card border-0 shadow-sm mb-3">
-        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-            <span><strong>{{ r.codigo }}</strong> — {{ r.comp_nombre }}</span>
-            <span class="badge bg-dark">Pendiente</span>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <!-- Datos del usuario -->
-                <div class="col-md-6">
-                    <h6 class="text-muted">👤 Datos del solicitante</h6>
-                    <table class="table table-sm table-borderless mb-0">
-                        <tr><th>Nombre:</th><td>{{ r.usuario }}</td></tr>
-                        <tr><th>Carné:</th><td><code>{{ r.carnet }}</code></td></tr>
-                        <tr><th>Cohorte:</th><td>{{ r.cohorte }}</td></tr>
-                    </table>
-                </div>
-                <!-- Datos de la reserva -->
-                <div class="col-md-6">
-                    <h6 class="text-muted">💻 Datos de la reserva</h6>
-                    <table class="table table-sm table-borderless mb-0">
-                        <tr><th>Razón:</th><td>{{ r.razon }}</td></tr>
-                        <tr><th>Hora solicitud:</th><td>{{ r.hora_inicio }}</td></tr>
-                        <tr><th>Cargador:</th><td>{% if r.tiene_cargador %}Sí ✅{% else %}No ❌{% endif %}</td></tr>
-                        <tr><th>Mouse:</th><td>{% if r.tiene_mouse %}Sí ✅{% else %}No ❌{% endif %}</td></tr>
-                    </table>
-                </div>
+    <div class="request-card">
+
+        <div class="request-header">
+            <div>
+                <span class="code-box">{{ r.codigo }}</span>
+                <span class="text-muted">— {{ r.comp_nombre }}</span>
             </div>
 
-            <!-- Botón confirmar -->
-            <form action="/computadoras/confirmar_reserva" method="POST" class="mt-3">
+            <span class="status-pending">Pendiente</span>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <div class="info-panel">
+                        <h6><i class="bi bi-person-circle"></i> Datos del solicitante</h6>
+
+                        <div class="info-row">
+                            <span>Nombre</span>
+                            <span>{{ r.usuario }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Carné</span>
+                            <span><code>{{ r.carnet }}</code></span>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Cohorte</span>
+                            <span>{{ r.cohorte }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="info-panel">
+                        <h6><i class="bi bi-laptop"></i> Datos del préstamo</h6>
+
+                        <div class="info-row">
+                            <span>Razón</span>
+                            <span>{{ r.razon }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Hora solicitud</span>
+                            <span>{{ r.hora_inicio }}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Cargador</span>
+                            <span>{% if r.tiene_cargador %}Sí ✅{% else %}No ❌{% endif %}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Mouse</span>
+                            <span>{% if r.tiene_mouse %}Sí ✅{% else %}No ❌{% endif %}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <form action="/computadoras/confirmar_reserva" method="POST" class="mt-4">
                 <input type="hidden" name="id_reserva" value="{{ r.id_reserva }}">
-                <button type="submit" class="btn btn-success"
+
+                <button type="submit"
+                        class="btn btn-confirm"
                         onclick="return confirm('¿Confirmar el préstamo de {{ r.codigo }} a {{ r.usuario }}?');">
-                    ✅ Confirmar préstamo
+                    <i class="bi bi-check-circle"></i>
+                    Confirmar préstamo
                 </button>
             </form>
         </div>
+
     </div>
     {% endfor %}
 

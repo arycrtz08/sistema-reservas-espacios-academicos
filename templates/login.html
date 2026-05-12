@@ -3,46 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHub | Login</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
-    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f7fb;
+            color: #0b1b3a;
+        }
+
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(180deg, #0b2a5b, #06172f);
+            color: white;
+            padding: 55px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .brand {
+            font-size: 34px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .brand span {
+            color: #18c29c;
+        }
+
+        .left-panel h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-top: 35px;
+        }
+
+        .left-panel p {
+            color: #dce8ff;
+            max-width: 440px;
+            margin-top: 15px;
+        }
+
+        .features {
+            margin-top: 35px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            color: #e8f1ff;
+        }
+
+        .feature-item i {
+            background: rgba(255,255,255,.12);
+            padding: 10px;
+            border-radius: 12px;
+            color: #18c29c;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 35px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            border-radius: 24px;
+            padding: 34px;
+            box-shadow: 0 16px 35px rgba(0,0,0,.10);
+        }
+
+        .login-card h2 {
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .login-card p {
+            color: #65738a;
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #23324d;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 12px;
+            padding: 12px 14px;
+            border: 1px solid #dce3ef;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #1f6fff;
+            box-shadow: 0 0 0 .2rem rgba(31,111,255,.15);
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, #2364e8, #173b9b);
+            border: none;
+            border-radius: 14px;
+            padding: 12px;
+            color: white;
+            font-weight: 700;
+        }
+
+        .btn-main:hover {
+            background: linear-gradient(135deg, #1f5bd0, #102f82);
+            color: white;
+        }
+
+        .small-note {
+            margin-top: 18px;
+            font-size: 13px;
+            color: #65738a;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .login-wrapper {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                padding: 35px 25px;
+            }
+
+            .left-panel h1 {
+                font-size: 30px;
+            }
+
+            .right-panel {
+                padding: 25px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col d-flex justify-content-center">
-                <h1>Hola, me gustaría que completes tu información</h1>
+
+<div class="login-wrapper">
+
+    <section class="left-panel">
+        <div class="brand">
+            Campus<span>Hub</span>
+        </div>
+        <small>Gestión de Recursos Académicos</small>
+
+        <h1>Reserva tus recursos universitarios en un solo lugar.</h1>
+        <p>
+            Accede al sistema para reservar salas, recursos KITE y computadoras
+            disponibles para tus actividades académicas.
+        </p>
+
+        <div class="features">
+            <div class="feature-item">
+                <i class="bi bi-calendar-check"></i>
+                <span>Reserva salas académicas</span>
+            </div>
+
+            <div class="feature-item">
+                <i class="bi bi-tools"></i>
+                <span>Gestiona recursos KITE</span>
+            </div>
+
+            <div class="feature-item">
+                <i class="bi bi-laptop"></i>
+                <span>Solicita computadoras universitarias</span>
             </div>
         </div>
+    </section>
 
-        {% if error %}
-        <div class="alert alert-danger text-center mt-3" role="alert">
-            {{ error }}
+    <section class="right-panel">
+        <div class="login-card">
+            <h2>Iniciar sesión</h2>
+            <p>Completa tu información para ingresar.</p>
+
+            {% if error %}
+            <div class="alert alert-danger text-center" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="post" action="/login">
+                <div class="mb-3">
+                    <label for="usuario" class="form-label">Usuario</label>
+                    <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Ej. Nury" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="carnet_us" class="form-label">Carnet</label>
+                    <input type="text" class="form-control" id="carnet_us" name="carnet_us" placeholder="Ej. KEY_000###" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="cohorte" class="form-label">Cohorte</label>
+                    <select id="cohorte" class="form-select" name="cohorte" required>
+                        <option value="">Selecciona tu cohorte</option>
+                        <option value="1">Cohorte 1</option>
+                        <option value="2">Cohorte 2</option>
+                        <option value="3">Cohorte 3</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-main w-100">
+                    Entrar al sistema
+                </button>
+            </form>
+
+            <div class="small-note">
+                Sistema académico desarrollado para gestión de reservas.
+            </div>
         </div>
-        {% endif %}
+    </section>
 
-        <form method="post" action="/login" class="mt-4">
-            <div class="mb-3">
-                <label for="usuario" class="form-label">Usuario</label>
-                <input type="text" class="form-control" id="usuario" name="usuario" required>
-            </div>
+</div>
 
-            <div class="mb-3">
-                <label for="carnet_us" class="form-label">Carnet, ej: Key_000###</label>
-                <input type="text" class="form-control" id="carnet_us" name="carnet_us" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="cohorte" class="form-label">Cohorte a la que perteneces</label>
-                <select id="cohorte" class="form-select" name="cohorte" required>
-                    <option value="">Selecciona tu cohorte</option>
-                    <option value="1">Cohorte 1</option>
-                    <option value="2">Cohorte 2</option>
-                    <option value="3">Cohorte 3</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Enviar</button>
-        </form>
-    </div>
 </body>
 </html>
