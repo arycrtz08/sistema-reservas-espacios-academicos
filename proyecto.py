@@ -43,58 +43,55 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# página de login
+#página de login
 @app.route("/login", methods=["POST", "GET"])
 def login():
     if request.method == "POST":
         user = request.form["usuario"]
         carnet = request.form["carnet_us"]
-        cohorte = request.form["cohorte"]
+        cohorte = request.form["cohorte"] # en variable local
 
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
 
-            # Revisar si el carnet ya existe
-            cursor.execute("SELECT COUNT(*) FROM Usuarios WHERE carnet_us = ?", (carnet,))
-            existe = cursor.fetchone()[0]
+            # Verificar si el usuario ya existe por carnet (campo UNIQUE)
+            cursor.execute("SELECT usuario FROM Usuarios WHERE carnet_us = ?", (carnet,))
+            usuario_existente = cursor.fetchone()
 
-            if existe > 0:
-                cursor.close()
-                conn.close()
-
-                return render_template(
-                    "login.html",
-                    error="Ese carnet ya está registrado. Probá con otro."
+            if usuario_existente:
+                # El usuario ya estaba registrado: recuperar su nombre de la BD
+                user = usuario_existente[0]
+                print(f"Usuario '{user}' ya registrado, iniciando sesión.")
+            else:
+                # Usuario nuevo: insertarlo en la BD
+                cursor.execute(
+                    "INSERT INTO Usuarios (usuario, carnet_us, cohorte_sel) VALUES (?, ?, ?)",
+                    (user, carnet, cohorte)
                 )
+                conn.commit()
+                print("Nuevo usuario guardado exitosamente.")
 
-            # Insertar usuario si el carnet no existe
-            query = """
-                INSERT INTO Usuarios (usuario, carnet_us, cohorte_sel)
-                VALUES (?, ?, ?)
-            """
-            cursor.execute(query, (user, carnet, cohorte))
-
+            # Registrar el ingreso con fecha y hora actual
+            cursor.execute(
+                "INSERT INTO LogsIngreso (carnet_us, fecha_hora_ingreso) VALUES (?, GETDATE())",
+                (carnet,)
+            )
             conn.commit()
+
             cursor.close()
             conn.close()
-
             print("Datos guardados exitosamente")
 
             # Crear la sesión
-            session["usuario"] = user
-
-            return redirect(url_for("home"))
+            session['usuario'] = user
+            return redirect(url_for('home'))
 
         except Exception as e:
             print(f"Error al conectar o insertar: {e}")
-
-            return render_template(
-                "login.html",
-                error="Ocurrió un error al registrar los datos. Revisá la conexión o intentá de nuevo."
-            )
-
-    return render_template("login.html")
+            return render_template("login.html", error=f"Error al iniciar sesión: {e}")
+    else:
+        return render_template("login.html") #muestra el formulario de login
 
 # página para mostrar las salas
 @app.route('/salas')

@@ -93,6 +93,10 @@ VALUES --cambie lo que decia mesa, herramienta y maquinaria para que lo pudierea
 -- Rol de usuario: 'estudiante' (default) o 'guardian'
 ALTER TABLE Usuarios ADD rol NVARCHAR(20) DEFAULT 'estudiante';
 
+-- Insertar usuario guardián
+INSERT INTO Usuarios (usuario, carnet_us, cohorte_sel, rol)
+VALUES ('Guardian', 'Key_150001', 'Cohorte 1', 'guardian');
+
 -- Ciclos académicos (para el límite de 750g de filamento por ciclo por usuario)
 CREATE TABLE CiclosAcademicos (
     id_ciclo     INT PRIMARY KEY IDENTITY(1,1),
@@ -267,4 +271,19 @@ CREATE TABLE ReservasComputadora (
     mouse_devuelto   BIT NULL,
     FOREIGN KEY (id_usuario)     REFERENCES Usuarios(id_usuario),
     FOREIGN KEY (id_computadora) REFERENCES Computadoras(id_computadora)
+);
+
+-- ============================================================
+-- NUEVA TABLA: LogsIngreso
+-- Motivo: registrar cada vez que un usuario entra al sistema.
+-- Si el mismo usuario inicia sesión 5 veces, quedan 5 filas
+-- con su carnet y la fecha/hora exacta de cada ingreso.
+-- Esta tabla es necesaria para que proyecto.py pueda insertar
+-- el log sin lanzar error. Ejecutar este bloque en SSMS
+-- sobre la base de datos InformationUSR.
+-- ============================================================
+CREATE TABLE LogsIngreso (
+    id_log             INT PRIMARY KEY IDENTITY(1,1),
+    carnet_us          NVARCHAR(50)  NOT NULL,          -- carnet del usuario que ingresó
+    fecha_hora_ingreso DATETIME      DEFAULT GETDATE()  -- fecha y hora automática del ingreso
 );
