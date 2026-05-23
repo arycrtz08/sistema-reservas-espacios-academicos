@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,7 +68,7 @@
         }
 
         .feature-item i {
-            background: rgba(255,255,255,.12);
+            background: rgba(255, 255, 255, .12);
             padding: 10px;
             border-radius: 12px;
             color: #18c29c;
@@ -87,7 +88,7 @@
             background: white;
             border-radius: 24px;
             padding: 34px;
-            box-shadow: 0 16px 35px rgba(0,0,0,.10);
+            box-shadow: 0 16px 35px rgba(0, 0, 0, .10);
         }
 
         .login-card h2 {
@@ -115,7 +116,7 @@
         .form-control:focus,
         .form-select:focus {
             border-color: #1f6fff;
-            box-shadow: 0 0 0 .2rem rgba(31,111,255,.15);
+            box-shadow: 0 0 0 .2rem rgba(31, 111, 255, .15);
         }
 
         .btn-main {
@@ -161,82 +162,89 @@
 
 <body>
 
-<div class="login-wrapper">
+    <div class="login-wrapper">
 
-    <section class="left-panel">
-        <div class="brand">
-            Campus<span>Hub</span>
-        </div>
-        <small>Gestión de Recursos Académicos</small>
-
-        <h1>Reserva tus recursos universitarios en un solo lugar.</h1>
-        <p>
-            Accede al sistema para reservar salas, recursos KITE y computadoras
-            disponibles para tus actividades académicas.
-        </p>
-
-        <div class="features">
-            <div class="feature-item">
-                <i class="bi bi-calendar-check"></i>
-                <span>Reserva salas académicas</span>
+        <section class="left-panel">
+            <div class="brand">
+                Campus<span>Hub</span>
             </div>
+            <small>Gestión de Recursos Académicos</small>
 
-            <div class="feature-item">
-                <i class="bi bi-tools"></i>
-                <span>Gestiona recursos KITE</span>
-            </div>
+            <h1>Reserva tus recursos universitarios en un solo lugar.</h1>
+            <p>
+                Accede al sistema para reservar salas, recursos KITE y computadoras
+                disponibles para tus actividades académicas.
+            </p>
 
-            <div class="feature-item">
-                <i class="bi bi-laptop"></i>
-                <span>Solicita computadoras universitarias</span>
-            </div>
-        </div>
-    </section>
-
-    <section class="right-panel">
-        <div class="login-card">
-            <h2>Iniciar sesión</h2>
-            <p>Completa tu información para ingresar.</p>
-
-            {% if error %}
-            <div class="alert alert-danger text-center" role="alert">
-                {{ error }}
-            </div>
-            {% endif %}
-
-            <form method="post" action="/login">
-                <div class="mb-3">
-                    <label for="usuario" class="form-label">Usuario</label>
-                    <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Ej. Nury" required>
+            <div class="features">
+                <div class="feature-item">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Reserva salas académicas</span>
                 </div>
 
-                <div class="mb-3">
-                    <label for="carnet_us" class="form-label">Carnet</label>
-                    <input type="text" class="form-control" id="carnet_us" name="carnet_us" placeholder="Ej. KEY_000###" required>
+                <div class="feature-item">
+                    <i class="bi bi-tools"></i>
+                    <span>Gestiona recursos KITE</span>
                 </div>
 
-                <div class="mb-4">
-                    <label for="cohorte" class="form-label">Cohorte</label>
-                    <select id="cohorte" class="form-select" name="cohorte" required>
-                        <option value="">Selecciona tu cohorte</option>
-                        <option value="1">Cohorte 1</option>
-                        <option value="2">Cohorte 2</option>
-                        <option value="3">Cohorte 3</option>
-                    </select>
+                <div class="feature-item">
+                    <i class="bi bi-laptop"></i>
+                    <span>Solicita computadoras universitarias</span>
                 </div>
-
-                <button type="submit" class="btn btn-main w-100">
-                    Entrar al sistema
-                </button>
-            </form>
-
-            <div class="small-note">
-                Sistema académico desarrollado para gestión de reservas.
             </div>
-        </div>
-    </section>
+        </section>
 
-</div>
+        <section class="right-panel">
+            <div class="login-card">
+                <h2>Iniciar sesión</h2>
+                <p>Completa tu información para ingresar.</p>
+
+                {% if error %}
+                <div class="alert alert-danger text-center" role="alert">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form method="post" action="/login">
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label">Usuario</label>
+                        <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Ej. Nury"
+                            required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="carnet_us" class="form-label">Carnet</label>
+                        <input type="text" class="form-control" id="carnet_us" name="carnet_us"
+                            placeholder="Ej. KEY_000###" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="cohorte" class="form-label">Cohorte</label>
+                        <select id="cohorte" class="form-select" name="cohorte" required>
+                            <option value="">Selecciona tu cohorte</option>
+                            <option value="1">Cohorte 1</option>
+                            <option value="2">Cohorte 2</option>
+                            <option value="3">Cohorte 3</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-main w-100">
+                        Entrar al sistema
+                    </button>
+                </form>
+
+                <div class="small-note mb-3">
+                    Sistema académico desarrollado para gestión de reservas.
+                </div>
+
+                <a href="/login_admin" class="btn btn-outline-secondary w-100 mt-2">
+                    <i class="bi bi-shield-lock me-2"></i> Acceso Administrador
+                </a>
+            </div>
+        </section>
+
+    </div>
 
 </body>
+
 </html>

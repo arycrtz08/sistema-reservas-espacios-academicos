@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHub | Admin Salas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f4f7fb;
+            font-family: 'Segoe UI', sans-serif;
+            color: #102542;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(90deg, #1e3a8a, #1e40af);
+            padding: 14px 0;
+        }
+
+        .brand span {
+            color: #10b981;
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .05);
+            margin-bottom: 24px;
+            border-top: 4px solid #8b5cf6;
+        }
+
+        .table-custom {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table-custom thead {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-dark navbar-custom mb-4">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="/admin" class="navbar-brand fw-bold brand">Campus<span>Hub</span> Admin</a>
+            <div>
+                <span class="text-white me-3"><i class="bi bi-door-open"></i> SALAS ADMIN</span>
+                <a href="/logout" class="btn btn-outline-light btn-sm">Cerrar sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container pb-5">
+        <h3 class="fw-bold mb-4">Panel de Administración de Salas</h3>
+
+        <div class="row">
+            <!-- Bloqueos Activos -->
+            <div class="col-12">
+                <div class="admin-card">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-lock"></i> Bloqueos de Salas (Mantenimiento/Eventos)</h5>
+                    <p class="small text-muted">Horarios bloqueados en los que los estudiantes no pueden reservar las
+                        salas.</p>
+                    <div class="table-responsive table-custom border">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Sala</th>
+                                    <th>Fecha</th>
+                                    <th>Horario Bloqueado</th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in bloqueos %}
+                                <tr>
+                                    <td class="fw-bold">{{ b.sala }}</td>
+                                    <td>{{ b.fecha }}</td>
+                                    <td>{{ b.inicio }} - {{ b.fin }}</td>
+                                    <td>{{ b.motivo }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">No hay bloqueos activos
+                                        programados.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mt-3">
+                <div class="alert alert-info" style="border-radius: 16px; border: none;">
+                    <h6 class="fw-bold"><i class="bi bi-info-circle"></i> Nueva funcionalidad</h6>
+                    <p class="mb-0 small">En futuras actualizaciones podrás bloquear nuevas salas directamente desde
+                        este panel para reservas de docentes o mantenimiento.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

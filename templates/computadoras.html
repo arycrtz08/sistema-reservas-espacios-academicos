@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,524 +10,519 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-
-        body{
-            background:#f4f7fb;
-            font-family:'Segoe UI',sans-serif;
-            color:#102542;
+        body {
+            background: #f4f7fb;
+            font-family: 'Segoe UI', sans-serif;
+            color: #102542;
         }
 
-        .navbar-custom{
-            background:linear-gradient(90deg,#0b2a5b,#173b9b);
-            padding:14px 0;
-            box-shadow:0 6px 18px rgba(0,0,0,.10);
+        .navbar-custom {
+            background: linear-gradient(90deg, #0b2a5b, #173b9b);
+            padding: 14px 0;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .10);
         }
 
-        .brand span{
-            color:#18c29c;
+        .brand span {
+            color: #18c29c;
         }
 
-        .hero{
-            background:linear-gradient(135deg,#7c3aed,#4c1d95);
-            color:white;
-            border-radius:28px;
-            padding:40px;
-            margin-bottom:35px;
-            box-shadow:0 16px 35px rgba(0,0,0,.12);
+        .hero {
+            background: linear-gradient(135deg, #7c3aed, #4c1d95);
+            color: white;
+            border-radius: 28px;
+            padding: 40px;
+            margin-bottom: 35px;
+            box-shadow: 0 16px 35px rgba(0, 0, 0, .12);
         }
 
-        .hero h1{
-            font-weight:800;
+        .hero h1 {
+            font-weight: 800;
         }
 
-        .hero p{
-            opacity:.9;
+        .hero p {
+            opacity: .9;
         }
 
-        .main-card{
-            background:white;
-            border:none;
-            border-radius:24px;
-            overflow:hidden;
-            box-shadow:0 12px 28px rgba(0,0,0,.08);
+        .main-card {
+            background: white;
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .08);
         }
 
-        .table thead{
-            background:#102542;
-            color:white;
+        .table thead {
+            background: #102542;
+            color: white;
         }
 
-        .table th{
-            border:none;
-            padding:18px;
+        .table th {
+            border: none;
+            padding: 18px;
         }
 
-        .table td{
-            padding:18px;
-            vertical-align:middle;
+        .table td {
+            padding: 18px;
+            vertical-align: middle;
         }
 
-        .table tbody tr:hover{
-            background:#f8faff;
+        .table tbody tr:hover {
+            background: #f8faff;
         }
 
-        .badge-status{
-            padding:8px 12px;
-            border-radius:12px;
-            font-size:12px;
-            font-weight:700;
+        .badge-status {
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
         }
 
-        .available{
-            background:#d1fae5;
-            color:#047857;
+        .available {
+            background: #d1fae5;
+            color: #047857;
         }
 
-        .busy{
-            background:#fee2e2;
-            color:#b91c1c;
+        .busy {
+            background: #fee2e2;
+            color: #b91c1c;
         }
 
-        .btn-main{
-            background:linear-gradient(135deg,#2364e8,#173b9b);
-            border:none;
-            border-radius:14px;
-            padding:12px 18px;
-            font-weight:700;
+        .btn-main {
+            background: linear-gradient(135deg, #2364e8, #173b9b);
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-weight: 700;
         }
 
-        .btn-main:hover{
-            opacity:.92;
+        .btn-main:hover {
+            opacity: .92;
         }
 
-        .modal-content{
-            border:none;
-            border-radius:24px;
-            overflow:hidden;
+        .modal-content {
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
         }
 
-        .modal-header{
-            background:linear-gradient(135deg,#7c3aed,#4c1d95);
-            color:white;
-            border:none;
-            padding:22px;
+        .modal-header {
+            background: linear-gradient(135deg, #7c3aed, #4c1d95);
+            color: white;
+            border: none;
+            padding: 22px;
         }
 
-        .modal-body{
-            background:#f8faff;
-            padding:26px;
+        .modal-body {
+            background: #f8faff;
+            padding: 26px;
         }
 
-        .modal-footer{
-            border:none;
-            background:#f8faff;
-            padding:20px 26px;
+        .modal-footer {
+            border: none;
+            background: #f8faff;
+            padding: 20px 26px;
         }
 
         .form-control,
-        .form-select{
-            border-radius:14px;
-            padding:12px;
-            border:1px solid #dbe3ef;
+        .form-select {
+            border-radius: 14px;
+            padding: 12px;
+            border: 1px solid #dbe3ef;
         }
 
         .form-control:focus,
-        .form-select:focus{
-            border-color:#7c3aed;
-            box-shadow:0 0 0 .2rem rgba(124,58,237,.15);
+        .form-select:focus {
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 .2rem rgba(124, 58, 237, .15);
         }
 
-        .guardian-box{
-            background:white;
-            border-radius:18px;
-            padding:18px;
-            box-shadow:0 10px 24px rgba(0,0,0,.06);
+        .guardian-box {
+            background: white;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .06);
         }
 
-        .alert{
-            border-radius:16px;
+        .alert {
+            border-radius: 16px;
         }
-
     </style>
 
 </head>
 
 <body>
 
-<nav class="navbar navbar-dark navbar-custom mb-4">
-    <div class="container">
+    <nav class="navbar navbar-dark navbar-custom mb-4">
+        <div class="container">
 
-        <a class="navbar-brand fw-bold brand" href="/">
-            Campus<span>Hub</span>
-        </a>
-
-        <div class="d-flex align-items-center gap-3">
-
-            {% if rol == 'guardian' %}
-
-            <a href="/computadoras/confirmacion"
-               class="btn btn-warning btn-sm fw-bold">
-
-                ✅ Confirmación
-
+            <a class="navbar-brand fw-bold brand" href="/">
+                Campus<span>Hub</span>
             </a>
 
-            <a href="/computadoras/reintegracion"
-               class="btn btn-info btn-sm fw-bold text-white">
+            <div class="d-flex align-items-center gap-3">
 
-                🔄 Reintegración
+                {% if rol == 'guardian' %}
 
-            </a>
+                <a href="/computadoras/confirmacion" class="btn btn-warning btn-sm fw-bold">
 
-            {% endif %}
+                    ✅ Confirmación
 
-            <span class="text-white">
-                <i class="bi bi-person-circle"></i>
-                {{ session['usuario'] }}
-            </span>
+                </a>
+
+                <a href="/computadoras/reintegracion" class="btn btn-info btn-sm fw-bold text-white">
+
+                    🔄 Reintegración
+
+                </a>
+
+                {% endif %}
+
+                <span class="text-white">
+                    <i class="bi bi-person-circle"></i>
+                    {{ session['usuario'] }}
+                </span>
+
+            </div>
 
         </div>
+    </nav>
 
-    </div>
-</nav>
+    <div class="container">
 
-<div class="container">
+        <div class="hero">
 
-    <div class="hero">
+            <h1>Gestión de Computadoras</h1>
 
-        <h1>Gestión de Computadoras</h1>
-
-        <p class="mb-0">
-            Solicita computadoras universitarias para tus actividades académicas.
-        </p>
-
-    </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4">
-
-                    {{ message }}
-
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert">
-                    </button>
-
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
-        <div>
-
-            <h4 class="fw-bold">
-                Computadoras disponibles
-            </h4>
-
-            <p class="text-muted mb-0">
-                Selecciona una computadora para reservarla.
+            <p class="mb-0">
+                Solicita computadoras universitarias para tus actividades académicas.
             </p>
 
         </div>
 
-        <button class="btn btn-main text-white"
-                data-bs-toggle="modal"
-                data-bs-target="#modalReserva">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show mb-4">
 
-            <i class="bi bi-plus-circle"></i>
-            Reservar computadora
+            {{ message }}
 
-        </button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert">
+            </button>
+
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h4 class="fw-bold">
+                    Computadoras disponibles
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Selecciona una computadora para reservarla.
+                </p>
+
+            </div>
+
+            <button class="btn btn-main text-white" data-bs-toggle="modal" data-bs-target="#modalReserva">
+
+                <i class="bi bi-plus-circle"></i>
+                Reservar computadora
+
+            </button>
+
+        </div>
+
+        <div class="main-card">
+
+            <div class="table-responsive">
+
+                <table class="table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Cargador</th>
+                            <th>Mouse</th>
+                            <th>Estado</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for comp in computadoras %}
+
+                        <tr>
+
+                            <td>
+                                <code>{{ comp.codigo }}</code>
+                            </td>
+
+                            <td>
+                                <strong>{{ comp.nombre }}</strong>
+                            </td>
+
+                            <td>
+                                {% if comp.tiene_cargador %}
+                                🔌 Sí
+                                {% else %}
+                                ❌ No
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if comp.tiene_mouse %}
+                                🖱️ Sí
+                                {% else %}
+                                ❌ No
+                                {% endif %}
+                            </td>
+
+                            <td>
+
+                                {% if comp.disponible %}
+
+                                <span class="badge-status available">
+                                    Disponible
+                                </span>
+
+                                {% else %}
+
+                                <span class="badge-status busy">
+                                    En uso
+                                </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div class="mt-4">
+            <a href="/" class="btn btn-outline-secondary">
+                ← Volver al dashboard
+            </a>
+        </div>
 
     </div>
 
-    <div class="main-card">
+    <!-- MODAL -->
 
-        <div class="table-responsive">
+    <div class="modal fade" id="modalReserva" tabindex="-1">
 
-            <table class="table align-middle mb-0">
+        <div class="modal-dialog">
 
-                <thead>
+            <form action="/reservar_computadora" method="POST" class="modal-content">
 
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Cargador</th>
-                        <th>Mouse</th>
-                        <th>Estado</th>
-                    </tr>
+                <div class="modal-header">
 
-                </thead>
+                    <h5 class="modal-title fw-bold">
+                        Reservar Computadora
+                    </h5>
 
-                <tbody>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+                    </button>
 
-                    {% for comp in computadoras %}
+                </div>
 
-                    <tr>
+                <div class="modal-body">
 
-                        <td>
-                            <code>{{ comp.codigo }}</code>
-                        </td>
+                    <div class="mb-4 position-relative">
 
-                        <td>
-                            <strong>{{ comp.nombre }}</strong>
-                        </td>
+                        <label class="form-label fw-bold">
+                            Código de computadora
+                        </label>
 
-                        <td>
-                            {% if comp.tiene_cargador %}
-                                🔌 Sí
-                            {% else %}
-                                ❌ No
-                            {% endif %}
-                        </td>
+                        <input type="text" id="buscadorComp" class="form-control" placeholder="Ej: COMP001"
+                            autocomplete="off">
 
-                        <td>
-                            {% if comp.tiene_mouse %}
-                                🖱️ Sí
-                            {% else %}
-                                ❌ No
-                            {% endif %}
-                        </td>
+                        <ul id="resultadosComp" class="list-group mt-1"
+                            style="display:none; position:absolute; z-index:200; width:100%;">
+                        </ul>
 
-                        <td>
+                        <input type="hidden" name="id_computadora" id="inputIdComp" required>
 
-                            {% if comp.disponible %}
+                        <div id="compSeleccionada" class="mt-2"></div>
 
-                            <span class="badge-status available">
-                                Disponible
-                            </span>
+                    </div>
 
-                            {% else %}
+                    <div class="mb-3">
 
-                            <span class="badge-status busy">
-                                En uso
-                            </span>
+                        <label class="form-label fw-bold">
+                            Razón del préstamo
+                        </label>
 
-                            {% endif %}
+                        <select name="razon" id="razon_select" class="form-select" required
+                            onchange="toggleRazonOtro()">
 
-                        </td>
+                            <option value="">
+                                Selecciona una razón...
+                            </option>
 
-                    </tr>
+                            <option value="Clase">
+                                Clase
+                            </option>
 
-                    {% endfor %}
+                            <option value="SOLIDWORKS">
+                                SOLIDWORKS
+                            </option>
 
-                </tbody>
+                            <option value="Programación">
+                                Programación
+                            </option>
 
-            </table>
+                            <option value="No traje la mía hoy">
+                                No traje la mía hoy
+                            </option>
+
+                            <option value="Otro">
+                                Otro
+                            </option>
+
+                        </select>
+
+                        <input type="text" name="razon_otro" id="razon_otro" class="form-control mt-2"
+                            placeholder="Especificar razón" style="display: none;">
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+
+                        Cancelar
+
+                    </button>
+
+                    <button type="submit" class="btn btn-success">
+
+                        Confirmar Reserva
+
+                    </button>
+
+                </div>
+
+            </form>
 
         </div>
 
     </div>
 
-    <div class="mt-4">
-        <a href="/" class="btn btn-outline-secondary">
-            ← Volver al dashboard
-        </a>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-</div>
+    <script>
 
-<!-- MODAL -->
+        const buscadorComp = document.getElementById('buscadorComp');
+        const resultadosComp = document.getElementById('resultadosComp');
+        const inputIdComp = document.getElementById('inputIdComp');
+        const compSel = document.getElementById('compSeleccionada');
 
-<div class="modal fade" id="modalReserva" tabindex="-1">
+        buscadorComp.addEventListener('input', function () {
 
-    <div class="modal-dialog">
+            const q = this.value.trim();
 
-        <form action="/reservar_computadora"
-              method="POST"
-              class="modal-content">
+            if (q.length === 0) {
+                resultadosComp.style.display = 'none';
+                return;
+            }
 
-            <div class="modal-header">
+            fetch(`/api/buscar_computadora?q=${encodeURIComponent(q)}`)
 
-                <h5 class="modal-title fw-bold">
-                    Reservar Computadora
-                </h5>
+                .then(r => r.json())
 
-                <button type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal">
-                </button>
+                .then(data => {
 
-            </div>
+                    resultadosComp.innerHTML = '';
 
-            <div class="modal-body">
+                    if (data.length === 0) {
+                        resultadosComp.style.display = 'none';
+                        return;
+                    }
 
-                <div class="mb-4 position-relative">
+                    data.forEach(c => {
 
-                    <label class="form-label fw-bold">
-                        Código de computadora
-                    </label>
+                        const li = document.createElement('li');
 
-                    <input type="text"
-                           id="buscadorComp"
-                           class="form-control"
-                           placeholder="Ej: COMP001"
-                           autocomplete="off">
+                        li.className = 'list-group-item list-group-item-action';
 
-                    <ul id="resultadosComp"
-                        class="list-group mt-1"
-                        style="display:none; position:absolute; z-index:200; width:100%;">
-                    </ul>
-
-                    <input type="hidden"
-                           name="id_computadora"
-                           id="inputIdComp"
-                           required>
-
-                    <div id="compSeleccionada" class="mt-2"></div>
-
-                </div>
-
-                <div class="mb-3">
-
-                    <label class="form-label fw-bold">
-                        Razón del préstamo
-                    </label>
-
-                    <select name="razon"
-                            class="form-select"
-                            required>
-
-                        <option value="">
-                            Selecciona una razón...
-                        </option>
-
-                        <option value="Clase">
-                            Clase
-                        </option>
-
-                        <option value="SOLIDWORKS">
-                            SOLIDWORKS
-                        </option>
-
-                        <option value="Programación">
-                            Programación
-                        </option>
-
-                        <option value="No traje la mía hoy">
-                            No traje la mía hoy
-                        </option>
-
-                        <option value="Otro">
-                            Otro
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-            <div class="modal-footer">
-
-                <button type="button"
-                        class="btn btn-light"
-                        data-bs-dismiss="modal">
-
-                    Cancelar
-
-                </button>
-
-                <button type="submit"
-                        class="btn btn-success">
-
-                    Confirmar Reserva
-
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-
-    const buscadorComp   = document.getElementById('buscadorComp');
-    const resultadosComp = document.getElementById('resultadosComp');
-    const inputIdComp    = document.getElementById('inputIdComp');
-    const compSel        = document.getElementById('compSeleccionada');
-
-    buscadorComp.addEventListener('input', function () {
-
-        const q = this.value.trim();
-
-        if (q.length === 0) {
-            resultadosComp.style.display = 'none';
-            return;
-        }
-
-        fetch(`/api/buscar_computadora?q=${encodeURIComponent(q)}`)
-
-            .then(r => r.json())
-
-            .then(data => {
-
-                resultadosComp.innerHTML = '';
-
-                if (data.length === 0) {
-                    resultadosComp.style.display = 'none';
-                    return;
-                }
-
-                data.forEach(c => {
-
-                    const li = document.createElement('li');
-
-                    li.className = 'list-group-item list-group-item-action';
-
-                    li.innerHTML =
-                    `<strong>${c.codigo}</strong> — ${c.nombre}
+                        li.innerHTML =
+                            `<strong>${c.codigo}</strong> — ${c.nombre}
                     ${c.tiene_cargador ? ' 🔌' : ''}
                     ${c.tiene_mouse ? ' 🖱️' : ''}`;
 
-                    li.style.cursor = 'pointer';
+                        li.style.cursor = 'pointer';
 
-                    li.addEventListener('click', () => {
+                        li.addEventListener('click', () => {
 
-                        inputIdComp.value = c.id;
+                            inputIdComp.value = c.id;
 
-                        buscadorComp.value = c.codigo;
+                            buscadorComp.value = c.codigo;
 
-                        compSel.innerHTML =
-                        `<span class="badge bg-primary">
+                            compSel.innerHTML =
+                                `<span class="badge bg-primary">
                             ${c.codigo} — ${c.nombre}
                         </span>`;
 
-                        resultadosComp.style.display = 'none';
+                            resultadosComp.style.display = 'none';
+
+                        });
+
+                        resultadosComp.appendChild(li);
 
                     });
 
-                    resultadosComp.appendChild(li);
+                    resultadosComp.style.display = 'block';
 
                 });
 
-                resultadosComp.style.display = 'block';
+        });
 
-            });
+        document.addEventListener('click', e => {
 
-    });
+            if (!buscadorComp.contains(e.target)
+                && !resultadosComp.contains(e.target)) {
 
-    document.addEventListener('click', e => {
+                resultadosComp.style.display = 'none';
 
-        if (!buscadorComp.contains(e.target)
-            && !resultadosComp.contains(e.target)) {
+            }
 
-            resultadosComp.style.display = 'none';
+        });
 
+    </script>
+
+    <script>
+        function toggleRazonOtro() {
+            var select = document.getElementById('razon_select');
+            var input = document.getElementById('razon_otro');
+            if (select.value === 'Otro') {
+                input.style.display = 'block';
+                input.setAttribute('required', 'required');
+            } else {
+                input.style.display = 'none';
+                input.removeAttribute('required');
+            }
         }
-
-    });
-
-</script>
+    </script>
 
 </body>
+
 </html>

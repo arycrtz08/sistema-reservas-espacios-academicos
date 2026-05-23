@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,365 +11,395 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-
-        body{
-            background:#f4f7fb;
-            font-family:'Segoe UI',sans-serif;
-            color:#102542;
+        body {
+            background: #f4f7fb;
+            font-family: 'Segoe UI', sans-serif;
+            color: #102542;
         }
 
-        .navbar-custom{
-            background:linear-gradient(90deg,#0b2a5b,#173b9b);
-            padding:14px 0;
-            box-shadow:0 6px 18px rgba(0,0,0,.10);
+        .navbar-custom {
+            background: linear-gradient(90deg, #0b2a5b, #173b9b);
+            padding: 14px 0;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .10);
         }
 
-        .hero{
-            background:linear-gradient(135deg,#173b9b,#2364e8);
-            color:white;
-            border-radius:28px;
-            padding:40px;
-            margin-bottom:35px;
-            box-shadow:0 16px 35px rgba(0,0,0,.12);
+        .hero {
+            background: linear-gradient(135deg, #173b9b, #2364e8);
+            color: white;
+            border-radius: 28px;
+            padding: 40px;
+            margin-bottom: 35px;
+            box-shadow: 0 16px 35px rgba(0, 0, 0, .12);
         }
 
-        .hero h1{
-            font-weight:800;
+        .hero h1 {
+            font-weight: 800;
         }
 
-        .hero p{
-            opacity:.9;
-            margin-top:10px;
+        .hero p {
+            opacity: .9;
+            margin-top: 10px;
         }
 
-        .room-card{
-            background:white;
-            border:none;
-            border-radius:24px;
-            overflow:hidden;
-            box-shadow:0 12px 28px rgba(0,0,0,.08);
-            transition:.2s ease;
-            height:100%;
+        .room-card {
+            background: white;
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .08);
+            transition: .2s ease;
+            height: 100%;
         }
 
-        .room-card:hover{
-            transform:translateY(-6px);
-            box-shadow:0 18px 35px rgba(0,0,0,.12);
+        .room-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 35px rgba(0, 0, 0, .12);
         }
 
-        .card-top{
-            background:linear-gradient(135deg,#2364e8,#173b9b);
-            color:white;
-            padding:26px;
+        .card-top {
+            background: linear-gradient(135deg, #2364e8, #173b9b);
+            color: white;
+            padding: 26px;
         }
 
-        .card-top i{
-            font-size:38px;
+        .card-top i {
+            font-size: 38px;
         }
 
-        .card-body{
-            padding:24px;
+        .card-body {
+            padding: 24px;
         }
 
-        .status{
-            display:inline-block;
-            background:#d1fae5;
-            color:#047857;
-            padding:6px 12px;
-            border-radius:12px;
-            font-size:13px;
-            font-weight:700;
+        .status {
+            display: inline-block;
+            background: #d1fae5;
+            color: #047857;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
         }
 
-        .info-box{
-            background:#f5f8ff;
-            border-radius:16px;
-            padding:14px;
-            margin-top:14px;
+        .info-box {
+            background: #f5f8ff;
+            border-radius: 16px;
+            padding: 14px;
+            margin-top: 14px;
         }
 
-        .btn-main{
-            background:linear-gradient(135deg,#2364e8,#173b9b);
-            border:none;
-            border-radius:14px;
-            padding:12px;
-            font-weight:700;
+        .btn-main {
+            background: linear-gradient(135deg, #2364e8, #173b9b);
+            border: none;
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 700;
         }
 
-        .btn-main:hover{
-            opacity:.92;
+        .btn-main:hover {
+            opacity: .92;
         }
 
-        .modal-content{
-            border:none;
-            border-radius:24px;
-            overflow:hidden;
+        .modal-content {
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
         }
 
-        .modal-header{
-            background:linear-gradient(135deg,#173b9b,#2364e8);
-            color:white;
-            border:none;
-            padding:22px 24px;
+        .modal-header {
+            background: linear-gradient(135deg, #173b9b, #2364e8);
+            color: white;
+            border: none;
+            padding: 22px 24px;
         }
 
-        .modal-body{
-            padding:26px;
-            background:#f8faff;
+        .modal-body {
+            padding: 26px;
+            background: #f8faff;
         }
 
-        .modal-footer{
-            border:none;
-            background:#f8faff;
-            padding:20px 26px;
+        .modal-footer {
+            border: none;
+            background: #f8faff;
+            padding: 20px 26px;
         }
 
-        .form-control{
-            border-radius:14px;
-            padding:12px;
-            border:1px solid #dbe3ef;
+        .form-control {
+            border-radius: 14px;
+            padding: 12px;
+            border: 1px solid #dbe3ef;
         }
 
-        .form-control:focus{
-            border-color:#2364e8;
-            box-shadow:0 0 0 .2rem rgba(35,100,232,.15);
+        .form-control:focus {
+            border-color: #2364e8;
+            box-shadow: 0 0 0 .2rem rgba(35, 100, 232, .15);
         }
 
-        .section-title{
-            font-weight:800;
-            margin-bottom:20px;
+        .section-title {
+            font-weight: 800;
+            margin-bottom: 20px;
         }
 
-        .small-muted{
-            color:#70819a;
-            font-size:14px;
+        .small-muted {
+            color: #70819a;
+            font-size: 14px;
         }
-
     </style>
 
 </head>
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4">
+        <div class="container">
+
+            <a class="navbar-brand fw-bold" href="/">
+                CampusHub
+            </a>
+
+            <div class="text-white">
+                <i class="bi bi-person-circle"></i>
+                {{ session['usuario'] }}
+            </div>
+
+        </div>
+    </nav>
+
     <div class="container">
 
-        <a class="navbar-brand fw-bold" href="/">
-            CampusHub
-        </a>
+        <div class="hero">
+            <h1>Reserva de Salas Académicas</h1>
 
-        <div class="text-white">
-            <i class="bi bi-person-circle"></i>
-            {{ session['usuario'] }}
+            <p>
+                Gestiona espacios académicos para reuniones,
+                trabajos en grupo y actividades universitarias.
+            </p>
         </div>
 
-    </div>
-</nav>
+        <h3 class="section-title">
+            Salas Disponibles
+        </h3>
 
-<div class="container">
+        <div class="row g-4">
 
-    <div class="hero">
-        <h1>Reserva de Salas Académicas</h1>
+            {% for sala in salas %}
 
-        <p>
-            Gestiona espacios académicos para reuniones,
-            trabajos en grupo y actividades universitarias.
-        </p>
-    </div>
+            <div class="col-md-4">
 
-    <h3 class="section-title">
-        Salas Disponibles
-    </h3>
+                <div class="room-card">
 
-    <div class="row g-4">
+                    <div class="card-top">
 
-        {% for sala in salas %}
+                        <i class="bi bi-building"></i>
 
-        <div class="col-md-4">
-
-            <div class="room-card">
-
-                <div class="card-top">
-
-                    <i class="bi bi-building"></i>
-
-                    <h4 class="mt-3 fw-bold">
-                        {{ sala.nombre }}
-                    </h4>
-
-                </div>
-
-                <div class="card-body">
-
-                    <span class="status">
-                        Disponible
-                    </span>
-
-                    <div class="info-box">
-
-                        <strong>Capacidad máxima:</strong><br>
-
-                        {{ sala.capacidad_max }} personas
+                        <h4 class="mt-3 fw-bold">
+                            {{ sala.nombre }}
+                        </h4>
 
                     </div>
 
-                    <div class="info-box">
+                    <div class="card-body">
 
-                        <strong>Horario permitido:</strong><br>
+                        <span class="status">
+                            Disponible
+                        </span>
 
-                        6:00 AM - 6:00 PM
+                        <div class="info-box">
+
+                            <strong>Capacidad máxima:</strong><br>
+
+                            {{ sala.capacidad_max }} personas
+
+                        </div>
+
+                        <div class="info-box">
+
+                            <strong>Horario permitido:</strong><br>
+
+                            6:00 AM - 6:00 PM
+
+                        </div>
+
+                        <button class="btn btn-main text-white w-100 mt-4" data-bs-toggle="modal"
+                            data-bs-target="#modal{{ sala.id_sala }}">
+                            Reservar Sala
+                        </button>
 
                     </div>
-
-                    <button
-                        class="btn btn-main text-white w-100 mt-4"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modal{{ sala.id_sala }}"
-                    >
-                        Reservar Sala
-                    </button>
 
                 </div>
 
             </div>
 
-        </div>
+            <!-- MODAL -->
 
-        <!-- MODAL -->
+            <div class="modal fade" id="modal{{ sala.id_sala }}" tabindex="-1">
 
-        <div class="modal fade" id="modal{{ sala.id_sala }}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
 
-            <div class="modal-dialog modal-dialog-centered">
+                    <form action="/reservar_sala" method="POST" class="modal-content">
 
-                <form action="/reservar_sala" method="POST" class="modal-content">
+                        <div class="modal-header">
 
-                    <div class="modal-header">
+                            <h5 class="modal-title fw-bold">
+                                Reservar {{ sala.nombre }}
+                            </h5>
 
-                        <h5 class="modal-title fw-bold">
-                            Reservar {{ sala.nombre }}
-                        </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+                            </button>
 
-                        <button type="button"
-                                class="btn-close btn-close-white"
-                                data-bs-dismiss="modal">
-                        </button>
+                        </div>
 
-                    </div>
+                        <div class="modal-body">
 
-                    <div class="modal-body">
+                            <input type="hidden" name="id_sala" value="{{ sala.id_sala }}">
 
-                        <input type="hidden"
-                               name="id_sala"
-                               value="{{ sala.id_sala }}">
+                            <div class="row mb-3">
 
-                        <div class="row mb-3">
+                                <div class="col">
 
-                            <div class="col">
+                                    <label class="form-label">
+                                        Hora Inicio
+                                    </label>
 
-                                <label class="form-label">
-                                    Hora Inicio
-                                </label>
+                                    <input type="time" name="hora_inicio" class="form-control" required>
 
-                                <input type="time"
-                                       name="hora_inicio"
-                                       class="form-control"
-                                       required>
+                                </div>
+
+                                <div class="col">
+
+                                    <label class="form-label">
+                                        Hora Fin
+                                    </label>
+
+                                    <input type="time" name="hora_fin" class="form-control" required>
+
+                                </div>
 
                             </div>
 
-                            <div class="col">
+                            <div class="mb-4">
 
                                 <label class="form-label">
-                                    Hora Fin
+                                    Cantidad de Personas
                                 </label>
 
-                                <input type="time"
-                                       name="hora_fin"
-                                       class="form-control"
-                                       required>
+                                <input type="number" name="cantidad_personas" id="cantidad_personas_{{ sala.id_sala }}"
+                                    class="form-control" min="2" max="6" value="2"
+                                    onchange="generarAcompanantes({{ sala.id_sala }})" required>
 
+                                <div class="small-muted mt-2">
+                                    Mínimo 2 personas y máximo 6.
+                                    <br><strong>Nota:</strong> Esta cantidad es "Los acompañantes + el que reserva la
+                                    sala".
+                                </div>
+
+                            </div>
+
+                            <hr>
+
+                            <div id="container-acomp-{{ sala.id_sala }}">
+                                <!-- Los acompañantes se generarán aquí con JS -->
                             </div>
 
                         </div>
 
-                        <div class="mb-4">
+                        <div class="modal-footer">
 
-                            <label class="form-label">
-                                Cantidad de Personas
-                            </label>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
 
-                            <input type="number"
-                                   name="cantidad_personas"
-                                   class="form-control"
-                                   min="2"
-                                   max="6"
-                                   value="2"
-                                   required>
+                                Cancelar
 
-                            <div class="small-muted mt-2">
-                                Mínimo 2 personas y máximo 6.
-                            </div>
+                            </button>
+
+                            <button type="submit" class="btn btn-success">
+
+                                Confirmar Reserva
+
+                            </button>
 
                         </div>
 
-                        <hr>
+                    </form>
 
-                        <h6 class="fw-bold mb-3">
-                            Información del acompañante
-                        </h6>
-
-                        <input type="text"
-                               name="acomp_nombre"
-                               class="form-control mb-3"
-                               placeholder="Nombre completo"
-                               required>
-
-                        <input type="text"
-                               name="acomp_carnet"
-                               class="form-control mb-3"
-                               placeholder="Carnet"
-                               required>
-
-                        <input type="text"
-                               name="acomp_cohorte"
-                               class="form-control"
-                               placeholder="Cohorte"
-                               required>
-
-                    </div>
-
-                    <div class="modal-footer">
-
-                        <button type="button"
-                                class="btn btn-light"
-                                data-bs-dismiss="modal">
-
-                            Cancelar
-
-                        </button>
-
-                        <button type="submit"
-                                class="btn btn-success">
-
-                            Confirmar Reserva
-
-                        </button>
-
-                    </div>
-
-                </form>
+                </div>
 
             </div>
 
-        </div>
+            {% endfor %}
 
-        {% endfor %}
+        </div>
 
     </div>
 
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Se ejecuta cuando cambia la cantidad de personas
+        function generarAcompanantes(id_sala) {
+            const input = document.getElementById('cantidad_personas_' + id_sala);
+            const container = document.getElementById('container-acomp-' + id_sala);
+            let cantidad = parseInt(input.value);
+
+            if (isNaN(cantidad) || cantidad < 2) cantidad = 2;
+            if (cantidad > 6) cantidad = 6;
+
+            // La cantidad de acompañantes es la cantidad total - 1 (el que reserva)
+            let numAcompanantes = cantidad - 1;
+
+            container.innerHTML = ''; // Limpiar
+
+            for (let i = 0; i < numAcompanantes; i++) {
+                let html = `
+                <div class="acomp-box mb-3 p-3 border rounded bg-white">
+                    <h6 class="fw-bold mb-3 text-primary">Acompañante ${i + 1}</h6>
+                    
+                    <label class="form-label small fw-bold">Carnet</label>
+                    <input type="text" name="acomp_carnet_${i}" id="acomp_carnet_${id_sala}_${i}" class="form-control mb-2" placeholder="Ej. KEY_000123" required onblur="buscarCarnet(this, ${id_sala}, ${i})">
+                    
+                    <label class="form-label small fw-bold">Nombre Completo</label>
+                    <input type="text" name="acomp_nombre_${i}" id="acomp_nombre_${id_sala}_${i}" class="form-control mb-2" placeholder="Nombre completo" required>
+                    
+                    <label class="form-label small fw-bold">Cohorte</label>
+                    <input type="text" name="acomp_cohorte_${i}" id="acomp_cohorte_${id_sala}_${i}" class="form-control mb-1" placeholder="Ej. Cohorte 1" required>
+                </div>
+            `;
+                container.innerHTML += html;
+            }
+        }
+
+        // Buscar datos por carnet en la BD
+        function buscarCarnet(inputElement, id_sala, indice) {
+            let carnet = inputElement.value.trim();
+            if (carnet.length === 0) return;
+
+            fetch('/api/buscar_usuario_por_carnet?carnet=' + encodeURIComponent(carnet))
+                .then(res => res.json())
+                .then(data => {
+                    if (data.nombre) {
+                        document.getElementById(`acomp_nombre_${id_sala}_${indice}`).value = data.nombre;
+                        document.getElementById(`acomp_cohorte_${id_sala}_${indice}`).value = data.cohorte;
+
+                        // Pequeña animación para mostrar que se autollenó
+                        let box = inputElement.closest('.acomp-box');
+                        box.style.transition = "background-color 0.3s";
+                        box.style.backgroundColor = "#d1fae5";
+                        setTimeout(() => { box.style.backgroundColor = ""; }, 600);
+                    }
+                })
+                .catch(err => console.log(err));
+        }
+
+        // Inicializar al cargar para las modales existentes
+        document.addEventListener("DOMContentLoaded", function () {
+            // Encontrar todos los inputs de cantidad y disparar el evento
+            let inputs = document.querySelectorAll('input[name="cantidad_personas"]');
+            inputs.forEach(input => {
+                let id = input.id.split('_').pop();
+                generarAcompanantes(id);
+            });
+        });
+    </script>
 
 </body>
+
 </html>

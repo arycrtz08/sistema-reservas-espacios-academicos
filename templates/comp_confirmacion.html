@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +19,7 @@
         .navbar-custom {
             background: linear-gradient(90deg, #0b2a5b, #173b9b);
             padding: 14px 0;
-            box-shadow: 0 6px 18px rgba(0,0,0,.10);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .10);
         }
 
         .brand span {
@@ -31,7 +32,7 @@
             border-radius: 28px;
             padding: 38px;
             margin-bottom: 30px;
-            box-shadow: 0 16px 35px rgba(0,0,0,.12);
+            box-shadow: 0 16px 35px rgba(0, 0, 0, .12);
         }
 
         .hero h1 {
@@ -43,7 +44,7 @@
             border: none;
             border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 12px 28px rgba(0,0,0,.08);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .08);
             margin-bottom: 22px;
         }
 
@@ -122,125 +123,125 @@
 
 <body>
 
-<nav class="navbar navbar-dark navbar-custom mb-4">
+    <nav class="navbar navbar-dark navbar-custom mb-4">
+        <div class="container">
+            <a href="/" class="navbar-brand fw-bold brand">
+                Campus<span>Hub</span>
+            </a>
+
+            <a href="/computadoras" class="btn btn-outline-light btn-sm">
+                ← Volver
+            </a>
+        </div>
+    </nav>
+
     <div class="container">
-        <a href="/" class="navbar-brand fw-bold brand">
-            Campus<span>Hub</span>
-        </a>
 
-        <a href="/computadoras" class="btn btn-outline-light btn-sm">
-            ← Volver
-        </a>
-    </div>
-</nav>
+        <div class="hero">
+            <h1><i class="bi bi-shield-check"></i> Confirmación de Préstamos</h1>
+            <p class="mb-0">Panel del encargado para aprobar solicitudes pendientes de computadoras.</p>
+        </div>
 
-<div class="container">
-
-    <div class="hero">
-        <h1><i class="bi bi-shield-check"></i> Confirmación de Préstamos</h1>
-        <p class="mb-0">Panel del encargado para aprobar solicitudes pendientes de computadoras.</p>
-    </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
         {% endif %}
-    {% endwith %}
+        {% endwith %}
 
-    <h4 class="fw-bold mb-3">Reservas pendientes</h4>
+        <h4 class="fw-bold mb-3">Reservas pendientes</h4>
 
-    {% if not reservas %}
+        {% if not reservas %}
         <div class="alert alert-info">
             No hay reservas pendientes en este momento. ✅
         </div>
-    {% endif %}
+        {% endif %}
 
-    {% for r in reservas %}
-    <div class="request-card">
+        {% for r in reservas %}
+        <div class="request-card">
 
-        <div class="request-header">
-            <div>
-                <span class="code-box">{{ r.codigo }}</span>
-                <span class="text-muted">— {{ r.comp_nombre }}</span>
-            </div>
-
-            <span class="status-pending">Pendiente</span>
-        </div>
-
-        <div class="card-body p-4">
-            <div class="row g-4">
-
-                <div class="col-md-6">
-                    <div class="info-panel">
-                        <h6><i class="bi bi-person-circle"></i> Datos del solicitante</h6>
-
-                        <div class="info-row">
-                            <span>Nombre</span>
-                            <span>{{ r.usuario }}</span>
-                        </div>
-
-                        <div class="info-row">
-                            <span>Carné</span>
-                            <span><code>{{ r.carnet }}</code></span>
-                        </div>
-
-                        <div class="info-row">
-                            <span>Cohorte</span>
-                            <span>{{ r.cohorte }}</span>
-                        </div>
-                    </div>
+            <div class="request-header">
+                <div>
+                    <span class="code-box">{{ r.codigo }}</span>
+                    <span class="text-muted">— {{ r.comp_nombre }}</span>
                 </div>
 
-                <div class="col-md-6">
-                    <div class="info-panel">
-                        <h6><i class="bi bi-laptop"></i> Datos del préstamo</h6>
-
-                        <div class="info-row">
-                            <span>Razón</span>
-                            <span>{{ r.razon }}</span>
-                        </div>
-
-                        <div class="info-row">
-                            <span>Hora solicitud</span>
-                            <span>{{ r.hora_inicio }}</span>
-                        </div>
-
-                        <div class="info-row">
-                            <span>Cargador</span>
-                            <span>{% if r.tiene_cargador %}Sí ✅{% else %}No ❌{% endif %}</span>
-                        </div>
-
-                        <div class="info-row">
-                            <span>Mouse</span>
-                            <span>{% if r.tiene_mouse %}Sí ✅{% else %}No ❌{% endif %}</span>
-                        </div>
-                    </div>
-                </div>
-
+                <span class="status-pending">Pendiente</span>
             </div>
 
-            <form action="/computadoras/confirmar_reserva" method="POST" class="mt-4">
-                <input type="hidden" name="id_reserva" value="{{ r.id_reserva }}">
+            <div class="card-body p-4">
+                <div class="row g-4">
 
-                <button type="submit"
-                        class="btn btn-confirm"
+                    <div class="col-md-6">
+                        <div class="info-panel">
+                            <h6><i class="bi bi-person-circle"></i> Datos del solicitante</h6>
+
+                            <div class="info-row">
+                                <span>Nombre</span>
+                                <span>{{ r.usuario }}</span>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Carné</span>
+                                <span><code>{{ r.carnet }}</code></span>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Cohorte</span>
+                                <span>{{ r.cohorte }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-panel">
+                            <h6><i class="bi bi-laptop"></i> Datos del préstamo</h6>
+
+                            <div class="info-row">
+                                <span>Razón</span>
+                                <span>{{ r.razon }}</span>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Hora solicitud</span>
+                                <span>{{ r.hora_inicio }}</span>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Cargador</span>
+                                <span>{% if r.tiene_cargador %}Sí ✅{% else %}No ❌{% endif %}</span>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Mouse</span>
+                                <span>{% if r.tiene_mouse %}Sí ✅{% else %}No ❌{% endif %}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <form action="/computadoras/confirmar_reserva" method="POST" class="mt-4">
+                    <input type="hidden" name="id_reserva" value="{{ r.id_reserva }}">
+
+                    <button type="submit" class="btn btn-confirm"
                         onclick="return confirm('¿Confirmar el préstamo de {{ r.codigo }} a {{ r.usuario }}?');">
-                    <i class="bi bi-check-circle"></i>
-                    Confirmar préstamo
-                </button>
-            </form>
+                        <i class="bi bi-check-circle"></i>
+                        Confirmar préstamo
+                    </button>
+                </form>
+            </div>
+
         </div>
+        {% endfor %}
 
     </div>
-    {% endfor %}
 
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,390 +10,372 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-
-        body{
-            background:#f4f7fb;
-            font-family:'Segoe UI',sans-serif;
-            color:#102542;
+        body {
+            background: #f4f7fb;
+            font-family: 'Segoe UI', sans-serif;
+            color: #102542;
         }
 
-        .navbar-custom{
-            background:linear-gradient(90deg,#0b2a5b,#173b9b);
-            padding:14px 0;
-            box-shadow:0 6px 18px rgba(0,0,0,.10);
+        .navbar-custom {
+            background: linear-gradient(90deg, #0b2a5b, #173b9b);
+            padding: 14px 0;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .10);
         }
 
-        .brand span{
-            color:#18c29c;
+        .brand span {
+            color: #18c29c;
         }
 
-        .hero{
-            background:linear-gradient(135deg,#06b6d4,#0e7490);
-            color:white;
-            border-radius:28px;
-            padding:38px;
-            margin-bottom:30px;
-            box-shadow:0 16px 35px rgba(0,0,0,.12);
+        .hero {
+            background: linear-gradient(135deg, #06b6d4, #0e7490);
+            color: white;
+            border-radius: 28px;
+            padding: 38px;
+            margin-bottom: 30px;
+            box-shadow: 0 16px 35px rgba(0, 0, 0, .12);
         }
 
-        .hero h1{
-            font-weight:800;
+        .hero h1 {
+            font-weight: 800;
         }
 
-        .loan-card{
-            background:white;
-            border:none;
-            border-radius:24px;
-            overflow:hidden;
-            box-shadow:0 12px 28px rgba(0,0,0,.08);
-            margin-bottom:24px;
+        .loan-card {
+            background: white;
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .08);
+            margin-bottom: 24px;
         }
 
-        .loan-header{
-            background:#ecfeff;
-            padding:18px 24px;
-            border-bottom:1px solid #cffafe;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
+        .loan-header {
+            background: #ecfeff;
+            padding: 18px 24px;
+            border-bottom: 1px solid #cffafe;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .code-box{
-            font-weight:800;
-            color:#0e7490;
+        .code-box {
+            font-weight: 800;
+            color: #0e7490;
         }
 
-        .status-box{
-            background:#cffafe;
-            color:#155e75;
-            padding:7px 13px;
-            border-radius:14px;
-            font-size:12px;
-            font-weight:800;
+        .status-box {
+            background: #cffafe;
+            color: #155e75;
+            padding: 7px 13px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 800;
         }
 
-        .info-panel{
-            background:#f8faff;
-            border-radius:18px;
-            padding:18px;
-            height:100%;
+        .info-panel {
+            background: #f8faff;
+            border-radius: 18px;
+            padding: 18px;
+            height: 100%;
         }
 
-        .info-panel h6{
-            font-weight:800;
-            color:#173b9b;
-            margin-bottom:14px;
+        .info-panel h6 {
+            font-weight: 800;
+            color: #173b9b;
+            margin-bottom: 14px;
         }
 
-        .info-row{
-            display:flex;
-            justify-content:space-between;
-            border-bottom:1px solid #e7edf7;
-            padding:8px 0;
-            gap:14px;
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #e7edf7;
+            padding: 8px 0;
+            gap: 14px;
         }
 
-        .info-row:last-child{
-            border-bottom:none;
+        .info-row:last-child {
+            border-bottom: none;
         }
 
-        .info-row span:first-child{
-            font-weight:700;
-            color:#475569;
+        .info-row span:first-child {
+            font-weight: 700;
+            color: #475569;
         }
 
-        .check-area{
-            background:#f8fafc;
-            border-radius:18px;
-            padding:20px;
-            margin-top:24px;
+        .check-area {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 20px;
+            margin-top: 24px;
         }
 
-        .form-check{
-            background:white;
-            border-radius:14px;
-            padding:14px 16px;
-            margin-bottom:12px;
-            box-shadow:0 4px 10px rgba(0,0,0,.04);
+        .form-check {
+            background: white;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .04);
         }
 
-        .form-check-input{
-            margin-top:.35rem;
+        .form-check-input {
+            margin-top: .35rem;
         }
 
-        .btn-confirm{
-            background:linear-gradient(135deg,#06b6d4,#0e7490);
-            border:none;
-            border-radius:14px;
-            padding:12px 18px;
-            color:white;
-            font-weight:800;
+        .btn-confirm {
+            background: linear-gradient(135deg, #06b6d4, #0e7490);
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            color: white;
+            font-weight: 800;
         }
 
-        .btn-confirm:hover{
-            color:white;
-            opacity:.92;
+        .btn-confirm:hover {
+            color: white;
+            opacity: .92;
         }
 
-        .alert{
-            border-radius:16px;
+        .alert {
+            border-radius: 16px;
         }
-
     </style>
 
 </head>
 
 <body>
 
-<nav class="navbar navbar-dark navbar-custom mb-4">
+    <nav class="navbar navbar-dark navbar-custom mb-4">
+        <div class="container">
+
+            <a href="/" class="navbar-brand fw-bold brand">
+                Campus<span>Hub</span>
+            </a>
+
+            <a href="/computadoras" class="btn btn-outline-light btn-sm">
+                ← Volver
+            </a>
+
+        </div>
+    </nav>
+
     <div class="container">
 
-        <a href="/" class="navbar-brand fw-bold brand">
-            Campus<span>Hub</span>
-        </a>
+        <div class="hero">
 
-        <a href="/computadoras" class="btn btn-outline-light btn-sm">
-            ← Volver
-        </a>
+            <h1>
+                <i class="bi bi-arrow-repeat"></i>
+                Reintegración de Computadoras
+            </h1>
 
-    </div>
-</nav>
+            <p class="mb-0">
+                Verifica el estado de los equipos antes de completar la devolución.
+            </p>
 
-<div class="container">
+        </div>
 
-    <div class="hero">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
 
-        <h1>
-            <i class="bi bi-arrow-repeat"></i>
-            Reintegración de Computadoras
-        </h1>
+        <div class="alert alert-{{ category }} alert-dismissible fade show mb-4">
 
-        <p class="mb-0">
-            Verifica el estado de los equipos antes de completar la devolución.
+            {{ message }}
+
+            <button type="button" class="btn-close" data-bs-dismiss="alert">
+            </button>
+
+        </div>
+
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <h4 class="fw-bold mb-2">
+            Computadoras actualmente prestadas
+        </h4>
+
+        <p class="text-muted mb-4">
+            Confirma la devolución revisando el estado del equipo y accesorios.
         </p>
 
-    </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-
-                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4">
-
-                    {{ message }}
-
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert">
-                    </button>
-
-                </div>
-
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    <h4 class="fw-bold mb-2">
-        Computadoras actualmente prestadas
-    </h4>
-
-    <p class="text-muted mb-4">
-        Confirma la devolución revisando el estado del equipo y accesorios.
-    </p>
-
-    {% if not reservas %}
+        {% if not reservas %}
 
         <div class="alert alert-info">
             No hay computadoras prestadas en este momento. ✅
         </div>
 
-    {% endif %}
+        {% endif %}
 
-    {% for r in reservas %}
+        {% for r in reservas %}
 
-    <div class="loan-card">
+        <div class="loan-card">
 
-        <div class="loan-header">
+            <div class="loan-header">
 
-            <div>
+                <div>
 
-                <span class="code-box">
-                    {{ r.codigo }}
-                </span>
+                    <span class="code-box">
+                        {{ r.codigo }}
+                    </span>
 
-                <span class="text-muted">
-                    — {{ r.comp_nombre }}
+                    <span class="text-muted">
+                        — {{ r.comp_nombre }}
+                    </span>
+
+                </div>
+
+                <span class="status-box">
+                    En uso — {{ r.tiempo_prestado }}
                 </span>
 
             </div>
 
-            <span class="status-box">
-                En uso — {{ r.tiempo_prestado }}
-            </span>
+            <div class="card-body p-4">
 
-        </div>
+                <div class="row g-4">
 
-        <div class="card-body p-4">
+                    <div class="col-md-6">
 
-            <div class="row g-4">
+                        <div class="info-panel">
 
-                <div class="col-md-6">
+                            <h6>
+                                <i class="bi bi-person-circle"></i>
+                                Persona que lo prestó
+                            </h6>
 
-                    <div class="info-panel">
+                            <div class="info-row">
+                                <span>Nombre</span>
+                                <span>{{ r.usuario }}</span>
+                            </div>
 
-                        <h6>
-                            <i class="bi bi-person-circle"></i>
-                            Persona que lo prestó
-                        </h6>
+                            <div class="info-row">
+                                <span>Carné</span>
+                                <span><code>{{ r.carnet }}</code></span>
+                            </div>
 
-                        <div class="info-row">
-                            <span>Nombre</span>
-                            <span>{{ r.usuario }}</span>
+                            <div class="info-row">
+                                <span>Cohorte</span>
+                                <span>{{ r.cohorte }}</span>
+                            </div>
+
                         </div>
 
-                        <div class="info-row">
-                            <span>Carné</span>
-                            <span><code>{{ r.carnet }}</code></span>
-                        </div>
+                    </div>
 
-                        <div class="info-row">
-                            <span>Cohorte</span>
-                            <span>{{ r.cohorte }}</span>
+                    <div class="col-md-6">
+
+                        <div class="info-panel">
+
+                            <h6>
+                                <i class="bi bi-laptop"></i>
+                                Información del préstamo
+                            </h6>
+
+                            <div class="info-row">
+                                <span>Razón</span>
+                                <span>{{ r.razon }}</span>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Hora préstamo</span>
+                                <span>{{ r.hora_inicio }}</span>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Tiempo</span>
+                                <span><strong>{{ r.tiempo_prestado }}</strong></span>
+                            </div>
+
                         </div>
 
                     </div>
 
                 </div>
 
-                <div class="col-md-6">
+                <form action="/computadoras/confirmar_devolucion" method="POST">
 
-                    <div class="info-panel">
+                    <input type="hidden" name="id_reserva" value="{{ r.id_reserva }}">
 
-                        <h6>
-                            <i class="bi bi-laptop"></i>
-                            Información del préstamo
+                    <input type="hidden" name="id_computadora" value="{{ loop.index }}">
+
+                    <div class="check-area">
+
+                        <h6 class="fw-bold mb-3">
+                            ✅ Verificación de devolución
                         </h6>
 
-                        <div class="info-row">
-                            <span>Razón</span>
-                            <span>{{ r.razon }}</span>
+                        <p class="text-muted small mb-4">
+                            Marca únicamente lo que se recibió correctamente.
+                        </p>
+
+                        <div class="form-check">
+
+                            <input class="form-check-input" type="checkbox" name="en_buen_estado"
+                                id="estado{{ r.id_reserva }}">
+
+                            <label class="form-check-label" for="estado{{ r.id_reserva }}">
+
+                                💻 La computadora está en buen estado
+
+                            </label>
+
                         </div>
 
-                        <div class="info-row">
-                            <span>Hora préstamo</span>
-                            <span>{{ r.hora_inicio }}</span>
+                        {% if r.tiene_cargador %}
+
+                        <div class="form-check">
+
+                            <input class="form-check-input" type="checkbox" name="cargador_devuelto"
+                                id="cargador{{ r.id_reserva }}">
+
+                            <label class="form-check-label" for="cargador{{ r.id_reserva }}">
+
+                                🔌 Cargador devuelto correctamente
+
+                            </label>
+
                         </div>
 
-                        <div class="info-row">
-                            <span>Tiempo</span>
-                            <span><strong>{{ r.tiempo_prestado }}</strong></span>
+                        {% endif %}
+
+                        {% if r.tiene_mouse %}
+
+                        <div class="form-check">
+
+                            <input class="form-check-input" type="checkbox" name="mouse_devuelto"
+                                id="mouse{{ r.id_reserva }}">
+
+                            <label class="form-check-label" for="mouse{{ r.id_reserva }}">
+
+                                🖱️ Mouse devuelto correctamente
+
+                            </label>
+
                         </div>
 
-                    </div>
+                        {% endif %}
 
-                </div>
-
-            </div>
-
-            <form action="/computadoras/confirmar_devolucion"
-                  method="POST">
-
-                <input type="hidden"
-                       name="id_reserva"
-                       value="{{ r.id_reserva }}">
-
-                <input type="hidden"
-                       name="id_computadora"
-                       value="{{ loop.index }}">
-
-                <div class="check-area">
-
-                    <h6 class="fw-bold mb-3">
-                        ✅ Verificación de devolución
-                    </h6>
-
-                    <p class="text-muted small mb-4">
-                        Marca únicamente lo que se recibió correctamente.
-                    </p>
-
-                    <div class="form-check">
-
-                        <input class="form-check-input"
-                               type="checkbox"
-                               name="en_buen_estado"
-                               id="estado{{ r.id_reserva }}">
-
-                        <label class="form-check-label"
-                               for="estado{{ r.id_reserva }}">
-
-                            💻 La computadora está en buen estado
-
-                        </label>
-
-                    </div>
-
-                    {% if r.tiene_cargador %}
-
-                    <div class="form-check">
-
-                        <input class="form-check-input"
-                               type="checkbox"
-                               name="cargador_devuelto"
-                               id="cargador{{ r.id_reserva }}">
-
-                        <label class="form-check-label"
-                               for="cargador{{ r.id_reserva }}">
-
-                            🔌 Cargador devuelto correctamente
-
-                        </label>
-
-                    </div>
-
-                    {% endif %}
-
-                    {% if r.tiene_mouse %}
-
-                    <div class="form-check">
-
-                        <input class="form-check-input"
-                               type="checkbox"
-                               name="mouse_devuelto"
-                               id="mouse{{ r.id_reserva }}">
-
-                        <label class="form-check-label"
-                               for="mouse{{ r.id_reserva }}">
-
-                            🖱️ Mouse devuelto correctamente
-
-                        </label>
-
-                    </div>
-
-                    {% endif %}
-
-                    <button type="submit"
-                            class="btn btn-confirm mt-3"
+                        <button type="submit" class="btn btn-confirm mt-3"
                             onclick="return confirm('¿Confirmar la devolución de {{ r.codigo }}?');">
 
-                        <i class="bi bi-check-circle"></i>
-                        Confirmar devolución
+                            <i class="bi bi-check-circle"></i>
+                            Confirmar devolución
 
-                    </button>
+                        </button>
 
-                </div>
+                    </div>
 
-            </form>
+                </form>
+
+            </div>
 
         </div>
+
+        {% endfor %}
 
     </div>
 
-    {% endfor %}
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>

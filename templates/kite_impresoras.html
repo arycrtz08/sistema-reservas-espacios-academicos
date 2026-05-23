@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,478 +10,487 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-
-        body{
-            background:#f4f7fb;
-            font-family:'Segoe UI',sans-serif;
-            color:#102542;
+        body {
+            background: #f4f7fb;
+            font-family: 'Segoe UI', sans-serif;
+            color: #102542;
         }
 
-        .navbar-custom{
-            background:linear-gradient(90deg,#0b2a5b,#173b9b);
-            padding:14px 0;
-            box-shadow:0 6px 18px rgba(0,0,0,.10);
+        .navbar-custom {
+            background: linear-gradient(90deg, #0b2a5b, #173b9b);
+            padding: 14px 0;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .10);
         }
 
-        .brand span{
-            color:#18c29c;
+        .brand span {
+            color: #18c29c;
         }
 
-        .hero{
-            background:linear-gradient(135deg,#2364e8,#173b9b);
-            color:white;
-            border-radius:28px;
-            padding:40px;
-            margin-bottom:35px;
-            box-shadow:0 16px 35px rgba(0,0,0,.12);
+        .hero {
+            background: linear-gradient(135deg, #2364e8, #173b9b);
+            color: white;
+            border-radius: 28px;
+            padding: 40px;
+            margin-bottom: 35px;
+            box-shadow: 0 16px 35px rgba(0, 0, 0, .12);
         }
 
-        .hero h1{
-            font-weight:800;
+        .hero h1 {
+            font-weight: 800;
         }
 
-        .usage-card{
-            background:white;
-            border:none;
-            border-radius:24px;
-            padding:28px;
-            box-shadow:0 12px 28px rgba(0,0,0,.08);
-            margin-bottom:35px;
+        .usage-card {
+            background: white;
+            border: none;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .08);
+            margin-bottom: 35px;
         }
 
-        .printer-card{
-            background:white;
-            border:none;
-            border-radius:24px;
-            overflow:hidden;
-            box-shadow:0 12px 28px rgba(0,0,0,.08);
-            transition:.2s ease;
-            height:100%;
+        .printer-card {
+            background: white;
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .08);
+            transition: .2s ease;
+            height: 100%;
         }
 
-        .printer-card:hover{
-            transform:translateY(-6px);
-            box-shadow:0 18px 35px rgba(0,0,0,.12);
+        .printer-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 35px rgba(0, 0, 0, .12);
         }
 
-        .printer-top{
-            background:linear-gradient(135deg,#2364e8,#173b9b);
-            color:white;
-            padding:26px;
-            text-align:center;
+        .printer-top {
+            background: linear-gradient(135deg, #2364e8, #173b9b);
+            color: white;
+            padding: 26px;
+            text-align: center;
         }
 
-        .printer-top i{
-            font-size:50px;
+        .printer-top i {
+            font-size: 50px;
         }
 
-        .printer-body{
-            padding:24px;
-            text-align:center;
+        .printer-body {
+            padding: 24px;
+            text-align: center;
         }
 
-        .status{
-            display:inline-block;
-            background:#d1fae5;
-            color:#047857;
-            padding:6px 12px;
-            border-radius:12px;
-            font-size:12px;
-            font-weight:700;
+        .status {
+            display: inline-block;
+            background: #d1fae5;
+            color: #047857;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
         }
 
-        .btn-main{
-            background:linear-gradient(135deg,#2364e8,#173b9b);
-            border:none;
-            border-radius:14px;
-            padding:12px;
-            font-weight:700;
+        .btn-main {
+            background: linear-gradient(135deg, #2364e8, #173b9b);
+            border: none;
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 700;
         }
 
-        .btn-main:hover{
-            opacity:.92;
+        .btn-main:hover {
+            opacity: .92;
         }
 
-        .modal-content{
-            border:none;
-            border-radius:24px;
-            overflow:hidden;
+        .modal-content {
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
         }
 
-        .modal-header{
-            background:linear-gradient(135deg,#2364e8,#173b9b);
-            color:white;
-            border:none;
-            padding:22px;
+        .modal-header {
+            background: linear-gradient(135deg, #2364e8, #173b9b);
+            color: white;
+            border: none;
+            padding: 22px;
         }
 
-        .modal-body{
-            background:#f8faff;
-            padding:26px;
+        .modal-body {
+            background: #f8faff;
+            padding: 26px;
         }
 
-        .modal-footer{
-            border:none;
-            background:#f8faff;
-            padding:20px 26px;
+        .modal-footer {
+            border: none;
+            background: #f8faff;
+            padding: 20px 26px;
         }
 
         .form-control,
-        .form-select{
-            border-radius:14px;
-            padding:12px;
-            border:1px solid #dbe3ef;
+        .form-select {
+            border-radius: 14px;
+            padding: 12px;
+            border: 1px solid #dbe3ef;
         }
 
         .form-control:focus,
-        .form-select:focus{
-            border-color:#2364e8;
-            box-shadow:0 0 0 .2rem rgba(35,100,232,.15);
+        .form-select:focus {
+            border-color: #2364e8;
+            box-shadow: 0 0 0 .2rem rgba(35, 100, 232, .15);
         }
 
-        .progress{
-            height:24px;
-            border-radius:20px;
+        .progress {
+            height: 24px;
+            border-radius: 20px;
         }
 
-        .alert{
-            border-radius:16px;
+        .alert {
+            border-radius: 16px;
         }
-
     </style>
 
 </head>
 
 <body>
 
-<nav class="navbar navbar-dark navbar-custom mb-4">
+    <nav class="navbar navbar-dark navbar-custom mb-4">
+        <div class="container">
+
+            <a href="/" class="navbar-brand fw-bold brand">
+                Campus<span>Hub</span>
+            </a>
+
+            <span class="text-white">
+                <i class="bi bi-person-circle"></i>
+                {{ session['usuario'] }}
+            </span>
+
+        </div>
+    </nav>
+
     <div class="container">
 
-        <a href="/" class="navbar-brand fw-bold brand">
-            Campus<span>Hub</span>
-        </a>
+        <div class="hero">
 
-        <span class="text-white">
-            <i class="bi bi-person-circle"></i>
-            {{ session['usuario'] }}
-        </span>
+            <h1>
+                <i class="bi bi-printer"></i>
+                Impresoras 3D
+            </h1>
 
-    </div>
-</nav>
+            <p class="mb-0">
+                Reserva impresoras 3D para tus proyectos y controla tu uso de filamento.
+            </p>
 
-<div class="container">
+        </div>
 
-    <div class="hero">
-
-        <h1>
-            <i class="bi bi-printer"></i>
-            Impresoras 3D
-        </h1>
-
-        <p class="mb-0">
-            Reserva impresoras 3D para tus proyectos y controla tu uso de filamento.
-        </p>
-
-    </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            {% for category, message in messages %}
+        {% for category, message in messages %}
 
-                <div class="alert alert-{{ category }} alert-dismissible fade show">
+        <div class="alert alert-{{ category }} alert-dismissible fade show">
 
-                    {{ message }}
+            {{ message }}
 
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert">
-                    </button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert">
+            </button>
 
-                </div>
+        </div>
 
-            {% endfor %}
+        {% endfor %}
         {% endif %}
-    {% endwith %}
+        {% endwith %}
 
-    {% if error %}
+        {% if error %}
         <div class="alert alert-danger">
             {{ error }}
         </div>
-    {% endif %}
+        {% endif %}
 
-    <div class="usage-card">
+        <div class="usage-card">
 
-        <h5 class="fw-bold mb-3">
-            📊 Consumo de filamento en este ciclo
-        </h5>
+            <h5 class="fw-bold mb-3">
+                📊 Consumo de filamento en este ciclo
+            </h5>
 
-        <div class="progress mb-3">
+            <!-- Barra PLA (con límite) -->
+            <div class="mb-2">
+                <strong>PLA</strong> (Límite: {{ limite_pla }}g)
+            </div>
+            <div class="progress mb-3" style="height: 24px; border-radius: 20px;">
+                <div class="progress-bar {% if gramos_pla >= (limite_pla * 0.8) %}bg-warning{% else %}bg-success{% endif %}"
+                    role="progressbar" style="width: {{ [gramos_pla / limite_pla * 100, 100] | min }}%;">
+                    {{ gramos_pla }}g / {{ limite_pla }}g
+                </div>
+            </div>
 
-            <div class="progress-bar
-                {% if gramos_usados >= 500 %} bg-warning
-                {% else %} bg-success
-                {% endif %}"
+            {% if gramos_pla >= limite_pla %}
+            <div class="alert alert-danger mb-4">
+                🚫 Has alcanzado el límite de {{ limite_pla }}g de PLA para este ciclo.
+            </div>
+            {% endif %}
 
-                role="progressbar"
-
-                style="width: {{ [gramos_usados / 750 * 100, 100] | min }}%;">
-
-                {{ gramos_usados }}g / 750g
-
+            <!-- Otras barras sin límite fijo, solo muestran lo consumido -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="mb-1 text-muted fw-bold">TPU</div>
+                    <div class="progress" style="height: 18px; border-radius: 10px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 100%;">
+                            {{ gramos_tpu }}g usados
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-1 text-muted fw-bold">PETG</div>
+                    <div class="progress" style="height: 18px; border-radius: 10px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;">
+                            {{ gramos_petg }}g usados
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-1 text-muted fw-bold">Otro</div>
+                    <div class="progress" style="height: 18px; border-radius: 10px;">
+                        <div class="progress-bar bg-secondary" role="progressbar" style="width: 100%;">
+                            {{ gramos_otro }}g usados
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
 
-        {% if gramos_usados >= 500 and gramos_usados < 750 %}
+        <h4 class="fw-bold mb-4">
+            Impresoras disponibles
+        </h4>
 
-            <div class="alert alert-warning mb-0">
-
-                ⚠️ Has usado <strong>{{ gramos_usados }}g</strong>.
-                Te quedan <strong>{{ 750 - gramos_usados }}g</strong> disponibles.
-
-            </div>
-
-        {% elif gramos_usados >= 750 %}
-
-            <div class="alert alert-danger mb-0">
-
-                🚫 Has alcanzado el límite de 750g para este ciclo.
-
-            </div>
-
-        {% endif %}
-
-    </div>
-
-    <h4 class="fw-bold mb-4">
-        Impresoras disponibles
-    </h4>
-
-    {% if not impresoras %}
+        {% if not impresoras %}
 
         <div class="alert alert-info">
             No hay impresoras disponibles en este momento.
         </div>
 
-    {% endif %}
+        {% endif %}
 
-    <div class="row g-4">
+        <div class="row g-4">
 
-        {% for imp in impresoras %}
+            {% for imp in impresoras %}
 
-        <div class="col-md-4">
+            <div class="col-md-4">
 
-            <div class="printer-card">
+                <div class="printer-card">
 
-                <div class="printer-top">
+                    <div class="printer-top">
 
-                    <i class="bi bi-printer-fill"></i>
+                        <i class="bi bi-printer-fill"></i>
 
-                    <h4 class="mt-3 fw-bold">
-                        {{ imp.nombre }}
-                    </h4>
+                        <h4 class="mt-3 fw-bold">
+                            {{ imp.nombre }}
+                        </h4>
 
-                </div>
+                    </div>
 
-                <div class="printer-body">
+                    <div class="printer-body">
 
-                    <span class="status">
-                        Disponible
-                    </span>
+                        <span class="status">
+                            Disponible
+                        </span>
 
-                    <p class="text-muted mt-3">
-                        Código: {{ imp.codigo }}
-                    </p>
+                        <p class="text-muted mt-3">
+                            Código: {{ imp.codigo }}
+                        </p>
 
-                    {% if gramos_usados < 750 %}
-
-                        <button class="btn btn-main text-white w-100"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modal{{ imp.id }}">
+                        {% if gramos_pla < limite_pla %} <button class="btn btn-main text-white w-100"
+                            data-bs-toggle="modal" data-bs-target="#modal{{ imp.id }}">
 
                             Reservar impresora
 
-                        </button>
+                            </button>
 
-                    {% else %}
+                            {% else %}
 
-                        <button class="btn btn-secondary w-100" disabled>
+                            <button class="btn btn-secondary w-100" disabled>
 
-                            Límite alcanzado
+                                Límite alcanzado
 
-                        </button>
+                            </button>
 
-                    {% endif %}
+                            {% endif %}
+
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
+            <!-- MODAL -->
 
-        <!-- MODAL -->
+            <div class="modal fade" id="modal{{ imp.id }}" tabindex="-1">
 
-        <div class="modal fade"
-             id="modal{{ imp.id }}"
-             tabindex="-1">
+                <div class="modal-dialog">
 
-            <div class="modal-dialog">
+                    <form action="/reservar_impresora" method="POST" class="modal-content">
 
-                <form action="/reservar_impresora"
-                      method="POST"
-                      class="modal-content">
+                        <div class="modal-header">
 
-                    <div class="modal-header">
+                            <h5 class="modal-title fw-bold">
+                                Reservar {{ imp.nombre }}
+                            </h5>
 
-                        <h5 class="modal-title fw-bold">
-                            Reservar {{ imp.nombre }}
-                        </h5>
-
-                        <button type="button"
-                                class="btn-close btn-close-white"
-                                data-bs-dismiss="modal">
-                        </button>
-
-                    </div>
-
-                    <div class="modal-body">
-
-                        <input type="hidden"
-                               name="id_impresora"
-                               value="{{ imp.id }}">
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                Tiempo de uso
-                            </label>
-
-                            <input type="text"
-                                   name="tiempo_uso"
-                                   class="form-control"
-                                   placeholder="Ej: 2 horas"
-                                   required>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+                            </button>
 
                         </div>
 
-                        <div class="mb-3">
+                        <div class="modal-body">
 
-                            <label class="form-label">
-                                Tipo de trabajo
-                            </label>
+                            <input type="hidden" name="id_impresora" value="{{ imp.id }}">
 
-                            <select name="tipo_trabajo"
-                                    class="form-select"
+                            <div class="mb-3">
+
+                                <label class="form-label">
+                                    Tiempo de uso
+                                </label>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="input-group">
+                                            <input type="number" name="horas" class="form-control" min="0"
+                                                placeholder="0" required>
+                                            <span class="input-group-text">Horas</span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="input-group">
+                                            <input type="number" name="minutos" class="form-control" min="0" max="59"
+                                                placeholder="0" required>
+                                            <span class="input-group-text">Minutos</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+                                    Tipo de trabajo
+                                </label>
+
+                                <select name="tipo_trabajo" class="form-select" required>
+
+                                    <option value="">
+                                        Selecciona...
+                                    </option>
+
+                                    <option value="Individual">
+                                        Individual
+                                    </option>
+
+                                    <option value="Grupal">
+                                        Grupal
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+                                    Tipo de filamento
+                                </label>
+
+                                <select name="filamento" id="filamento_select_{{ imp.id }}" class="form-select" required
+                                    onchange="toggleOtroFilamento({{ imp.id }})">
+
+                                    <option value="">
+                                        Selecciona...
+                                    </option>
+
+                                    <option value="PLA">PLA</option>
+                                    <option value="PETG">PETG</option>
+                                    <option value="TPU">TPU</option>
+                                    <option value="Otro">Otro</option>
+
+                                </select>
+
+                                <input type="text" name="filamento_otro" id="filamento_otro_{{ imp.id }}"
+                                    class="form-control mt-2" placeholder="Especificar tipo" style="display: none;">
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+
+                                    Cantidad de gramos
+
+                                    <small class="text-muted">
+                                        (PLA Disponible: {{ limite_pla - gramos_pla }}g)
+                                    </small>
+
+                                </label>
+
+                                <input type="number" name="gramos" class="form-control" min="1" placeholder="Gramos"
                                     required>
 
-                                <option value="">
-                                    Selecciona...
-                                </option>
-
-                                <option value="Individual">
-                                    Individual
-                                </option>
-
-                                <option value="Grupal">
-                                    Grupal
-                                </option>
-
-                            </select>
+                            </div>
 
                         </div>
 
-                        <div class="mb-3">
+                        <div class="modal-footer">
 
-                            <label class="form-label">
-                                Tipo de filamento
-                            </label>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
 
-                            <select name="filamento"
-                                    class="form-select"
-                                    required>
+                                Cancelar
 
-                                <option value="">
-                                    Selecciona...
-                                </option>
+                            </button>
 
-                                <option value="PLA">PLA</option>
-                                <option value="ABS">ABS</option>
-                                <option value="PETG">PETG</option>
-                                <option value="TPU">TPU</option>
-                                <option value="Resina">Resina</option>
-                                <option value="Otro">Otro</option>
+                            <button type="submit" class="btn btn-success">
 
-                            </select>
+                                Confirmar reserva
+
+                            </button>
 
                         </div>
 
-                        <div class="mb-3">
+                    </form>
 
-                            <label class="form-label">
-
-                                Cantidad de gramos
-
-                                <small class="text-muted">
-                                    (Disponibles: {{ 750 - gramos_usados }}g)
-                                </small>
-
-                            </label>
-
-                            <input type="number"
-                                   name="gramos"
-                                   class="form-control"
-                                   min="1"
-                                   max="{{ 750 - gramos_usados }}"
-                                   placeholder="Gramos"
-                                   required>
-
-                        </div>
-
-                    </div>
-
-                    <div class="modal-footer">
-
-                        <button type="button"
-                                class="btn btn-light"
-                                data-bs-dismiss="modal">
-
-                            Cancelar
-
-                        </button>
-
-                        <button type="submit"
-                                class="btn btn-success">
-
-                            Confirmar reserva
-
-                        </button>
-
-                    </div>
-
-                </form>
+                </div>
 
             </div>
 
+            {% endfor %}
+
         </div>
 
-        {% endfor %}
+        <div class="mt-4">
+
+            <a href="/kite" class="btn btn-outline-secondary">
+
+                ← Volver al KITE
+
+            </a>
+
+        </div>
 
     </div>
 
-    <div class="mt-4">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-        <a href="/kite"
-           class="btn btn-outline-secondary">
-
-            ← Volver al KITE
-
-        </a>
-
-    </div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleOtroFilamento(id) {
+            var select = document.getElementById('filamento_select_' + id);
+            var input = document.getElementById('filamento_otro_' + id);
+            if (select.value === 'Otro') {
+                input.style.display = 'block';
+                input.setAttribute('required', 'required');
+            } else {
+                input.style.display = 'none';
+                input.removeAttribute('required');
+            }
+        }
+    </script>
 
 </body>
+
 </html>

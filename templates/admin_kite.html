@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHub | Admin KITE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f4f7fb;
+            font-family: 'Segoe UI', sans-serif;
+            color: #102542;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(90deg, #1e3a8a, #1e40af);
+            padding: 14px 0;
+        }
+
+        .brand span {
+            color: #10b981;
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .05);
+            margin-bottom: 24px;
+            border-top: 4px solid #10b981;
+        }
+
+        .table-custom {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table-custom thead {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-dark navbar-custom mb-4">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="/admin" class="navbar-brand fw-bold brand">Campus<span>Hub</span> Admin</a>
+            <div>
+                <span class="text-white me-3"><i class="bi bi-shield-lock"></i> KITE ADMIN</span>
+                <a href="/logout" class="btn btn-outline-light btn-sm">Cerrar sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h3 class="fw-bold mb-4">Panel de Administración KITE</h3>
+
+        <div class="row">
+            <!-- Límites de Filamento -->
+            <div class="col-md-6">
+                <div class="admin-card">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-funnel"></i> Límites de Filamento (PLA)</h5>
+                    <p class="small text-muted">Límites personalizados por usuario o cohorte. Sobrescriben el global
+                        (750g).</p>
+                    <div class="table-responsive table-custom border">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Destino</th>
+                                    <th>Límite (g)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for l in limites %}
+                                <tr>
+                                    <td><span class="badge bg-secondary">{{ l.tipo | capitalize }}</span></td>
+                                    <td>{{ l.usuario if l.tipo == 'persona' else l.cohorte }}</td>
+                                    <td class="fw-bold">{{ l.limite }}g</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">No hay límites personalizados
+                                        activos.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloqueos -->
+            <div class="col-md-6">
+                <div class="admin-card" style="border-top-color: #ef4444;">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-slash-circle"></i> Usuarios/Cohortes Bloqueados</h5>
+                    <p class="small text-muted">No podrán reservar impresoras, CNC ni herramientas.</p>
+                    <div class="table-responsive table-custom border">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Destino</th>
+                                    <th>Mensaje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in bloqueos %}
+                                <tr>
+                                    <td><span class="badge bg-danger">{{ b.tipo | capitalize }}</span></td>
+                                    <td>{{ b.usuario if b.tipo == 'persona' else b.cohorte }}</td>
+                                    <td class="small">{{ b.mensaje }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">No hay bloqueos activos.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección Herramientas próximamente -->
+        <div class="admin-card mt-2 border-top-secondary">
+            <h5 class="fw-bold mb-3"><i class="bi bi-tools"></i> Gestión de Herramientas y Daños</h5>
+            <div class="alert alert-info border-0" style="border-radius: 12px;">
+                <i class="bi bi-info-circle me-2"></i> Esta sección será habilitada en futuras actualizaciones para
+                permitir la revisión y reparación de herramientas marcadas como dañadas durante la devolución.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
