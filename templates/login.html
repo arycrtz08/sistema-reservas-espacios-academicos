@@ -160,6 +160,48 @@
     </style>
 </head>
 
+<script>
+    const carnetInput = document.getElementById('carnet_us');
+
+    // Formatear automáticamente mientras escribe
+    carnetInput.addEventListener('input', function () {
+        let val = this.value.toUpperCase();
+
+        // Autocompletar prefijo
+        if (!val.startsWith('KEY_000')) {
+            if ('KEY_000'.startsWith(val)) {
+                // Dejar escribir normalmente
+            } else if (val.length <= 7) {
+                val = 'KEY_000';
+            }
+        }
+
+        this.value = val;
+        validarCarnet();
+    });
+
+    function validarCarnet() {
+        const regex = /^KEY_000\d{3}$/;
+        if (regex.test(carnetInput.value)) {
+            carnetInput.classList.remove('is-invalid');
+            carnetInput.classList.add('is-valid');
+        } else {
+            carnetInput.classList.remove('is-valid');
+            carnetInput.classList.add('is-invalid');
+        }
+    }
+
+    // Validar antes de enviar el formulario
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const regex = /^KEY_000\d{3}$/;
+        if (!regex.test(carnetInput.value)) {
+            e.preventDefault();
+            carnetInput.classList.add('is-invalid');
+            carnetInput.focus();
+        }
+    });
+</script>
+
 <body>
 
     <div class="login-wrapper">
@@ -215,7 +257,10 @@
                     <div class="mb-3">
                         <label for="carnet_us" class="form-label">Carnet</label>
                         <input type="text" class="form-control" id="carnet_us" name="carnet_us"
-                            placeholder="Ej. KEY_000###" required>
+                            placeholder="Ej. KEY_000123" maxlength="10" required>
+                        <div class="invalid-feedback">
+                            El formato debe ser KEY_000### (ej: KEY_000123).
+                        </div>
                     </div>
 
                     <div class="mb-4">

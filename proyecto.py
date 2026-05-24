@@ -99,7 +99,11 @@ def home():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    response = redirect(url_for('login'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # ─── Login Estudiante ────────────────────────────────────────────────────────
 @app.route('/login', methods=['GET', 'POST'])
@@ -108,6 +112,12 @@ def login():
         user    = request.form.get('usuario', '').strip()
         carnet  = request.form.get('carnet_us', '').strip()
         cohorte = request.form.get('cohorte', '').strip()
+
+        # Validar formato carnet
+        import re
+        if not re.match(r'^KEY_000\d{3}$', carnet):
+            return render_template('login.html', error='El carnet debe tener el formato KEY_000### (ej: KEY_000123).')
+
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
@@ -116,7 +126,13 @@ def login():
                 (carnet,))
             existing = cursor.fetchone()
             if existing:
-                id_usuario = existing[0]; user = existing[1]; cohorte = existing[2]
+                # Carnet ya registrado — verificar que el nombre coincida
+                if existing[1].strip().lower() != user.strip().lower():
+                    cursor.close(); conn.close()
+                    return render_template('login.html', error='El carnet ya está registrado con otro nombre.')
+                id_usuario = existing[0]
+                user       = existing[1]
+                cohorte    = existing[2]
             else:
                 cursor.execute(
                     "INSERT INTO Usuarios (usuario,carnet_us,cohorte_sel) OUTPUT INSERTED.id_usuario VALUES (?,?,?)",
@@ -544,9 +560,17 @@ def api_buscar_herramienta():
             FROM Herramientas h JOIN CategoriasHerramienta c ON h.id_categoria=c.id_categoria
             WHERE h.cantidad_disponible > 0 AND h.activa=1 AND (h.nombre LIKE ? OR h.codigo LIKE ?)
         """, (f'%{q}%', f'%{q}%'))
-        res = [{'id':r[0],'nombre':r[1],'codigo':r[2],'disponible':r[3],'categoria':r[4]} for r in cursor.fetchall()]
+        herramientas = [{'id':r[0],'nombre':r[1],'codigo':r[2],'disponible':r[3],'categoria':r[4]} for r in cursor.fetchall()]
+
+        # Obtener EPP para cada herramienta
+        for h in herramientas:
+            cursor.execute("""
+                SELECT equipo FROM EPPHerramienta WHERE id_herramienta=?
+            """, (h['id'],))
+            h['epp'] = [row[0] for row in cursor.fetchall()]
+
         cursor.close(); conn.close()
-        return jsonify(res)
+        return jsonify(herramientas)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -798,5 +822,31 @@ def admin_salas():
 def admin_gral():
     return render_template('admin_gral.html')
 
+@app.route('/admin/restablecer_reservas', methods=['POST'])
+@admin_required('gral')
+def admin_restablecer_reservas():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Cambiar estado en vez de borrar
+        cursor.execute("UPDATE ReservasSalas SET estado='Finalizada' WHERE estado='Activa'")
+        cursor.execute("UPDATE ReservasImpresora3D SET estado='Finalizada' WHERE estado='Activa'")
+        cursor.execute("UPDATE ReservasCNC SET estado='Finalizada' WHERE estado='Activa'")
+        cursor.execute("UPDATE PrestamosHerramienta SET estado='Devuelto', fecha_devolucion=GETDATE() WHERE estado='Prestado'")
+        cursor.execute("UPDATE ReservasComputadora SET estado='Devuelta', hora_fin=GETDATE() WHERE estado IN ('Pendiente','Confirmada')")
+        # Restablecer disponibilidad
+        cursor.execute("UPDATE Salas SET disponible = 1")
+        cursor.execute("UPDATE Impresoras3D SET disponible = 1")
+        cursor.execute("UPDATE MaquinasCNC SET disponible = 1")
+        cursor.execute("UPDATE Computadoras SET disponible = 1")
+        cursor.execute("UPDATE Herramientas SET cantidad_disponible = cantidad_total")
+        conn.commit()
+        cursor.close(); conn.close()
+        flash('Reservas restablecidas. El historial se ha conservado.', 'success')
+        return redirect(url_for('admin_gral'))
+    except Exception as e:
+        flash(f'Error al restablecer: {e}', 'danger')
+        return redirect(url_for('admin_gral'))
+    
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True) 

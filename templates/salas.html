@@ -165,14 +165,29 @@
     </nav>
 
     <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
 
-        <div class="hero">
+       <div class="hero">
             <h1>Reserva de Salas Académicas</h1>
-
             <p>
                 Gestiona espacios académicos para reuniones,
                 trabajos en grupo y actividades universitarias.
             </p>
+        </div>
+
+        <div class="mb-4">
+            <a href="/" class="btn btn-outline-secondary" style="border-radius: 14px; font-weight: 700;">
+                ← Volver al dashboard
+            </a>
         </div>
 
         <h3 class="section-title">
