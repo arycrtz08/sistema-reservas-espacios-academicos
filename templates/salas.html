@@ -1,420 +1,334 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends 'base.html' %}
+{% block title %}CampusHub | Salas{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block content %}
+<div class="hero blue">
+    <h1 class="fw-bold"><i class="bi bi-door-open"></i> Reserva de Salas</h1>
+    <p class="mb-0">Busca una sala disponible según tu fecha, horario y cantidad de personas.</p>
+</div>
 
-    <title>CampusHub | Salas</title>
+<a class="btn btn-outline-secondary btn-rounded mb-4" href="{{ url_for('home') }}">← Dashboard</a>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
-    <style>
-        body {
-            background: #f4f7fb;
-            font-family: 'Segoe UI', sans-serif;
-            color: #102542;
-        }
-
-        .navbar-custom {
-            background: linear-gradient(90deg, #0b2a5b, #173b9b);
-            padding: 14px 0;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, .10);
-        }
-
-        .hero {
-            background: linear-gradient(135deg, #173b9b, #2364e8);
-            color: white;
-            border-radius: 28px;
-            padding: 40px;
-            margin-bottom: 35px;
-            box-shadow: 0 16px 35px rgba(0, 0, 0, .12);
-        }
-
-        .hero h1 {
-            font-weight: 800;
-        }
-
-        .hero p {
-            opacity: .9;
-            margin-top: 10px;
-        }
-
-        .room-card {
-            background: white;
-            border: none;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, .08);
-            transition: .2s ease;
-            height: 100%;
-        }
-
-        .room-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 18px 35px rgba(0, 0, 0, .12);
-        }
-
-        .card-top {
-            background: linear-gradient(135deg, #2364e8, #173b9b);
-            color: white;
-            padding: 26px;
-        }
-
-        .card-top i {
-            font-size: 38px;
-        }
-
-        .card-body {
-            padding: 24px;
-        }
-
-        .status {
-            display: inline-block;
-            background: #d1fae5;
-            color: #047857;
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .info-box {
-            background: #f5f8ff;
-            border-radius: 16px;
-            padding: 14px;
-            margin-top: 14px;
-        }
-
-        .btn-main {
-            background: linear-gradient(135deg, #2364e8, #173b9b);
-            border: none;
-            border-radius: 14px;
-            padding: 12px;
-            font-weight: 700;
-        }
-
-        .btn-main:hover {
-            opacity: .92;
-        }
-
-        .modal-content {
-            border: none;
-            border-radius: 24px;
-            overflow: hidden;
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, #173b9b, #2364e8);
-            color: white;
-            border: none;
-            padding: 22px 24px;
-        }
-
-        .modal-body {
-            padding: 26px;
-            background: #f8faff;
-        }
-
-        .modal-footer {
-            border: none;
-            background: #f8faff;
-            padding: 20px 26px;
-        }
-
-        .form-control {
-            border-radius: 14px;
-            padding: 12px;
-            border: 1px solid #dbe3ef;
-        }
-
-        .form-control:focus {
-            border-color: #2364e8;
-            box-shadow: 0 0 0 .2rem rgba(35, 100, 232, .15);
-        }
-
-        .section-title {
-            font-weight: 800;
-            margin-bottom: 20px;
-        }
-
-        .small-muted {
-            color: #70819a;
-            font-size: 14px;
-        }
-    </style>
-
-</head>
-
-<body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4">
-        <div class="container">
-
-            <a class="navbar-brand fw-bold" href="/">
-                CampusHub
-            </a>
-
-            <div class="text-white">
-                <i class="bi bi-person-circle"></i>
-                {{ session['usuario'] }}
-            </div>
-
+<div class="card-clean mb-4 p-4">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-search fs-4 text-primary"></i>
+        <div>
+            <h5 class="fw-bold mb-0">Buscar salas disponibles</h5>
+            <small class="text-muted">Filtra antes de reservar para no probar sala por sala.</small>
         </div>
-    </nav>
-
-    <div class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Fecha</label>
+            <input type="date" id="busqFecha" min="{{ hoy }}" class="form-control">
         </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-
-       <div class="hero">
-            <h1>Reserva de Salas Académicas</h1>
-            <p>
-                Gestiona espacios académicos para reuniones,
-                trabajos en grupo y actividades universitarias.
-            </p>
+        <div class="col-md-2">
+            <label class="form-label">Inicio</label>
+            <input type="time" id="busqInicio" min="06:00" max="18:00" class="form-control">
         </div>
-
-        <div class="mb-4">
-            <a href="/" class="btn btn-outline-secondary" style="border-radius: 14px; font-weight: 700;">
-                ← Volver al dashboard
-            </a>
+        <div class="col-md-2">
+            <label class="form-label">Fin</label>
+            <input type="time" id="busqFin" min="06:00" max="18:00" class="form-control">
         </div>
-
-        <h3 class="section-title">
-            Salas Disponibles
-        </h3>
-
-        <div class="row g-4">
-
-            {% for sala in salas %}
-
-            <div class="col-md-4">
-
-                <div class="room-card">
-
-                    <div class="card-top">
-
-                        <i class="bi bi-building"></i>
-
-                        <h4 class="mt-3 fw-bold">
-                            {{ sala.nombre }}
-                        </h4>
-
-                    </div>
-
-                    <div class="card-body">
-
-                        <span class="status">
-                            Disponible
-                        </span>
-
-                        <div class="info-box">
-
-                            <strong>Capacidad máxima:</strong><br>
-
-                            {{ sala.capacidad_max }} personas
-
-                        </div>
-
-                        <div class="info-box">
-
-                            <strong>Horario permitido:</strong><br>
-
-                            6:00 AM - 6:00 PM
-
-                        </div>
-
-                        <button class="btn btn-main text-white w-100 mt-4" data-bs-toggle="modal"
-                            data-bs-target="#modal{{ sala.id_sala }}">
-                            Reservar Sala
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- MODAL -->
-
-            <div class="modal fade" id="modal{{ sala.id_sala }}" tabindex="-1">
-
-                <div class="modal-dialog modal-dialog-centered">
-
-                    <form action="/reservar_sala" method="POST" class="modal-content">
-
-                        <div class="modal-header">
-
-                            <h5 class="modal-title fw-bold">
-                                Reservar {{ sala.nombre }}
-                            </h5>
-
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
-                            </button>
-
-                        </div>
-
-                        <div class="modal-body">
-
-                            <input type="hidden" name="id_sala" value="{{ sala.id_sala }}">
-
-                            <div class="row mb-3">
-
-                                <div class="col">
-
-                                    <label class="form-label">
-                                        Hora Inicio
-                                    </label>
-
-                                    <input type="time" name="hora_inicio" class="form-control" required>
-
-                                </div>
-
-                                <div class="col">
-
-                                    <label class="form-label">
-                                        Hora Fin
-                                    </label>
-
-                                    <input type="time" name="hora_fin" class="form-control" required>
-
-                                </div>
-
-                            </div>
-
-                            <div class="mb-4">
-
-                                <label class="form-label">
-                                    Cantidad de Personas
-                                </label>
-
-                                <input type="number" name="cantidad_personas" id="cantidad_personas_{{ sala.id_sala }}"
-                                    class="form-control" min="2" max="6" value="2"
-                                    onchange="generarAcompanantes({{ sala.id_sala }})" required>
-
-                                <div class="small-muted mt-2">
-                                    Mínimo 2 personas y máximo 6.
-                                    <br><strong>Nota:</strong> Esta cantidad es "Los acompañantes + el que reserva la
-                                    sala".
-                                </div>
-
-                            </div>
-
-                            <hr>
-
-                            <div id="container-acomp-{{ sala.id_sala }}">
-                                <!-- Los acompañantes se generarán aquí con JS -->
-                            </div>
-
-                        </div>
-
-                        <div class="modal-footer">
-
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-
-                                Cancelar
-
-                            </button>
-
-                            <button type="submit" class="btn btn-success">
-
-                                Confirmar Reserva
-
-                            </button>
-
-                        </div>
-
-                    </form>
-
-                </div>
-
-            </div>
-
-            {% endfor %}
-
+        <div class="col-md-2">
+            <label class="form-label">Personas</label>
+            <input type="number" id="busqPersonas" min="2" max="6" value="2" class="form-control">
         </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="button" class="btn btn-primary btn-rounded flex-grow-1" onclick="buscarSalas()">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-rounded" onclick="limpiarBusqueda()">
+                Limpiar
+            </button>
+        </div>
+    </div>
+    <div id="mensajeBusqueda" class="mt-3"></div>
+</div>
 
+<h4 class="fw-bold mb-3">Salas</h4>
+<div class="row g-4" id="listaSalas">
+    {% for sala in salas %}
+    <div class="col-md-4 sala-col" id="colSala{{ sala.id_sala }}" data-capacidad="{{ sala.capacidad_max }}">
+        <div class="card-clean resource-card h-100" id="tarjetaSala{{ sala.id_sala }}">
+            <h4 class="fw-bold">{{ sala.nombre }}</h4>
+            <span class="badge-soft badge-ok mb-3">Capacidad: {{ sala.capacidad_max }}</span>
+            <p class="text-muted">Horario permitido: 6:00 AM - 6:00 PM<br>Máximo: 2 horas.</p>
+            <div id="estadoCard{{ sala.id_sala }}" class="mb-3"></div>
+            <button class="btn btn-primary btn-rounded w-100" id="abrirSala{{ sala.id_sala }}"
+                data-bs-toggle="modal" data-bs-target="#sala{{ sala.id_sala }}"
+                onclick="trasladarBusqueda({{ sala.id_sala }})">
+                Reservar
+            </button>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        // Se ejecuta cuando cambia la cantidad de personas
-        function generarAcompanantes(id_sala) {
-            const input = document.getElementById('cantidad_personas_' + id_sala);
-            const container = document.getElementById('container-acomp-' + id_sala);
-            let cantidad = parseInt(input.value);
-
-            if (isNaN(cantidad) || cantidad < 2) cantidad = 2;
-            if (cantidad > 6) cantidad = 6;
-
-            // La cantidad de acompañantes es la cantidad total - 1 (el que reserva)
-            let numAcompanantes = cantidad - 1;
-
-            container.innerHTML = ''; // Limpiar
-
-            for (let i = 0; i < numAcompanantes; i++) {
-                let html = `
-                <div class="acomp-box mb-3 p-3 border rounded bg-white">
-                    <h6 class="fw-bold mb-3 text-primary">Acompañante ${i + 1}</h6>
-                    
-                    <label class="form-label small fw-bold">Carnet</label>
-                    <input type="text" name="acomp_carnet_${i}" id="acomp_carnet_${id_sala}_${i}" class="form-control mb-2" placeholder="Ej. KEY_000123" required onblur="buscarCarnet(this, ${id_sala}, ${i})">
-                    
-                    <label class="form-label small fw-bold">Nombre Completo</label>
-                    <input type="text" name="acomp_nombre_${i}" id="acomp_nombre_${id_sala}_${i}" class="form-control mb-2" placeholder="Nombre completo" required>
-                    
-                    <label class="form-label small fw-bold">Cohorte</label>
-                    <input type="text" name="acomp_cohorte_${i}" id="acomp_cohorte_${id_sala}_${i}" class="form-control mb-1" placeholder="Ej. Cohorte 1" required>
+    <div class="modal fade" id="sala{{ sala.id_sala }}" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <form method="post" action="{{ url_for('reservar_sala') }}" class="modal-content rounded-4"
+                id="formSala{{ sala.id_sala }}">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Reservar {{ sala.nombre }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            `;
-                container.innerHTML += html;
-            }
+                <div class="modal-body">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="id_sala" value="{{ sala.id_sala }}">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" name="fecha" id="fechaSala{{ sala.id_sala }}" min="{{ hoy }}"
+                                class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Inicio</label>
+                            <input type="time" name="hora_inicio" id="inicioSala{{ sala.id_sala }}"
+                                min="06:00" max="18:00" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Fin</label>
+                            <input type="time" name="hora_fin" id="finSala{{ sala.id_sala }}"
+                                min="06:00" max="18:00" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mt-3" id="disponibilidadSala{{ sala.id_sala }}">
+                        <div class="alert alert-secondary py-2 mb-0">
+                            Selecciona una fecha para ver los horarios no disponibles.
+                        </div>
+                    </div>
+                    <div class="mt-3" id="estadoHorario{{ sala.id_sala }}"></div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-5">
+                            <label class="form-label">Cantidad de personas</label>
+                            <input type="number" min="2" max="{{ sala.capacidad_max }}" value="2"
+                                name="cantidad_personas" id="cant{{ sala.id_sala }}" class="form-control" required>
+                        </div>
+                    </div>
+                    <div id="acomps{{ sala.id_sala }}" class="mt-4"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-success" id="btnReservarSala{{ sala.id_sala }}">Confirmar reserva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const rangosSala = {};
+    let busquedaActiva = false;
+
+    function acomp(id) {
+        const n = Number(document.getElementById('cant' + id).value || 2) - 1;
+        const c = document.getElementById('acomps' + id);
+        c.innerHTML = '<h6 class="fw-bold">Acompañantes</h6>';
+        for (let i = 0; i < n; i++) {
+            c.innerHTML += `
+                <div class="row g-2 mb-2">
+                    <div class="col-md-4"><input class="form-control" name="acomp_carnet_${i}" placeholder="KEY_000123" required onblur="buscarCarnet(this, ${id}, ${i})"></div>
+                    <div class="col-md-4"><input id="nom${id}_${i}" class="form-control" name="acomp_nombre_${i}" placeholder="Nombre" required></div>
+                    <div class="col-md-4"><input id="coh${id}_${i}" class="form-control" name="acomp_cohorte_${i}" placeholder="Cohorte" required></div>
+                </div>`;
         }
+    }
 
-        // Buscar datos por carnet en la BD
-        function buscarCarnet(inputElement, id_sala, indice) {
-            let carnet = inputElement.value.trim();
-            if (carnet.length === 0) return;
-
-            fetch('/api/buscar_usuario_por_carnet?carnet=' + encodeURIComponent(carnet))
-                .then(res => res.json())
-                .then(data => {
-                    if (data.nombre) {
-                        document.getElementById(`acomp_nombre_${id_sala}_${indice}`).value = data.nombre;
-                        document.getElementById(`acomp_cohorte_${id_sala}_${indice}`).value = data.cohorte;
-
-                        // Pequeña animación para mostrar que se autollenó
-                        let box = inputElement.closest('.acomp-box');
-                        box.style.transition = "background-color 0.3s";
-                        box.style.backgroundColor = "#d1fae5";
-                        setTimeout(() => { box.style.backgroundColor = ""; }, 600);
-                    }
-                })
-                .catch(err => console.log(err));
-        }
-
-        // Inicializar al cargar para las modales existentes
-        document.addEventListener("DOMContentLoaded", function () {
-            // Encontrar todos los inputs de cantidad y disparar el evento
-            let inputs = document.querySelectorAll('input[name="cantidad_personas"]');
-            inputs.forEach(input => {
-                let id = input.id.split('_').pop();
-                generarAcompanantes(id);
+    function buscarCarnet(el, id, i) {
+        fetch(`/api/buscar_usuario_por_carnet?carnet=${encodeURIComponent(el.value)}`)
+            .then(r => r.json())
+            .then(d => {
+                if (d.nombre) {
+                    document.getElementById(`nom${id}_${i}`).value = d.nombre;
+                    document.getElementById(`coh${id}_${i}`).value = d.cohorte;
+                }
             });
+    }
+
+    function formatearHora(hora) {
+        const [h, m] = hora.split(':').map(Number);
+        const periodo = h >= 12 ? 'PM' : 'AM';
+        const normal = h % 12 || 12;
+        return `${normal}:${String(m).padStart(2, '0')} ${periodo}`;
+    }
+
+    function minutos(hora) {
+        return Number(hora.slice(0, 2)) * 60 + Number(hora.slice(3));
+    }
+
+    function datosBusquedaValidos() {
+        const fecha = document.getElementById('busqFecha').value;
+        const inicio = document.getElementById('busqInicio').value;
+        const fin = document.getElementById('busqFin').value;
+        const personas = Number(document.getElementById('busqPersonas').value);
+        const mensaje = document.getElementById('mensajeBusqueda');
+        if (!fecha || !inicio || !fin || !personas) {
+            mensaje.innerHTML = '<div class="alert alert-warning mb-0">Completa fecha, horario y cantidad de personas para buscar.</div>';
+            return false;
+        }
+        if (inicio < '06:00' || fin > '18:00' || fin <= inicio) {
+            mensaje.innerHTML = '<div class="alert alert-danger mb-0">El horario debe estar entre 6:00 AM y 6:00 PM, con una hora final posterior.</div>';
+            return false;
+        }
+        if (minutos(fin) - minutos(inicio) > 120) {
+            mensaje.innerHTML = '<div class="alert alert-danger mb-0">La reserva no puede durar más de 2 horas.</div>';
+            return false;
+        }
+        mensaje.innerHTML = '<div class="alert alert-light mb-0">Buscando salas disponibles...</div>';
+        return true;
+    }
+
+    function buscarSalas() {
+        if (!datosBusquedaValidos()) return;
+        const fecha = document.getElementById('busqFecha').value;
+        const inicio = document.getElementById('busqInicio').value;
+        const fin = document.getElementById('busqFin').value;
+        const personas = Number(document.getElementById('busqPersonas').value);
+        let disponibles = 0;
+        let procesadas = 0;
+        busquedaActiva = true;
+
+        const ids = [{% for sala in salas %}{{ sala.id_sala }}{% if not loop.last %}, {% endif %}{% endfor %}];
+        ids.forEach(id => {
+            const capacidad = Number(document.getElementById('colSala' + id).dataset.capacidad);
+            fetch(`/api/salas/${id}/disponibilidad?fecha=${encodeURIComponent(fecha)}`)
+                .then(r => r.json())
+                .then(data => {
+                    const intervalos = data.intervalos || [];
+                    const choque = intervalos.find(r => inicio < r.fin && fin > r.inicio);
+                    let disponible = true;
+                    let razon = '';
+                    if (personas > capacidad) {
+                        disponible = false;
+                        razon = `Capacidad insuficiente: máximo ${capacidad} personas.`;
+                    } else if (choque) {
+                        disponible = false;
+                        razon = `${choque.tipo}: ${formatearHora(choque.inicio)} - ${formatearHora(choque.fin)}.`;
+                    }
+                    pintarResultado(id, disponible, razon);
+                    if (disponible) disponibles++;
+                })
+                .catch(() => pintarResultado(id, false, 'No se pudo consultar disponibilidad.'))
+                .finally(() => {
+                    procesadas++;
+                    if (procesadas === ids.length) {
+                        const tipo = disponibles ? 'success' : 'danger';
+                        const texto = disponibles === 1 ? 'Hay 1 sala disponible para tu horario.' : `Hay ${disponibles} salas disponibles para tu horario.`;
+                        document.getElementById('mensajeBusqueda').innerHTML = `<div class="alert alert-${tipo} mb-0"><strong>${texto}</strong> Las disponibles están marcadas en verde.</div>`;
+                    }
+                });
         });
-    </script>
+    }
 
-</body>
+    function pintarResultado(id, disponible, razon) {
+        const tarjeta = document.getElementById('tarjetaSala' + id);
+        const estado = document.getElementById('estadoCard' + id);
+        const boton = document.getElementById('abrirSala' + id);
+        tarjeta.style.border = disponible ? '2px solid #198754' : '2px solid #dc3545';
+        if (disponible) {
+            estado.innerHTML = '<div class="alert alert-success py-2 mb-0"><i class="bi bi-check-circle"></i> Disponible para tu búsqueda</div>';
+            boton.disabled = false;
+            boton.textContent = 'Reservar este horario';
+            boton.className = 'btn btn-success btn-rounded w-100';
+        } else {
+            estado.innerHTML = `<div class="alert alert-danger py-2 mb-0"><i class="bi bi-x-circle"></i> ${razon}</div>`;
+            boton.disabled = true;
+            boton.textContent = 'No disponible';
+            boton.className = 'btn btn-secondary btn-rounded w-100';
+        }
+    }
 
-</html>
+    function limpiarBusqueda() {
+        busquedaActiva = false;
+        document.getElementById('busqFecha').value = '';
+        document.getElementById('busqInicio').value = '';
+        document.getElementById('busqFin').value = '';
+        document.getElementById('busqPersonas').value = '2';
+        document.getElementById('mensajeBusqueda').innerHTML = '';
+        {% for sala in salas %}
+        document.getElementById('tarjetaSala{{ sala.id_sala }}').style.border = '';
+        document.getElementById('estadoCard{{ sala.id_sala }}').innerHTML = '';
+        document.getElementById('abrirSala{{ sala.id_sala }}').disabled = false;
+        document.getElementById('abrirSala{{ sala.id_sala }}').textContent = 'Reservar';
+        document.getElementById('abrirSala{{ sala.id_sala }}').className = 'btn btn-primary btn-rounded w-100';
+        {% endfor %}
+    }
+
+    function trasladarBusqueda(id) {
+        if (!busquedaActiva) return;
+        document.getElementById('fechaSala' + id).value = document.getElementById('busqFecha').value;
+        document.getElementById('inicioSala' + id).value = document.getElementById('busqInicio').value;
+        document.getElementById('finSala' + id).value = document.getElementById('busqFin').value;
+        document.getElementById('cant' + id).value = document.getElementById('busqPersonas').value;
+        acomp(id);
+        cargarDisponibilidad(id);
+    }
+
+    function cargarDisponibilidad(id) {
+        const fecha = document.getElementById('fechaSala' + id).value;
+        const caja = document.getElementById('disponibilidadSala' + id);
+        rangosSala[id] = [];
+        if (!fecha) {
+            caja.innerHTML = '<div class="alert alert-secondary py-2 mb-0">Selecciona una fecha para ver los horarios no disponibles.</div>';
+            validarHorario(id);
+            return;
+        }
+        caja.innerHTML = '<div class="alert alert-light py-2 mb-0">Consultando disponibilidad...</div>';
+        fetch(`/api/salas/${id}/disponibilidad?fecha=${encodeURIComponent(fecha)}`)
+            .then(r => r.json())
+            .then(data => {
+                rangosSala[id] = data.intervalos || [];
+                if (rangosSala[id].length === 0) {
+                    caja.innerHTML = '<div class="alert alert-success py-2 mb-0"><i class="bi bi-check-circle me-1"></i>No hay horarios ocupados ni bloqueados en esta fecha.</div>';
+                } else {
+                    const tarjetas = rangosSala[id].map(r => `<span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle me-2 mb-2 p-2"><i class="bi bi-x-circle me-1"></i>${formatearHora(r.inicio)} - ${formatearHora(r.fin)} · ${r.tipo}</span>`).join('');
+                    caja.innerHTML = `<div class="alert alert-danger mb-0"><strong>Horarios no disponibles:</strong><div class="mt-2">${tarjetas}</div></div>`;
+                }
+                validarHorario(id);
+            })
+            .catch(() => {
+                caja.innerHTML = '<div class="alert alert-warning py-2 mb-0">No se pudo consultar la disponibilidad.</div>';
+                validarHorario(id);
+            });
+    }
+
+    function validarHorario(id) {
+        const inicio = document.getElementById('inicioSala' + id).value;
+        const fin = document.getElementById('finSala' + id).value;
+        const estado = document.getElementById('estadoHorario' + id);
+        const boton = document.getElementById('btnReservarSala' + id);
+        boton.disabled = false;
+        estado.innerHTML = '';
+        if (!inicio || !fin) return;
+        if (fin <= inicio) {
+            boton.disabled = true;
+            estado.innerHTML = '<div class="alert alert-danger py-2">La hora de fin debe ser posterior a la hora de inicio.</div>';
+            return;
+        }
+        if (minutos(fin) - minutos(inicio) > 120) {
+            boton.disabled = true;
+            estado.innerHTML = '<div class="alert alert-danger py-2">La reserva no puede durar más de 2 horas.</div>';
+            return;
+        }
+        const choque = (rangosSala[id] || []).find(r => inicio < r.fin && fin > r.inicio);
+        if (choque) {
+            boton.disabled = true;
+            estado.innerHTML = `<div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-1"></i>Ese horario choca con un período ${choque.tipo.toLowerCase()}: <strong>${formatearHora(choque.inicio)} - ${formatearHora(choque.fin)}</strong>.</div>`;
+            return;
+        }
+        if (document.getElementById('fechaSala' + id).value) {
+            estado.innerHTML = '<div class="alert alert-success py-2"><i class="bi bi-check-circle me-1"></i>El horario seleccionado está disponible.</div>';
+        }
+    }
+
+    {% for sala in salas %}
+    document.getElementById('cant{{ sala.id_sala }}').addEventListener('input', () => acomp({{ sala.id_sala }}));
+    document.getElementById('fechaSala{{ sala.id_sala }}').addEventListener('change', () => cargarDisponibilidad({{ sala.id_sala }}));
+    document.getElementById('inicioSala{{ sala.id_sala }}').addEventListener('input', () => validarHorario({{ sala.id_sala }}));
+    document.getElementById('finSala{{ sala.id_sala }}').addEventListener('input', () => validarHorario({{ sala.id_sala }}));
+    acomp({{ sala.id_sala }});
+    {% endfor %}
+</script>
+{% endblock %}

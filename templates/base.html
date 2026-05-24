@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CampusHub{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+{% block nav %}
+<nav class="navbar navbar-dark navbar-custom mb-4"><div class="container">
+<a class="navbar-brand fw-bold" href="{{ url_for('home') if session.get('id_usuario') else url_for('login') }}">Campus<span>Hub</span></a>
+<div class="d-flex align-items-center gap-3 text-white">
+{% if session.get('usuario') %}<span><i class="bi bi-person-circle"></i> {{ session.usuario }}</span><a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">Salir</a>{% endif %}
+{% if session.get('admin') %}<span><i class="bi bi-shield-lock"></i> {{ session.admin }}</span><a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">Salir</a>{% endif %}
+</div></div></nav>
+{% endblock %}
+<div class="container pb-5">
+{% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}{% for category,message in messages %}<div class="alert alert-{{ category }} alert-dismissible fade show"><span>{{ message }}</span><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}{% endif %}{% endwith %}
+{% block content %}{% endblock %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body></html>

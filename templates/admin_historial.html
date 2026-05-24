@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}CampusHub | Historial Administrativo{% endblock %}
+
+{% block content %}
+<div class="hero {% if admin_tipo == 'kite' %}green{% elif admin_tipo == 'compu' %}purple{% else %}blue{% endif %}">
+    <h1 class="fw-bold"><i class="bi bi-clock-history"></i> Historial de movimientos</h1>
+    <p class="mb-0">
+        {% if admin_tipo == 'gral' %}
+        Consulta el historial completo de reservas y préstamos del sistema.
+        {% elif admin_tipo == 'kite' %}
+        Consulta reservas y préstamos realizados en recursos KITE.
+        {% elif admin_tipo == 'compu' %}
+        Consulta entregas, devoluciones y solicitudes de computadoras.
+        {% else %}
+        Consulta el historial de reservas realizadas en salas.
+        {% endif %}
+    </p>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a class="btn btn-outline-secondary btn-rounded"
+       href="{{ url_for('admin_dashboard') }}">← Volver al panel</a>
+</div>
+
+<div class="card-clean mb-4">
+    <h5 class="fw-bold mb-3"><i class="bi bi-funnel"></i> Filtros</h5>
+    <form method="get" action="{{ url_for('admin_historial') }}" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Recurso</label>
+            <select name="recurso" class="form-select">
+                <option value="todos" {% if recurso == 'todos' %}selected{% endif %}>Todos</option>
+                {% if 'salas' in recursos_permitidos %}
+                <option value="salas" {% if recurso == 'salas' %}selected{% endif %}>Salas</option>
+                {% endif %}
+                {% if 'computadoras' in recursos_permitidos %}
+                <option value="computadoras" {% if recurso == 'computadoras' %}selected{% endif %}>Computadoras</option>
+                {% endif %}
+                {% if 'impresoras' in recursos_permitidos %}
+                <option value="impresoras" {% if recurso == 'impresoras' %}selected{% endif %}>Impresoras 3D</option>
+                {% endif %}
+                {% if 'cnc' in recursos_permitidos %}
+                <option value="cnc" {% if recurso == 'cnc' %}selected{% endif %}>CNC</option>
+                {% endif %}
+                {% if 'herramientas' in recursos_permitidos %}
+                <option value="herramientas" {% if recurso == 'herramientas' %}selected{% endif %}>Herramientas</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Estado</label>
+            <select name="estado" class="form-select">
+                <option value="" {% if not estado %}selected{% endif %}>Todos</option>
+                <option value="Activa" {% if estado == 'Activa' %}selected{% endif %}>Activa</option>
+                <option value="Pendiente" {% if estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="Confirmada" {% if estado == 'Confirmada' %}selected{% endif %}>Confirmada</option>
+                <option value="Prestado" {% if estado == 'Prestado' %}selected{% endif %}>Prestado</option>
+                <option value="Devuelta" {% if estado == 'Devuelta' %}selected{% endif %}>Devuelta</option>
+                <option value="Devuelto" {% if estado == 'Devuelto' %}selected{% endif %}>Devuelto</option>
+                <option value="Finalizada" {% if estado == 'Finalizada' %}selected{% endif %}>Finalizada</option>
+                <option value="Cancelada" {% if estado == 'Cancelada' %}selected{% endif %}>Cancelada</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Fecha</label>
+            <input type="date" name="fecha" value="{{ fecha_filtro }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Estudiante o carnet</label>
+            <input type="text" name="busqueda" value="{{ busqueda }}" class="form-control"
+                   placeholder="Ej. Israel o KEY_000001">
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button class="btn btn-primary btn-rounded flex-grow-1" type="submit">Filtrar</button>
+            <a class="btn btn-outline-secondary btn-rounded" href="{{ url_for('admin_historial') }}">Limpiar</a>
+        </div>
+    </form>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0">Movimientos registrados</h4>
+    <span class="badge text-bg-primary rounded-pill">{{ movimientos|length }} resultado(s)</span>
+</div>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Recurso</th>
+                    <th>Estudiante</th>
+                    <th>Detalle</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in movimientos %}
+                <tr>
+                    <td class="fw-semibold">{{ m.tipo }}</td>
+                    <td>{{ m.recurso }}</td>
+                    <td>{{ m.usuario }}<br><small class="text-muted">{{ m.carnet }}</small></td>
+                    <td><small>{{ m.detalle }}</small></td>
+                    <td>
+                        {% if m.estado in ('Activa', 'Confirmada', 'Prestado') %}
+                        <span class="badge text-bg-success">{{ m.estado }}</span>
+                        {% elif m.estado == 'Pendiente' %}
+                        <span class="badge text-bg-warning">{{ m.estado }}</span>
+                        {% elif m.estado == 'Cancelada' %}
+                        <span class="badge text-bg-danger">{{ m.estado }}</span>
+                        {% else %}
+                        <span class="badge text-bg-secondary">{{ m.estado }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ m.fecha.strftime('%d/%m/%Y %H:%M') if m.fecha.strftime('%H:%M') != '00:00' else m.fecha.strftime('%d/%m/%Y') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-5">
+                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                        No se encontraron movimientos con esos filtros.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
