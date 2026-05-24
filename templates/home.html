@@ -1,335 +1,143 @@
-<!doctype html>
-<html lang="es">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CampusHub | Dashboard</title>
+{% block title %}CampusHub | Dashboard{% endblock %}
+{% block page_title %}¡Bienvenido a CampusHub!{% endblock %}
+{% block page_subtitle %}¿Qué recurso deseas reservar hoy?{% endblock %}
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+{% block extra_head %}
+<style>
+    .action-card {
+        min-height: 220px;
+        border-radius: 24px;
+        padding: 28px;
+        color: white;
+        border: none;
+        box-shadow: 0 16px 32px rgba(0,0,0,.12);
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
 
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: #f4f7fb;
-            color: #0b1b3a;
-        }
+    .action-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 38px rgba(0,0,0,.18);
+    }
 
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
+    .action-card i {
+        font-size: 43px;
+        margin-bottom: 18px;
+        display: inline-block;
+    }
 
-        .sidebar {
-            width: 245px;
-            background: linear-gradient(180deg, #0b2a5b, #06172f);
-            color: white;
-            padding: 24px 18px;
-        }
+    .blue   { background: linear-gradient(135deg, #2364e8, #173b9b); }
+    .green  { background: linear-gradient(135deg, #10b981, #087d61); }
+    .purple { background: linear-gradient(135deg, #7c3aed, #4c1d95); }
 
-        .brand {
-            font-size: 26px;
-            font-weight: 800;
-            margin-bottom: 35px;
-        }
+    .white-card {
+        background: white;
+        border-radius: 22px;
+        padding: 24px;
+        box-shadow: 0 10px 25px rgba(0,0,0,.06);
+    }
 
-        .brand span {
-            color: #18c29c;
-        }
+    .reserve-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 0;
+        border-bottom: 1px solid #edf0f5;
+    }
 
-        .brand small {
-            display: block;
-            font-size: 12px;
-            font-weight: 400;
-            opacity: .8;
-        }
+    .reserve-item:last-child { border-bottom: none; }
 
-        .menu a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #dce8ff;
-            text-decoration: none;
-            padding: 12px 14px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
+    .status {
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 12px;
+        font-weight: 700;
+    }
 
-        .menu a:hover,
-        .menu a.active {
-            background: #1f6fff;
-            color: white;
-        }
+    .confirmed { background: #d1fae5; color: #047857; }
+    .pending   { background: #dbeafe; color: #1d4ed8; }
+</style>
+{% endblock %}
 
-        .main {
-            flex: 1;
-            padding: 32px 38px;
-        }
+{% block content %}
 
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 34px;
-        }
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="action-card blue">
+            <i class="bi bi-people-fill"></i>
+            <h3>Reservar Salas</h3>
+            <p>Reserva salas académicas para reuniones o trabajos en grupo.</p>
+            <a href="/salas" class="btn btn-light w-100 mt-3">Ver Salas →</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="action-card green">
+            <i class="bi bi-wrench-adjustable-circle"></i>
+            <h3>Recursos KITE</h3>
+            <p>Reserva herramientas, mesas o maquinaria disponible en KITE.</p>
+            <a href="/kite" class="btn btn-light w-100 mt-3">Ver Recursos →</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="action-card purple">
+            <i class="bi bi-laptop"></i>
+            <h3>Computadoras</h3>
+            <p>Gestiona préstamos de computadoras para actividades académicas.</p>
+            <a href="/computadoras" class="btn btn-light w-100 mt-3">Ver Computadoras →</a>
+        </div>
+    </div>
+</div>
 
-        .welcome h1 {
-            font-size: 30px;
-            font-weight: 800;
-            margin: 0;
-        }
-
-        .welcome p {
-            color: #65738a;
-            margin-top: 6px;
-        }
-
-        .user-box {
-            background: white;
-            border-radius: 16px;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
-        }
-
-        .action-card {
-            min-height: 230px;
-            border-radius: 24px;
-            padding: 28px;
-            color: white;
-            border: none;
-            box-shadow: 0 16px 32px rgba(0, 0, 0, .12);
-            transition: transform .2s ease, box-shadow .2s ease;
-        }
-
-        .action-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 38px rgba(0, 0, 0, .18);
-        }
-
-        .action-card i {
-            font-size: 43px;
-            margin-bottom: 18px;
-            display: inline-block;
-        }
-
-        .blue {
-            background: linear-gradient(135deg, #2364e8, #173b9b);
-        }
-
-        .green {
-            background: linear-gradient(135deg, #10b981, #087d61);
-        }
-
-        .purple {
-            background: linear-gradient(135deg, #7c3aed, #4c1d95);
-        }
-
-        .white-card {
-            background: white;
-            border-radius: 22px;
-            padding: 24px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, .06);
-        }
-
-        .reserve-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid #edf0f5;
-        }
-
-        .reserve-item:last-child {
-            border-bottom: none;
-        }
-
-        .status {
-            font-size: 12px;
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-weight: 700;
-        }
-
-        .confirmed {
-            background: #d1fae5;
-            color: #047857;
-        }
-
-        .pending {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .stat-box {
-            text-align: center;
-            border-right: 1px solid #edf0f5;
-        }
-
-        .stat-box:last-child {
-            border-right: none;
-        }
-
-        .stat-box h3 {
-            font-weight: 800;
-            margin: 0;
-        }
-
-        @media (max-width: 900px) {
-            .layout {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-            }
-
-            .main {
-                padding: 24px;
-            }
-
-            .topbar {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 18px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="layout">
-
-        <aside class="sidebar">
-            <div class="brand">
-                Campus<span>Hub</span>
-                <small>Gestión de Recursos Académicos</small>
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="white-card">
+            <h5 class="fw-bold mb-3">Mis próximas reservas</h5>
+            <div class="reserve-item">
+                <div>
+                    <i class="bi bi-calendar-event me-2"></i>
+                    <strong>Sala KEY001</strong><br>
+                    <small>Reserva de sala académica</small>
+                </div>
+                <span class="status confirmed">Activa</span>
             </div>
-
-            <nav class="menu">
-                <a href="/" class="active"><i class="bi bi-grid"></i> Dashboard</a>
-                <a href="/salas"><i class="bi bi-calendar-check"></i> Reservar Salas</a>
-                <a href="/kite"><i class="bi bi-tools"></i> Recursos KITE</a>
-                <a href="/computadoras"><i class="bi bi-laptop"></i> Computadoras</a>
-                <hr>
-                <a href="/mis_reservas"><i class="bi bi-clock-history"></i> Mis Reservas</a>
-                <a href="/perfil"><i class="bi bi-person"></i> Perfil</a>
-                <a href="/logout"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
-            </nav>
-        </aside>
-
-        <main class="main">
-
-            <div class="topbar">
-                <div class="welcome">
-                    <h1>¡Bienvenido a CampusHub!</h1>
-                    <p>¿Qué recurso deseas reservar hoy?</p>
+            <div class="reserve-item">
+                <div>
+                    <i class="bi bi-tools me-2"></i>
+                    <strong>Recurso KITE</strong><br>
+                    <small>Herramientas o maquinaria</small>
                 </div>
-
-                <div class="user-box">
-                    <i class="bi bi-bell"></i>
-                    <i class="bi bi-person-circle fs-4"></i>
-                    <div>
-                        <strong>Estudiante</strong><br>
-                        <small>Sesión activa</small>
-                    </div>
-                </div>
+                <span class="status confirmed">Disponible</span>
             </div>
-
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <div class="action-card blue">
-                        <i class="bi bi-people-fill"></i>
-                        <h3>Reservar Salas</h3>
-                        <p>Reserva salas académicas para reuniones o trabajos en grupo.</p>
-                        <a href="/salas" class="btn btn-light w-100 mt-3">Ver Salas →</a>
-                    </div>
+            <div class="reserve-item">
+                <div>
+                    <i class="bi bi-laptop me-2"></i>
+                    <strong>Computadora</strong><br>
+                    <small>Pendiente de confirmación del encargado</small>
                 </div>
-
-                <div class="col-md-4">
-                    <div class="action-card green">
-                        <i class="bi bi-wrench-adjustable-circle"></i>
-                        <h3>Recursos KITE</h3>
-                        <p>Reserva herramientas, mesas o maquinaria disponible en KITE.</p>
-                        <a href="/kite" class="btn btn-light w-100 mt-3">Ver Recursos →</a>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="action-card purple">
-                        <i class="bi bi-laptop"></i>
-                        <h3>Computadoras</h3>
-                        <p>Gestiona préstamos de computadoras para actividades académicas.</p>
-                        <a href="/computadoras" class="btn btn-light w-100 mt-3">Ver Computadoras →</a>
-                    </div>
-                </div>
+                <span class="status pending">Pendiente</span>
             </div>
-
-            <div class="row g-4">
-                <div class="col-lg-8">
-                    <div class="white-card">
-                        <h5 class="fw-bold mb-3">Mis próximas reservas</h5>
-
-                        <div class="reserve-item">
-                            <div>
-                                <i class="bi bi-calendar-event me-2"></i>
-                                <strong>Sala KEY001</strong><br>
-                                <small>Reserva de sala académica</small>
-                            </div>
-                            <span class="status confirmed">Activa</span>
-                        </div>
-
-                        <div class="reserve-item">
-                            <div>
-                                <i class="bi bi-tools me-2"></i>
-                                <strong>Recurso KITE</strong><br>
-                                <small>Herramientas o maquinaria</small>
-                            </div>
-                            <span class="status confirmed">Disponible</span>
-                        </div>
-
-                        <div class="reserve-item">
-                            <div>
-                                <i class="bi bi-laptop me-2"></i>
-                                <strong>Computadora</strong><br>
-                                <small>Pendiente de confirmación del encargado</small>
-                            </div>
-                            <span class="status pending">Pendiente</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="white-card mb-4">
-                        <h5 class="fw-bold">Avisos importantes</h5>
-                        <ul class="mt-3">
-                            <li>Las salas tienen un máximo de 2 horas por reserva.</li>
-                            <li>Horario permitido: 6:00 AM - 6:00 PM.</li>
-                            <li>Las computadoras deben ser confirmadas por el encargado.</li>
-                        </ul>
-                    </div>
-
-                    <div class="white-card">
-                        <h5 class="fw-bold mb-3">Accesos rápidos</h5>
-                        <div class="d-grid gap-2">
-                            <a href="/salas" class="btn btn-outline-primary">Reservar sala</a>
-                            <a href="/kite" class="btn btn-outline-success">Ver KITE</a>
-                            <a href="/computadoras" class="btn btn-outline-dark">Ver computadoras</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-
+        </div>
     </div>
 
-</body>
+    <div class="col-lg-4">
+        <div class="white-card mb-4">
+            <h5 class="fw-bold">Avisos importantes</h5>
+            <ul class="mt-3">
+                <li>Las salas tienen un máximo de 2 horas por reserva.</li>
+                <li>Horario permitido: 6:00 AM - 6:00 PM.</li>
+                <li>Las computadoras deben ser confirmadas por el encargado.</li>
+            </ul>
+        </div>
+        <div class="white-card">
+            <h5 class="fw-bold mb-3">Accesos rápidos</h5>
+            <div class="d-grid gap-2">
+                <a href="/salas" class="btn btn-outline-primary">Reservar sala</a>
+                <a href="/kite" class="btn btn-outline-success">Ver KITE</a>
+                <a href="/computadoras" class="btn btn-outline-dark">Ver computadoras</a>
+            </div>
+        </div>
+    </div>
+</div>
 
-</html>
+{% endblock %}
