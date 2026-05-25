@@ -1,2 +1,92 @@
-{% extends 'base.html' %}{% block title %}CampusHub | Administrador{% endblock %}{% block nav %}{% endblock %}
-{% block content %}<div class="row min-vh-100 justify-content-center align-items-center"><div class="col-md-5 col-lg-4"><div class="card-clean"><h2 class="fw-bold text-center">Campus<span class="text-success">Hub</span></h2><p class="text-center text-muted">Acceso administrativo</p>{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}<form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><label class="form-label">Usuario admin</label><input name="usuario" class="form-control mb-3" required><label class="form-label">Contraseña</label><input name="contrasena" type="password" class="form-control mb-4" required><button class="btn btn-success btn-rounded w-100">Iniciar sesión</button></form><a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-rounded w-100 mt-3">Volver</a></div></div></div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}CampusHub | Administrador{% endblock %}
+{% block nav %}{% endblock %}
+
+{% block content %}
+<div class="row min-vh-100 justify-content-center align-items-center">
+    <div class="col-md-5 col-lg-4">
+        <div class="card-clean">
+            <h2 class="fw-bold text-center">Campus<span class="text-success">Hub</span></h2>
+            <p class="text-center text-muted">Acceso administrativo</p>
+
+            {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+            <form method="post">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+                <label class="form-label">Usuario admin</label>
+                <input name="usuario" class="form-control mb-3" required autocomplete="username">
+
+                <label class="form-label">Contraseña</label>
+                <div class="input-group mb-2">
+                    <input id="contrasenaAdmin" name="contrasena" type="password"
+                           class="form-control" required autocomplete="current-password">
+
+                    <button type="button" class="btn btn-outline-secondary"
+                            id="btnVerContrasena"
+                            aria-label="Mantén presionado para ver la contraseña"
+                            title="Mantén presionado para ver la contraseña">
+                        <i class="bi bi-eye" id="iconoContrasena"></i>
+                    </button>
+                </div>
+
+                <small class="text-muted d-block mb-4">
+                    Mantén presionado el ícono para revisar la contraseña.
+                </small>
+
+                <button class="btn btn-success btn-rounded w-100">Iniciar sesión</button>
+            </form>
+
+            <a href="{{ url_for('login') }}"
+               class="btn btn-outline-secondary btn-rounded w-100 mt-3">Volver</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const inputContrasena = document.getElementById('contrasenaAdmin');
+    const btnVerContrasena = document.getElementById('btnVerContrasena');
+    const iconoContrasena = document.getElementById('iconoContrasena');
+
+    function mostrarContrasena() {
+        inputContrasena.type = 'text';
+        iconoContrasena.className = 'bi bi-eye-slash';
+    }
+
+    function ocultarContrasena() {
+        inputContrasena.type = 'password';
+        iconoContrasena.className = 'bi bi-eye';
+    }
+
+    // Mouse, pantalla táctil o lápiz: solo se ve mientras se mantiene presionado.
+    btnVerContrasena.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        mostrarContrasena();
+    });
+    btnVerContrasena.addEventListener('pointerup', ocultarContrasena);
+    btnVerContrasena.addEventListener('pointerleave', ocultarContrasena);
+    btnVerContrasena.addEventListener('pointercancel', ocultarContrasena);
+
+    // Accesibilidad con teclado: mantener Espacio o Enter para visualizar.
+    btnVerContrasena.addEventListener('keydown', (event) => {
+        if (event.key === ' ' || event.key === 'Enter') {
+            event.preventDefault();
+            mostrarContrasena();
+        }
+    });
+    btnVerContrasena.addEventListener('keyup', (event) => {
+        if (event.key === ' ' || event.key === 'Enter') {
+            event.preventDefault();
+            ocultarContrasena();
+        }
+    });
+    btnVerContrasena.addEventListener('blur', ocultarContrasena);
+
+    // Asegura que jamás quede visible si se cambia de pestaña.
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) ocultarContrasena();
+    });
+</script>
+{% endblock %}
