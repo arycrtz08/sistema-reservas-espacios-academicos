@@ -1,1 +1,75 @@
-{% extends 'base.html' %}{% block title %}CampusHub | Devolver herramientas{% endblock %}{% block content %}<div class="row justify-content-center"><div class="col-lg-7"><div class="card-clean"><h2 class="fw-bold">Devolución de herramientas</h2><ul class="list-group my-4">{% for h in herramientas %}<li class="list-group-item">{{ h.nombre }} <span class="badge text-bg-secondary float-end">{{ h.codigo }}</span></li>{% endfor %}</ul><form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><label class="form-label fw-bold">¿Hubo daños?</label><div class="mb-3"><label class="me-3"><input type="radio" name="hubo_dano" value="no" checked onchange="dano(false)"> No</label><label><input type="radio" name="hubo_dano" value="si" onchange="dano(true)"> Sí</label></div><div id="dano" class="d-none alert alert-danger"><select name="herramienta_danada" class="form-select mb-2"><option value="">Selecciona herramienta dañada</option>{% for h in herramientas %}<option value="{{ h.id }}">{{ h.nombre }}</option>{% endfor %}</select><textarea name="nota_dano" class="form-control" placeholder="Describe el daño"></textarea></div><button class="btn btn-success btn-rounded mt-3">Confirmar devolución</button></form></div></div></div>{% endblock %}{% block scripts %}<script>function dano(s){document.getElementById('dano').classList.toggle('d-none',!s)}</script>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}CampusHub | Devolver herramientas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card-clean">
+            <h2 class="fw-bold">Devolución de herramientas</h2>
+            <p class="text-muted">Verifica el estado de cada recurso antes de confirmar.</p>
+
+            <ul class="list-group my-4">
+                {% for h in herramientas %}
+                <li class="list-group-item">
+                    {{ h.nombre }}
+                    <span class="badge text-bg-secondary float-end">{{ h.codigo }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <form method="post">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <label class="form-label fw-bold">¿Hubo daños?</label>
+                <div class="mb-3">
+                    <label class="me-3">
+                        <input type="radio" name="hubo_dano" value="no" checked onchange="mostrarDanos(false)"> No
+                    </label>
+                    <label>
+                        <input type="radio" name="hubo_dano" value="si" onchange="mostrarDanos(true)"> Sí
+                    </label>
+                </div>
+
+                <div id="panelDanos" class="d-none alert alert-danger">
+                    <p class="fw-semibold mb-3">Marca todas las herramientas que presenten daño:</p>
+                    {% for h in herramientas %}
+                    <div class="mb-3 p-2 bg-white rounded">
+                        <label class="form-check">
+                            <input class="form-check-input check-dano" type="checkbox"
+                                   name="herramientas_danadas[]" value="{{ h.id }}"
+                                   onchange="activarNota({{ h.id }})">
+                            <span class="form-check-label">{{ h.nombre }} ({{ h.codigo }})</span>
+                        </label>
+                        <textarea id="nota{{ h.id }}" name="nota_dano_{{ h.id }}"
+                                  class="form-control mt-2 d-none"
+                                  placeholder="Describe el daño encontrado"></textarea>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button class="btn btn-success btn-rounded mt-3">Confirmar devolución</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function mostrarDanos(mostrar) {
+    const panel = document.getElementById('panelDanos');
+    panel.classList.toggle('d-none', !mostrar);
+    if (!mostrar) {
+        document.querySelectorAll('.check-dano').forEach(check => {
+            check.checked = false;
+            activarNota(check.value);
+        });
+    }
+}
+function activarNota(id) {
+    const check = document.querySelector(`input[name="herramientas_danadas[]"][value="${id}"]`);
+    const nota = document.getElementById('nota' + id);
+    nota.classList.toggle('d-none', !check.checked);
+    if (!check.checked) nota.value = '';
+}
+</script>
+{% endblock %}

@@ -106,6 +106,18 @@ def sincronizar_recursos_expirados():
     try:
         conn = get_db_connection()
         cur = conn.cursor()
+        cur.execute("""
+            UPDATE ReservasSalas
+            SET estado='Finalizada'
+            WHERE estado='Activa'
+              AND (
+                  fecha < CAST(GETDATE() AS DATE)
+                  OR (
+                      fecha = CAST(GETDATE() AS DATE)
+                      AND hora_fin <= CAST(GETDATE() AS TIME)
+                  )
+              )
+        """)
         cur.execute("UPDATE ReservasImpresora3D SET estado='Finalizada' WHERE estado='Activa' AND hora_fin <= GETDATE()")
         cur.execute("UPDATE ReservasCNC SET estado='Finalizada' WHERE estado='Activa' AND hora_fin <= GETDATE()")
         cur.execute("""
@@ -340,8 +352,12 @@ def reservar_sala():
         fecha = inicio = fin = None
     if not id_sala or not cantidad or not fecha or not inicio or not fin:
         flash("Datos de reserva inválidos.", "danger"); return redirect(url_for("lista_salas"))
-    if fecha < date.today() or inicio < time(6, 0) or fin > time(18, 0) or fin <= inicio:
+    ahora = datetime.now()
+    if fecha < ahora.date() or inicio < time(6, 0) or fin > time(18, 0) or fin <= inicio:
         flash("La reserva debe ser futura y estar dentro del horario 6:00 AM - 6:00 PM.", "danger")
+        return redirect(url_for("lista_salas"))
+    if fecha == ahora.date() and inicio <= ahora.time():
+        flash("No puedes reservar una hora que ya pasó el día de hoy.", "danger")
         return redirect(url_for("lista_salas"))
     duracion = datetime.combine(fecha, fin) - datetime.combine(fecha, inicio)
     if duracion.total_seconds() > 7200:
@@ -457,7 +473,10 @@ def reservar_impresora():
                            WHERE r.id_usuario=? AND c.activo=1 AND r.filamento='PLA' AND r.estado IN ('Activa','Finalizada')""", session["id_usuario"])
             usado = int(cur.fetchone()[0])
             if usado + gramos > limite:
-                flash(f"Superas tu límite PLA: llevas {usado}g de {limite}g.", "danger"); cur.close(); conn.close(); return redirect(url_for("kite_impresoras"))
+                conn.rollback()
+                flash(f"Superas tu límite PLA: llevas {usado}g de {limite}g.", "danger")
+                cur.close(); conn.close()
+                return redirect(url_for("kite_impresoras"))
         cur.execute("""INSERT INTO ReservasImpresora3D(id_usuario,id_impresora,tiempo_minutos,hora_fin,tipo_trabajo,filamento,filamento_otro,gramos,estado)
                        VALUES (?,?,?,DATEADD(minute,?,GETDATE()),?,?,?,?,'Activa')""",
                     session["id_usuario"], id_imp, total, total, trabajo, filamento, otro, gramos)
@@ -541,59 +560,139 @@ def api_buscar_herramienta():
 @login_required
 def prestar_herramienta():
     if validar_acceso_kite():
-        flash("No tienes permitido reservar recursos KITE.", "danger"); return redirect(url_for("kite"))
-    ids = list(dict.fromkeys(request.form.getlist("herramientas[]")))
-    if not ids or request.form.get("confirmacion_responsabilidad") != "1":
-        flash("Selecciona herramientas y acepta la responsabilidad.", "danger"); return redirect(url_for("kite_herramientas"))
+        flash("No tienes permitido reservar recursos KITE.", "danger")
+        return redirect(url_for("kite"))
+
+    ids_texto = list(dict.fromkeys(request.form.getlist("herramientas[]")))
+    ids = [parse_entero(valor, 1) for valor in ids_texto]
+    if not ids or any(valor is None for valor in ids) or request.form.get("confirmacion_responsabilidad") != "1":
+        flash("Selecciona herramientas válidas y acepta la responsabilidad.", "danger")
+        return redirect(url_for("kite_herramientas"))
+
+    conn = None
+    cur = None
     try:
-        conn = get_db_connection(); cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM PrestamosHerramienta WHERE id_usuario=? AND estado='Prestado'", session["id_usuario"])
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT COUNT(*) FROM PrestamosHerramienta WHERE id_usuario=? AND estado='Prestado'",
+            session["id_usuario"]
+        )
         if cur.fetchone()[0]:
-            flash("Primero devuelve tu préstamo activo.", "danger"); cur.close(); conn.close(); return redirect(url_for("kite_herramientas"))
+            flash("Primero devuelve tu préstamo activo.", "danger")
+            cur.close(); conn.close()
+            return redirect(url_for("kite_herramientas"))
+
         for hid in ids:
-            cur.execute("SELECT cantidad_disponible FROM Herramientas WHERE id_herramienta=? AND activa=1", hid)
-            row = cur.fetchone()
-            if not row or row[0] <= 0:
-                flash("Una herramienta ya no está disponible.", "danger"); cur.close(); conn.close(); return redirect(url_for("kite_herramientas"))
-        cur.execute("INSERT INTO PrestamosHerramienta(id_usuario,estado) OUTPUT INSERTED.id_prestamo VALUES (?,'Prestado')", session["id_usuario"])
+            cur.execute("""
+                UPDATE Herramientas
+                SET cantidad_disponible=cantidad_disponible-1
+                WHERE id_herramienta=? AND activa=1 AND cantidad_disponible>0
+            """, hid)
+            if cur.rowcount != 1:
+                conn.rollback()
+                cur.close(); conn.close()
+                flash("Una herramienta ya no está disponible. Actualiza tu selección.", "danger")
+                return redirect(url_for("kite_herramientas"))
+
+        cur.execute(
+            "INSERT INTO PrestamosHerramienta(id_usuario,estado) "
+            "OUTPUT INSERTED.id_prestamo VALUES (?,'Prestado')",
+            session["id_usuario"]
+        )
         prestamo = cur.fetchone()[0]
         for hid in ids:
-            cur.execute("INSERT INTO DetallePrestamo(id_prestamo,id_herramienta) VALUES (?,?)", prestamo, hid)
-            cur.execute("UPDATE Herramientas SET cantidad_disponible=cantidad_disponible-1 WHERE id_herramienta=? AND cantidad_disponible>0", hid)
-        conn.commit(); cur.close(); conn.close(); flash("Herramientas prestadas correctamente.", "success")
-    except Exception:
-        logger.exception("Error prestando herramientas"); flash("No se pudo registrar el préstamo.", "danger")
-    return redirect(url_for("kite_herramientas"))
+            cur.execute(
+                "INSERT INTO DetallePrestamo(id_prestamo,id_herramienta) VALUES (?,?)",
+                prestamo, hid
+            )
 
+        conn.commit()
+        cur.close(); conn.close()
+        flash("Herramientas prestadas correctamente.", "success")
+    except Exception:
+        if conn:
+            conn.rollback()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+        logger.exception("Error prestando herramientas")
+        flash("No se pudo registrar el préstamo.", "danger")
+    return redirect(url_for("kite_herramientas"))
 
 @app.route("/kite/herramientas/devolver/<int:id_prestamo>", methods=["GET", "POST"])
 @login_required
 def devolver_herramienta(id_prestamo):
-    conn = get_db_connection(); cur = conn.cursor()
-    cur.execute("SELECT estado FROM PrestamosHerramienta WHERE id_prestamo=? AND id_usuario=?", id_prestamo, session["id_usuario"])
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT estado FROM PrestamosHerramienta WHERE id_prestamo=? AND id_usuario=?",
+        id_prestamo, session["id_usuario"]
+    )
     estado = cur.fetchone()
     if not estado or estado[0] != "Prestado":
-        cur.close(); conn.close(); flash("Préstamo no encontrado o ya devuelto.", "danger"); return redirect(url_for("kite_herramientas"))
-    cur.execute("""SELECT h.id_herramienta,h.nombre,h.codigo FROM DetallePrestamo d
-                   JOIN Herramientas h ON h.id_herramienta=d.id_herramienta WHERE d.id_prestamo=?""", id_prestamo)
-    herramientas = [{"id": r[0], "nombre": r[1], "codigo": r[2]} for r in cur.fetchall()]
-    if request.method == "POST":
-        danada = request.form.get("hubo_dano") == "si"
-        id_danada = parse_entero(request.form.get("herramienta_danada"), 1) if danada else None
-        ids_validos = {h["id"] for h in herramientas}
-        if danada and id_danada not in ids_validos:
-            cur.close(); conn.close(); flash("Selecciona la herramienta dañada.", "danger"); return redirect(request.url)
-        for h in herramientas:
-            if h["id"] == id_danada:
-                cur.execute("UPDATE DetallePrestamo SET danada=1, nota_dano=? WHERE id_prestamo=? AND id_herramienta=?", request.form.get("nota_dano", "").strip(), id_prestamo, h["id"])
-                cur.execute("UPDATE Herramientas SET activa=0 WHERE id_herramienta=?", h["id"])
-            else:
-                cur.execute("UPDATE Herramientas SET cantidad_disponible=cantidad_disponible+1 WHERE id_herramienta=?", h["id"])
-        cur.execute("UPDATE PrestamosHerramienta SET estado='Devuelto',fecha_devolucion=GETDATE() WHERE id_prestamo=?", id_prestamo)
-        conn.commit(); cur.close(); conn.close(); flash("Devolución registrada.", "success"); return redirect(url_for("kite_herramientas"))
-    cur.close(); conn.close()
-    return render_template("kite_herramientas_devolver.html", prestamo_id=id_prestamo, herramientas=herramientas)
+        cur.close(); conn.close()
+        flash("Préstamo no encontrado o ya devuelto.", "danger")
+        return redirect(url_for("kite_herramientas"))
 
+    cur.execute("""
+        SELECT h.id_herramienta,h.nombre,h.codigo
+        FROM DetallePrestamo d
+        JOIN Herramientas h ON h.id_herramienta=d.id_herramienta
+        WHERE d.id_prestamo=?
+    """, id_prestamo)
+    herramientas = [{"id": r[0], "nombre": r[1], "codigo": r[2]} for r in cur.fetchall()]
+
+    if request.method == "POST":
+        hubo_dano = request.form.get("hubo_dano") == "si"
+        ids_validos = {h["id"] for h in herramientas}
+        ids_danadas = {
+            valor for valor in [
+                parse_entero(item, 1) for item in request.form.getlist("herramientas_danadas[]")
+            ] if valor is not None
+        }
+
+        if hubo_dano and (not ids_danadas or not ids_danadas.issubset(ids_validos)):
+            cur.close(); conn.close()
+            flash("Selecciona al menos una herramienta dañada válida.", "danger")
+            return redirect(request.url)
+        if not hubo_dano:
+            ids_danadas = set()
+
+        for herramienta in herramientas:
+            hid = herramienta["id"]
+            if hid in ids_danadas:
+                nota = request.form.get(f"nota_dano_{hid}", "").strip()
+                cur.execute(
+                    "UPDATE DetallePrestamo SET danada=1, nota_dano=? "
+                    "WHERE id_prestamo=? AND id_herramienta=?",
+                    nota, id_prestamo, hid
+                )
+                cur.execute("UPDATE Herramientas SET activa=0 WHERE id_herramienta=?", hid)
+            else:
+                cur.execute(
+                    "UPDATE Herramientas SET cantidad_disponible=cantidad_disponible+1 "
+                    "WHERE id_herramienta=?",
+                    hid
+                )
+
+        cur.execute(
+            "UPDATE PrestamosHerramienta SET estado='Devuelto',fecha_devolucion=GETDATE() "
+            "WHERE id_prestamo=?",
+            id_prestamo
+        )
+        conn.commit()
+        cur.close(); conn.close()
+        flash("Devolución registrada.", "success")
+        return redirect(url_for("kite_herramientas"))
+
+    cur.close(); conn.close()
+    return render_template(
+        "kite_herramientas_devolver.html",
+        prestamo_id=id_prestamo,
+        herramientas=herramientas
+    )
 
 @app.route("/computadoras")
 @login_required
@@ -880,8 +979,22 @@ def admin_compu():
 @app.route("/admin/compu/confirmar/<int:id_reserva>", methods=["POST"])
 @admin_required("compu")
 def admin_compu_confirmar(id_reserva):
-    conn = get_db_connection(); cur = conn.cursor(); cur.execute("UPDATE ReservasComputadora SET estado='Confirmada' WHERE id_reserva=? AND estado='Pendiente'", id_reserva); conn.commit(); cur.close(); conn.close(); flash("Entrega confirmada.", "success"); return redirect(url_for("admin_compu"))
-
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE ReservasComputadora SET estado='Confirmada' "
+        "WHERE id_reserva=? AND estado='Pendiente'",
+        id_reserva
+    )
+    if cur.rowcount != 1:
+        conn.rollback()
+        cur.close(); conn.close()
+        flash("La solicitud ya no está pendiente o no existe.", "warning")
+        return redirect(url_for("admin_compu"))
+    conn.commit()
+    cur.close(); conn.close()
+    flash("Entrega confirmada.", "success")
+    return redirect(url_for("admin_compu"))
 
 @app.route("/admin/compu/devolver/<int:id_reserva>", methods=["POST"])
 @admin_required("compu")
@@ -904,17 +1017,57 @@ def admin_salas():
 @app.route("/admin/salas/bloquear", methods=["POST"])
 @admin_required("salas")
 def admin_salas_bloquear():
-    id_sala = parse_entero(request.form.get("id_sala"), 1); motivo = request.form.get("motivo", "").strip()
-    try: fecha=date.fromisoformat(request.form.get("fecha", "")); inicio=time.fromisoformat(request.form.get("hora_inicio", "")); fin=time.fromisoformat(request.form.get("hora_fin", ""))
-    except ValueError: fecha=inicio=fin=None
-    if not id_sala or not motivo or not fecha or fecha < date.today() or not inicio or not fin or fin <= inicio:
-        flash("Datos de bloqueo inválidos.", "danger"); return redirect(url_for("admin_salas"))
-    conn=get_db_connection(); cur=conn.cursor()
-    cur.execute("SELECT COUNT(*) FROM ReservasSalas WHERE id_sala=? AND fecha=? AND estado='Activa' AND hora_inicio < ? AND hora_fin > ?", id_sala, fecha, fin, inicio)
-    if cur.fetchone()[0]:
-        cur.close(); conn.close(); flash("No se puede bloquear: ya existe una reserva activa en ese horario.", "danger"); return redirect(url_for("admin_salas"))
-    cur.execute("INSERT INTO BloqueoSalas(id_sala,fecha,hora_inicio,hora_fin,motivo) VALUES (?,?,?,?,?)", id_sala,fecha,inicio,fin,motivo); conn.commit(); cur.close(); conn.close(); flash("Bloqueo creado.", "success"); return redirect(url_for("admin_salas"))
+    id_sala = parse_entero(request.form.get("id_sala"), 1)
+    motivo = request.form.get("motivo", "").strip()
+    try:
+        fecha = date.fromisoformat(request.form.get("fecha", ""))
+        inicio = time.fromisoformat(request.form.get("hora_inicio", ""))
+        fin = time.fromisoformat(request.form.get("hora_fin", ""))
+    except ValueError:
+        fecha = inicio = fin = None
 
+    ahora = datetime.now()
+    if (
+        not id_sala or not motivo or not fecha or not inicio or not fin
+        or fecha < ahora.date() or fin <= inicio
+        or inicio < time(6, 0) or fin > time(18, 0)
+    ):
+        flash("Datos de bloqueo inválidos.", "danger")
+        return redirect(url_for("admin_salas"))
+    if fecha == ahora.date() and inicio <= ahora.time():
+        flash("No puedes crear un bloqueo para una hora que ya pasó.", "danger")
+        return redirect(url_for("admin_salas"))
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT COUNT(*) FROM ReservasSalas
+        WHERE id_sala=? AND fecha=? AND estado='Activa'
+          AND hora_inicio < ? AND hora_fin > ?
+    """, id_sala, fecha, fin, inicio)
+    if cur.fetchone()[0]:
+        cur.close(); conn.close()
+        flash("No se puede bloquear: ya existe una reserva activa en ese horario.", "danger")
+        return redirect(url_for("admin_salas"))
+
+    cur.execute("""
+        SELECT COUNT(*) FROM BloqueoSalas
+        WHERE id_sala=? AND fecha=?
+          AND hora_inicio < ? AND hora_fin > ?
+    """, id_sala, fecha, fin, inicio)
+    if cur.fetchone()[0]:
+        cur.close(); conn.close()
+        flash("Ya existe un bloqueo que coincide con ese horario.", "warning")
+        return redirect(url_for("admin_salas"))
+
+    cur.execute(
+        "INSERT INTO BloqueoSalas(id_sala,fecha,hora_inicio,hora_fin,motivo) VALUES (?,?,?,?,?)",
+        id_sala, fecha, inicio, fin, motivo
+    )
+    conn.commit()
+    cur.close(); conn.close()
+    flash("Bloqueo creado.", "success")
+    return redirect(url_for("admin_salas"))
 
 @app.route("/admin/salas/bloqueo/<int:id_bloqueo>/eliminar", methods=["POST"])
 @admin_required("salas")
