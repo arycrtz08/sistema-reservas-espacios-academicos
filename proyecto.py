@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
+﻿from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 import pyodbc
 import os
 from dotenv import load_dotenv
@@ -87,101 +87,209 @@ def get_session_usuario():
     """Devuelve id_usuario, carnet y cohorte del usuario en sesión."""
     return (session.get('id_usuario'), session.get('carnet', ''), session.get('cohorte', ''))
 
-# ─── Home / Logout ───────────────────────────────────────────────────────────
-@app.route('/')
-def home():
-    if 'admin' in session:
-        return redirect(url_for('admin_dashboard'))
-    if 'usuario' not in session:
-        return redirect(url_for('login'))
-    return render_template('home.html', usuario=session['usuario'])
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    response = redirect(url_for('login'))
-    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+# ─── Evitar cache del navegador ─────────────────────────────────────────────
+@app.after_request
+def add_no_cache_headers(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
 
+
+# ─── Home / Logout ───────────────────────────────────────────────────────────
+@app.route('/')
+def home():
+
+    # SI ES ADMIN → ADMIN
+    if 'admin' in session:
+        return redirect(url_for('admin_dashboard'))
+
+    # SI NO HAY USUARIO → LOGIN
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    return render_template(
+        'home.html',
+        usuario=session['usuario']
+    )
+
+
+@app.route('/logout')
+def logout():
+
+    # BORRAR TODA LA SESIÓN
+    session.clear()
+
+    return redirect(url_for('login'))
+
+
 # ─── Login Estudiante ────────────────────────────────────────────────────────
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+
     if request.method == 'POST':
+
+        # LIMPIAR SESIÓN COMPLETA
+        session.clear()
+
         user    = request.form.get('usuario', '').strip()
         carnet  = request.form.get('carnet_us', '').strip()
         cohorte = request.form.get('cohorte', '').strip()
 
         # Validar formato carnet
         import re
+
         if not re.match(r'^KEY_000\d{3}$', carnet):
-            return render_template('login.html', error='El carnet debe tener el formato KEY_000### (ej: KEY_000123).')
+            return render_template(
+                'login.html',
+                error='El carnet debe tener el formato KEY_000### (ej: KEY_000123).'
+            )
 
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
+
             cursor.execute(
-                "SELECT id_usuario, usuario, cohorte_sel FROM Usuarios WHERE carnet_us=?",
-                (carnet,))
+                """
+                SELECT id_usuario, usuario, cohorte_sel
+                FROM Usuarios
+                WHERE carnet_us=?
+                """,
+                (carnet,)
+            )
+
             existing = cursor.fetchone()
+
+            # ─── Usuario ya existe ─────────────────────────────
             if existing:
-                # Carnet ya registrado — verificar que el nombre coincida
+
+                # Verificar que el nombre coincida
                 if existing[1].strip().lower() != user.strip().lower():
-                    cursor.close(); conn.close()
-                    return render_template('login.html', error='El carnet ya está registrado con otro nombre.')
+
+                    cursor.close()
+                    conn.close()
+
+                    return render_template(
+                        'login.html',
+                        error='El carnet ya está registrado con otro nombre.'
+                    )
+
                 id_usuario = existing[0]
                 user       = existing[1]
                 cohorte    = existing[2]
+
+            # ─── Usuario nuevo ─────────────────────────────────
             else:
+
                 cursor.execute(
-                    "INSERT INTO Usuarios (usuario,carnet_us,cohorte_sel) OUTPUT INSERTED.id_usuario VALUES (?,?,?)",
-                    (user, carnet, cohorte))
+                    """
+                    INSERT INTO Usuarios
+                    (usuario, carnet_us, cohorte_sel)
+
+                    OUTPUT INSERTED.id_usuario
+
+                    VALUES (?, ?, ?)
+                    """,
+                    (user, carnet, cohorte)
+                )
+
                 id_usuario = cursor.fetchone()[0]
+
                 conn.commit()
-            cursor.execute("INSERT INTO LogsIngreso (carnet_us) VALUES (?)", (carnet,))
+
+            # ─── Guardar log de ingreso ────────────────────────
+            cursor.execute(
+                """
+                INSERT INTO LogsIngreso (carnet_us)
+                VALUES (?)
+                """,
+                (carnet,)
+            )
+
             conn.commit()
-            cursor.close(); conn.close()
+
+            cursor.close()
+            conn.close()
+
+            # ─── Crear nueva sesión ────────────────────────────
             session['usuario']    = user
             session['carnet']     = carnet
             session['cohorte']    = cohorte
             session['id_usuario'] = id_usuario
+
             return redirect(url_for('home'))
+
         except Exception as e:
-            return render_template('login.html', error=f"Error al iniciar sesión: {e}")
+
+            return render_template(
+                'login.html',
+                error=f"Error al iniciar sesión: {e}"
+            )
+
     return render_template('login.html')
 
 # ─── Login Administrador ─────────────────────────────────────────────────────
 @app.route('/login_admin', methods=['GET', 'POST'])
 def login_admin():
+
     if request.method == 'POST':
+        session.clear()
+
         usuario    = request.form.get('usuario', '').strip()
         contrasena = request.form.get('contrasena', '').strip()
+
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
+
             cursor.execute(
-                "SELECT tipo, contrasena FROM Administradores WHERE usuario=?", (usuario,))
+                "SELECT tipo, contrasena FROM Administradores WHERE usuario=?",
+                (usuario,)
+            )
+
             row = cursor.fetchone()
-            cursor.close(); conn.close()
+
+            cursor.close()
+            conn.close()
+
             if row and row[1] == contrasena:
-                session.clear()
                 session['admin']      = usuario
                 session['admin_tipo'] = row[0]
-                return redirect(url_for('admin_dashboard'))
+
+                tipo = session.get('admin_tipo', '')
+
+                if tipo == 'kite':
+                    return redirect(url_for('admin_kite'))
+                if tipo == 'compu':
+                    return redirect(url_for('admin_compu'))
+                if tipo == 'salas':
+                    return redirect(url_for('admin_salas'))
+
+                return redirect(url_for('admin_gral'))
+
             return render_template('admin_login.html', error='Usuario o contraseña incorrectos.')
+
         except Exception as e:
             return render_template('admin_login.html', error=f"Error: {e}")
+
     return render_template('admin_login.html')
+
 
 @app.route('/admin')
 def admin_dashboard():
+
     if 'admin' not in session:
         return redirect(url_for('login_admin'))
+
     tipo = session.get('admin_tipo', '')
-    if tipo == 'kite':  return redirect(url_for('admin_kite'))
-    if tipo == 'compu': return redirect(url_for('admin_compu'))
-    if tipo == 'salas': return redirect(url_for('admin_salas'))
+
+    if tipo == 'kite':
+        return redirect(url_for('admin_kite'))
+    if tipo == 'compu':
+        return redirect(url_for('admin_compu'))
+    if tipo == 'salas':
+        return redirect(url_for('admin_salas'))
+
     return redirect(url_for('admin_gral'))
 
 # ─── Perfil ──────────────────────────────────────────────────────────────────

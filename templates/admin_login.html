@@ -15,7 +15,6 @@
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
             background: #111827;
-            /* Darker background for admin */
             color: #f9fafb;
             display: flex;
             align-items: center;
@@ -103,6 +102,19 @@
         .back-link:hover {
             color: #10b981;
         }
+
+        .toggle-password {
+            cursor: pointer;
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-left: none;
+            color: #9ca3af;
+        }
+
+        .toggle-password:hover {
+            color: white;
+            background: #4b5563;
+        }
     </style>
 </head>
 
@@ -128,19 +140,36 @@
                     <span class="input-group-text bg-transparent border-end-0 border-secondary text-secondary">
                         <i class="bi bi-person"></i>
                     </span>
-                    <input type="text" class="form-control border-start-0 ps-0" id="usuario" name="usuario"
-                        placeholder="Ej. Admin_Kite" required>
+
+                    <input type="text"
+                           class="form-control border-start-0 ps-0"
+                           id="usuario"
+                           name="usuario"
+                           placeholder="Ej. Admin_Kite"
+                           required>
                 </div>
             </div>
 
             <div class="mb-4">
                 <label for="contrasena" class="form-label">Contraseña</label>
+
                 <div class="input-group">
                     <span class="input-group-text bg-transparent border-end-0 border-secondary text-secondary">
                         <i class="bi bi-key"></i>
                     </span>
-                    <input type="password" class="form-control border-start-0 ps-0" id="contrasena" name="contrasena"
-                        placeholder="••••••••" required>
+
+                    <input type="password"
+                           class="form-control border-start-0 ps-0"
+                           id="contrasena"
+                           name="contrasena"
+                           placeholder="••••••••"
+                           required>
+
+                    <button type="button"
+                            class="btn toggle-password"
+                            onclick="togglePassword()">
+                        <i class="bi bi-eye" id="eyeIcon"></i>
+                    </button>
                 </div>
             </div>
 
@@ -153,6 +182,23 @@
             <i class="bi bi-arrow-left me-1"></i> Volver a login de estudiantes
         </a>
     </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById("contrasena");
+            const eyeIcon = document.getElementById("eyeIcon");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.classList.remove("bi-eye");
+                eyeIcon.classList.add("bi-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.classList.remove("bi-eye-slash");
+                eyeIcon.classList.add("bi-eye");
+            }
+        }
+    </script>
 
 </body>
 
