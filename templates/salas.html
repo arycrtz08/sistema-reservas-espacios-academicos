@@ -143,6 +143,9 @@
             color: #70819a;
             font-size: 14px;
         }
+
+        .search-card { background: white; border-radius: 24px; padding: 26px; box-shadow: 0 12px 28px rgba(0,0,0,.08); margin-bottom: 34px; }
+        .search-card h4 { font-weight: 800; }
     </style>
 
 </head>
@@ -190,9 +193,41 @@
             </a>
         </div>
 
+
+        <div class="search-card">
+            <h4 class="mb-1"><i class="bi bi-search text-primary"></i> Buscar salas disponibles</h4>
+            <p class="small-muted mb-4">Filtra por fecha y horario para encontrar una sala libre.</p>
+            <form action="/salas" method="GET" class="row g-3 align-items-end">
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label fw-bold">Fecha</label>
+                    <input type="date" name="fecha" class="form-control" min="{{ hoy }}" value="{{ filtros.fecha }}" required>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-bold">Inicio</label>
+                    <input type="time" name="hora_inicio" class="form-control" value="{{ filtros.hora_inicio }}" required>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-bold">Fin</label>
+                    <input type="time" name="hora_fin" class="form-control" value="{{ filtros.hora_fin }}" required>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-bold">Personas</label>
+                    <input type="number" name="personas" class="form-control" min="2" max="6" value="{{ filtros.personas or 2 }}" required>
+                </div>
+                <div class="col-lg-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-main flex-grow-1"><i class="bi bi-search"></i> Buscar</button>
+                    <a href="/salas" class="btn btn-outline-secondary d-flex align-items-center" style="border-radius:14px;font-weight:700;">Limpiar</a>
+                </div>
+            </form>
+        </div>
+
         <h3 class="section-title">
             Salas Disponibles
         </h3>
+
+        {% if busqueda_realizada and not salas %}
+        <div class="alert alert-warning">No hay salas libres para ese horario. Probá con otra hora.</div>
+        {% endif %}
 
         <div class="row g-4">
 
@@ -268,6 +303,11 @@
 
                             <input type="hidden" name="id_sala" value="{{ sala.id_sala }}">
 
+                            <div class="mb-3">
+                                <label class="form-label">Fecha</label>
+                                <input type="date" name="fecha" class="form-control" min="{{ hoy }}" value="{{ filtros.fecha or hoy }}" required>
+                            </div>
+
                             <div class="row mb-3">
 
                                 <div class="col">
@@ -276,7 +316,7 @@
                                         Hora Inicio
                                     </label>
 
-                                    <input type="time" name="hora_inicio" class="form-control" required>
+                                    <input type="time" name="hora_inicio" class="form-control" value="{{ filtros.hora_inicio }}" required>
 
                                 </div>
 
@@ -286,7 +326,7 @@
                                         Hora Fin
                                     </label>
 
-                                    <input type="time" name="hora_fin" class="form-control" required>
+                                    <input type="time" name="hora_fin" class="form-control" value="{{ filtros.hora_fin }}" required>
 
                                 </div>
 
@@ -299,7 +339,7 @@
                                 </label>
 
                                 <input type="number" name="cantidad_personas" id="cantidad_personas_{{ sala.id_sala }}"
-                                    class="form-control" min="2" max="6" value="2"
+                                    class="form-control" min="2" max="6" value="{{ filtros.personas or 2 }}"
                                     onchange="generarAcompanantes({{sala.id_sala}})" required>
 
                                 <div class="small-muted mt-2">

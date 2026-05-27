@@ -404,77 +404,152 @@ def api_buscar_usuario_por_carnet():
 @app.route('/salas')
 @login_required
 def lista_salas():
+    filtros = {
+        'fecha': request.args.get('fecha', '').strip(),
+        'hora_inicio': request.args.get('hora_inicio', '').strip(),
+        'hora_fin': request.args.get('hora_fin', '').strip(),
+        'personas': request.args.get('personas', '').strip()
+    }
+    hoy = datetime.now().strftime('%Y-%m-%d')
+    busqueda_realizada = all(filtros.values())
+
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id_sala, nombre, capacidad_max, disponible FROM Salas WHERE disponible=1")
-        salas = [{'id_sala':r[0],'nombre':r[1],'capacidad_max':r[2],'disponible':r[3]}
+
+        if any(filtros.values()) and not busqueda_realizada:
+            flash('Completa todos los filtros para buscar disponibilidad.', 'warning')
+
+        if busqueda_realizada:
+            try:
+                fecha = datetime.strptime(filtros['fecha'], '%Y-%m-%d').date()
+                inicio = datetime.strptime(filtros['hora_inicio'], '%H:%M').time()
+                fin = datetime.strptime(filtros['hora_fin'], '%H:%M').time()
+                personas = int(filtros['personas'])
+            except ValueError:
+                cursor.close(); conn.close()
+                flash('Los datos de búsqueda no son válidos.', 'danger')
+                return redirect(url_for('lista_salas'))
+
+            duracion = datetime.combine(fecha, fin) - datetime.combine(fecha, inicio)
+            if (fecha < datetime.now().date() or inicio < datetime.strptime('06:00', '%H:%M').time()
+                    or fin > datetime.strptime('18:00', '%H:%M').time() or fin <= inicio
+                    or duracion.total_seconds() > 7200 or personas < 2 or personas > 6):
+                cursor.close(); conn.close()
+                flash('Revisa la fecha, horario y cantidad de personas. El máximo es 2 horas entre 6:00 AM y 6:00 PM.', 'danger')
+                return redirect(url_for('lista_salas'))
+
+            cursor.execute("""
+                SELECT s.id_sala, s.nombre, s.capacidad_max, s.disponible
+                FROM Salas s
+                WHERE s.capacidad_max >= ?
+                  AND NOT EXISTS (
+                      SELECT 1 FROM ReservasSalas r
+                      WHERE r.id_sala=s.id_sala AND r.fecha=? AND r.estado='Activa'
+                        AND r.hora_inicio < ? AND r.hora_fin > ?
+                  )
+                  AND NOT EXISTS (
+                      SELECT 1 FROM BloqueoSalas b
+                      WHERE b.id_sala=s.id_sala AND b.fecha=?
+                        AND b.hora_inicio < ? AND b.hora_fin > ?
+                  )
+                ORDER BY s.nombre
+            """, (personas, fecha, filtros['hora_fin'], filtros['hora_inicio'],
+                  fecha, filtros['hora_fin'], filtros['hora_inicio']))
+        else:
+            cursor.execute("SELECT id_sala, nombre, capacidad_max, disponible FROM Salas ORDER BY nombre")
+
+        salas = [{'id_sala': r[0], 'nombre': r[1], 'capacidad_max': r[2], 'disponible': r[3]}
                  for r in cursor.fetchall()]
         cursor.close(); conn.close()
-        return render_template('salas.html', salas=salas)
+        return render_template('salas.html', salas=salas, filtros=filtros,
+                               hoy=hoy, busqueda_realizada=busqueda_realizada)
     except Exception as e:
         return f"Error: {e}", 500
+
 
 @app.route('/reservar_sala', methods=['POST'])
 @login_required
 def reservar_sala():
-    id_sala           = request.form['id_sala']
-    hora_inicio_str   = request.form['hora_inicio']
-    hora_fin_str      = request.form['hora_fin']
-    cantidad_personas = int(request.form['cantidad_personas'])
-
-    h_inicio = datetime.strptime(hora_inicio_str, '%H:%M').time()
-    h_fin    = datetime.strptime(hora_fin_str, '%H:%M').time()
-    lim_inf  = datetime.strptime('06:00', '%H:%M').time()
-    lim_sup  = datetime.strptime('18:00', '%H:%M').time()
-
-    if h_inicio < lim_inf or h_fin > lim_sup:
-        flash('El horario permitido es de 6:00 AM a 6:00 PM.', 'danger')
-        return redirect(url_for('lista_salas'))
-    dt_i = datetime.combine(datetime.today(), h_inicio)
-    dt_f = datetime.combine(datetime.today(), h_fin)
-    dur  = dt_f - dt_i
-    if dur.total_seconds() > 7200:
-        flash('La reserva no puede exceder las 2 horas.', 'danger')
-        return redirect(url_for('lista_salas'))
-    if dur.total_seconds() <= 0:
-        flash('La hora de fin debe ser posterior a la de inicio.', 'danger')
-        return redirect(url_for('lista_salas'))
-    if cantidad_personas < 2 or cantidad_personas > 6:
-        flash('La capacidad debe ser de 2 a 6 personas.', 'danger')
+    try:
+        id_sala = int(request.form.get('id_sala', ''))
+        fecha = datetime.strptime(request.form.get('fecha', ''), '%Y-%m-%d').date()
+        inicio_texto = request.form.get('hora_inicio', '').strip()
+        fin_texto = request.form.get('hora_fin', '').strip()
+        inicio = datetime.strptime(inicio_texto, '%H:%M').time()
+        fin = datetime.strptime(fin_texto, '%H:%M').time()
+        personas = int(request.form.get('cantidad_personas', ''))
+    except ValueError:
+        flash('Completa correctamente los datos de la reserva.', 'danger')
         return redirect(url_for('lista_salas'))
 
-    # Recopilar acompañantes (cantidad_personas - 1 campos)
+    duracion = datetime.combine(fecha, fin) - datetime.combine(fecha, inicio)
+    if (fecha < datetime.now().date() or
+        (fecha == datetime.now().date() and inicio <= datetime.now().time()) or
+        inicio < datetime.strptime('06:00', '%H:%M').time() or
+        fin > datetime.strptime('18:00', '%H:%M').time() or
+        fin <= inicio or duracion.total_seconds() > 7200):
+        flash('La reserva debe ser futura, durar máximo 2 horas y estar entre 6:00 AM y 6:00 PM.', 'danger')
+        return redirect(url_for('lista_salas'))
+    if personas < 2 or personas > 6:
+        flash('La cantidad de personas debe estar entre 2 y 6.', 'danger')
+        return redirect(url_for('lista_salas'))
+
     acompanantes = []
-    for i in range(cantidad_personas - 1):
-        nombre  = request.form.get(f'acomp_nombre_{i}', '').strip()
-        carnet  = request.form.get(f'acomp_carnet_{i}', '').strip()
+    for i in range(personas - 1):
+        nombre = request.form.get(f'acomp_nombre_{i}', '').strip()
+        carnet = request.form.get(f'acomp_carnet_{i}', '').strip()
         cohorte = request.form.get(f'acomp_cohorte_{i}', '').strip()
-        if nombre and carnet:
-            acompanantes.append((nombre, carnet, cohorte))
+        if not nombre or not carnet or not cohorte:
+            flash('Completa la información de todos los acompañantes.', 'danger')
+            return redirect(url_for('lista_salas'))
+        acompanantes.append((nombre, carnet, cohorte))
 
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO ReservasSalas
-                (id_usuario, id_sala, fecha, hora_inicio, hora_fin, cantidad_personas, estado)
-            OUTPUT INSERTED.id_reserva
-            VALUES (?, ?, CAST(GETDATE() AS DATE), ?, ?, ?, 'Activa')
-        """, (session['id_usuario'], id_sala, hora_inicio_str, hora_fin_str, cantidad_personas))
+        cursor.execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+        cursor.execute("SELECT capacidad_max FROM Salas WITH (UPDLOCK, HOLDLOCK) WHERE id_sala=?", (id_sala,))
+        sala = cursor.fetchone()
+        if not sala or personas > sala[0]:
+            cursor.close(); conn.close()
+            flash('La cantidad excede la capacidad de la sala.', 'danger')
+            return redirect(url_for('lista_salas'))
+
+        cursor.execute("""SELECT COUNT(*) FROM BloqueoSalas
+                          WHERE id_sala=? AND fecha=? AND hora_inicio < ? AND hora_fin > ?""",
+                       (id_sala, fecha, fin_texto, inicio_texto))
+        if cursor.fetchone()[0]:
+            cursor.close(); conn.close()
+            flash('La sala está bloqueada en ese horario.', 'danger')
+            return redirect(url_for('lista_salas'))
+
+        cursor.execute("""SELECT COUNT(*) FROM ReservasSalas
+                          WHERE id_sala=? AND fecha=? AND estado='Activa'
+                            AND hora_inicio < ? AND hora_fin > ?""",
+                       (id_sala, fecha, fin_texto, inicio_texto))
+        if cursor.fetchone()[0]:
+            cursor.close(); conn.close()
+            flash('Esa sala ya está reservada en ese horario.', 'danger')
+            return redirect(url_for('lista_salas'))
+
+        cursor.execute("""INSERT INTO ReservasSalas
+                          (id_usuario,id_sala,fecha,hora_inicio,hora_fin,cantidad_personas,estado)
+                          OUTPUT INSERTED.id_reserva
+                          VALUES (?,?,?,?,?,?,'Activa')""",
+                       (session['id_usuario'], id_sala, fecha, inicio_texto, fin_texto, personas))
         id_reserva = cursor.fetchone()[0]
-        for (nombre, carnet, cohorte) in acompanantes:
-            cursor.execute("""
-                INSERT INTO AcompañantesReserva (id_reserva, nombre_completo, carnet, cohorte)
-                VALUES (?, ?, ?, ?)
-            """, (id_reserva, nombre, carnet, cohorte))
-        cursor.execute("UPDATE Salas SET disponible=0 WHERE id_sala=?", (id_sala,))
+        for nombre, carnet, cohorte in acompanantes:
+            cursor.execute("""INSERT INTO AcompañantesReserva
+                              (id_reserva,nombre_completo,carnet,cohorte) VALUES (?,?,?,?)""",
+                           (id_reserva, nombre, carnet, cohorte))
         conn.commit()
         cursor.close(); conn.close()
         flash('Sala reservada exitosamente.', 'success')
         return redirect(url_for('lista_salas'))
     except Exception as e:
         return f"Error en BD: {e}", 500
+
 
 # ─── KITE: Impresoras 3D ───────────────────────────────────────────────────────
 @app.route('/kite')
