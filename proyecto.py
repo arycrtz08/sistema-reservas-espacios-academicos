@@ -87,6 +87,47 @@ def get_session_usuario():
     """Devuelve id_usuario, carnet y cohorte del usuario en sesión."""
     return (session.get('id_usuario'), session.get('carnet', ''), session.get('cohorte', ''))
 
+# ─── Actualización automática de estados ────────────────────────────────────
+@app.before_request
+def actualizar_estados_reservas():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # 1. Salas
+        # Liberar salas y marcar reservas como Finalizadas si la fecha/hora fin ya pasó
+        cursor.execute("""
+            UPDATE Salas SET disponible = 1
+            WHERE id_sala IN (
+                SELECT id_sala FROM ReservasSalas 
+                WHERE estado = 'Activa' AND CAST(CAST(fecha AS VARCHAR(10)) + ' ' + CAST(hora_fin AS VARCHAR(8)) AS DATETIME) <= GETDATE()
+            )
+        """)
+        cursor.execute("""
+            UPDATE ReservasSalas SET estado = 'Finalizada'
+            WHERE estado = 'Activa' AND CAST(CAST(fecha AS VARCHAR(10)) + ' ' + CAST(hora_fin AS VARCHAR(8)) AS DATETIME) <= GETDATE()
+        """)
+        
+        # 2. Impresoras 3D
+        # Liberar impresoras y marcar reservas como Finalizadas si la hora_fin ya pasó
+        cursor.execute("""
+            UPDATE Impresoras3D SET disponible = 1
+            WHERE id_impresora IN (
+                SELECT id_impresora FROM ReservasImpresora3D
+                WHERE estado = 'Activa' AND hora_fin <= GETDATE()
+            )
+        """)
+        cursor.execute("""
+            UPDATE ReservasImpresora3D SET estado = 'Finalizada'
+            WHERE estado = 'Activa' AND hora_fin <= GETDATE()
+        """)
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"Error actualizando estados automáticos: {e}")
+
 # ─── Evitar cache del navegador ─────────────────────────────────────────────
 @app.after_request
 def add_no_cache_headers(response):
