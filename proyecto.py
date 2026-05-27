@@ -108,10 +108,68 @@ def home():
     if 'usuario' not in session:
         return redirect(url_for('login'))
 
-    return render_template(
-        'home.html',
-        usuario=session['usuario']
-    )
+    proximas = []
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT TOP 5 s.nombre, rs.fecha, rs.hora_inicio, rs.estado
+            FROM ReservasSalas rs
+            JOIN Salas s ON rs.id_sala=s.id_sala
+            WHERE rs.id_usuario=? AND rs.estado='Activa'
+              AND (rs.fecha > CAST(GETDATE() AS DATE)
+                   OR (rs.fecha = CAST(GETDATE() AS DATE) AND rs.hora_fin > CAST(GETDATE() AS TIME)))
+            ORDER BY rs.fecha, rs.hora_inicio
+        """, (session['id_usuario'],))
+        for r in cursor.fetchall():
+            proximas.append({'recurso': r[0], 'detalle': f"Sala · {r[1]} · {str(r[2])[:5]}",
+                              'tipo': 'Sala', 'estado': r[3], 'orden': datetime.combine(r[1], r[2])})
+
+        cursor.execute("""
+            SELECT TOP 5 i.nombre, ri.hora_fin, ri.estado
+            FROM ReservasImpresora3D ri
+            JOIN Impresoras3D i ON ri.id_impresora=i.id_impresora
+            WHERE ri.id_usuario=? AND ri.estado='Activa' AND ri.hora_fin > GETDATE()
+            ORDER BY ri.hora_fin
+        """, (session['id_usuario'],))
+        for r in cursor.fetchall():
+            proximas.append({'recurso': r[0], 'detalle': f"Impresora 3D · hasta {r[1].strftime('%d/%m/%Y %H:%M')}",
+                              'tipo': 'Impresora', 'estado': r[2], 'orden': r[1]})
+
+        cursor.execute("""
+            SELECT TOP 5 c.codigo, c.nombre, rc.hora_inicio, rc.estado
+            FROM ReservasComputadora rc
+            JOIN Computadoras c ON rc.id_computadora=c.id_computadora
+            WHERE rc.id_usuario=? AND rc.estado IN ('Pendiente','Confirmada')
+            ORDER BY rc.hora_inicio DESC
+        """, (session['id_usuario'],))
+        for r in cursor.fetchall():
+            proximas.append({'recurso': f"{r[0]} — {r[1]}", 'detalle': 'Computadora solicitada',
+                              'tipo': 'Computadora', 'estado': r[3], 'orden': r[2]})
+
+        cursor.execute("""
+            SELECT TOP 5 ph.fecha_prestamo, ph.estado,
+                   STUFF((SELECT ', ' + h.nombre
+                          FROM DetallePrestamo dp JOIN Herramientas h ON dp.id_herramienta=h.id_herramienta
+                          WHERE dp.id_prestamo=ph.id_prestamo AND dp.estado='Prestada'
+                          FOR XML PATH('')), 1, 2, '') AS herramientas
+            FROM PrestamosHerramienta ph
+            WHERE ph.id_usuario=? AND ph.estado='Prestado'
+            ORDER BY ph.fecha_prestamo DESC
+        """, (session['id_usuario'],))
+        for r in cursor.fetchall():
+            if r[2]:
+                proximas.append({'recurso': 'Herramientas KITE', 'detalle': r[2],
+                                  'tipo': 'Herramientas', 'estado': r[1], 'orden': r[0]})
+
+        cursor.close(); conn.close()
+        proximas.sort(key=lambda item: item['orden'], reverse=True)
+        proximas = proximas[:5]
+    except Exception:
+        proximas = []
+
+    return render_template('home.html', usuario=session['usuario'], proximas=proximas)
 
 
 @app.route('/logout')
@@ -1006,6 +1064,111 @@ def admin_salas():
         return render_template('admin_salas.html', bloqueos=bloqueos, salas=salas)
     except Exception as e:
         return f"Error: {e}", 500
+
+@app.route('/admin/historial')
+@admin_required('kite', 'compu', 'salas', 'gral')
+def admin_historial():
+    tipo_admin = session.get('admin_tipo', '')
+    permisos = {
+        'salas': ['salas'],
+        'compu': ['computadoras'],
+        'kite': ['impresoras', 'herramientas'],
+        'gral': ['salas', 'computadoras', 'impresoras', 'herramientas']
+    }
+    permitidos = permisos.get(tipo_admin, [])
+    recurso = request.args.get('recurso', 'todos').strip().lower()
+    estado = request.args.get('estado', '').strip()
+    fecha_txt = request.args.get('fecha', '').strip()
+    busqueda = request.args.get('busqueda', '').strip().lower()
+
+    if recurso != 'todos' and recurso not in permitidos:
+        flash('No tienes acceso al historial de ese módulo.', 'danger')
+        return redirect(url_for('admin_historial'))
+
+    fecha_filtro = None
+    if fecha_txt:
+        try:
+            fecha_filtro = datetime.strptime(fecha_txt, '%Y-%m-%d').date()
+        except ValueError:
+            flash('La fecha seleccionada no es válida.', 'warning')
+
+    def mostrar(tipo):
+        return tipo in permitidos and recurso in ('todos', tipo)
+
+    movimientos = []
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        if mostrar('salas'):
+            cursor.execute("""
+                SELECT TOP 250 s.nombre, u.usuario, u.carnet_us, r.estado, r.fecha, r.hora_inicio, r.hora_fin
+                FROM ReservasSalas r JOIN Salas s ON r.id_sala=s.id_sala
+                JOIN Usuarios u ON r.id_usuario=u.id_usuario
+                ORDER BY r.fecha DESC, r.hora_inicio DESC
+            """)
+            for r in cursor.fetchall():
+                movimientos.append({'tipo':'Sala','recurso':r[0],'usuario':r[1],'carnet':r[2],
+                    'estado':r[3],'fecha':r[4],'detalle':f"{str(r[5])[:5]} - {str(r[6])[:5]}"})
+
+        if mostrar('computadoras'):
+            cursor.execute("""
+                SELECT TOP 250 c.codigo, c.nombre, u.usuario, u.carnet_us, r.estado, r.hora_inicio, r.razon, r.razon_otro
+                FROM ReservasComputadora r JOIN Computadoras c ON r.id_computadora=c.id_computadora
+                JOIN Usuarios u ON r.id_usuario=u.id_usuario ORDER BY r.hora_inicio DESC
+            """)
+            for r in cursor.fetchall():
+                movimientos.append({'tipo':'Computadora','recurso':f"{r[0]} — {r[1]}",
+                    'usuario':r[2],'carnet':r[3],'estado':r[4],'fecha':r[5],
+                    'detalle':f"{r[6]}{(' — ' + r[7]) if r[7] else ''}"})
+
+        if mostrar('impresoras'):
+            cursor.execute("""
+                SELECT TOP 250 i.nombre, i.codigo, u.usuario, u.carnet_us, r.estado, r.fecha, r.filamento, r.gramos
+                FROM ReservasImpresora3D r JOIN Impresoras3D i ON r.id_impresora=i.id_impresora
+                JOIN Usuarios u ON r.id_usuario=u.id_usuario ORDER BY r.fecha DESC
+            """)
+            for r in cursor.fetchall():
+                movimientos.append({'tipo':'Impresora 3D','recurso':f"{r[0]} ({r[1]})",
+                    'usuario':r[2],'carnet':r[3],'estado':r[4],'fecha':r[5],
+                    'detalle':f"{r[6]} — {r[7]}g"})
+
+        if mostrar('herramientas'):
+            cursor.execute("""
+                SELECT TOP 1000 p.id_prestamo, u.usuario, u.carnet_us, p.estado, p.fecha_prestamo, h.nombre
+                FROM PrestamosHerramienta p JOIN Usuarios u ON p.id_usuario=u.id_usuario
+                JOIN DetallePrestamo d ON p.id_prestamo=d.id_prestamo
+                JOIN Herramientas h ON d.id_herramienta=h.id_herramienta
+                ORDER BY p.fecha_prestamo DESC, p.id_prestamo DESC
+            """)
+            prestamos = {}
+            for r in cursor.fetchall():
+                if r[0] not in prestamos:
+                    prestamos[r[0]] = {'tipo':'Herramientas','recurso':f"Préstamo #{r[0]}",
+                        'usuario':r[1],'carnet':r[2],'estado':r[3],'fecha':r[4],'items':[]}
+                prestamos[r[0]]['items'].append(r[5])
+            for p in prestamos.values():
+                p['detalle'] = ', '.join(p.pop('items'))
+                movimientos.append(p)
+
+        cursor.close(); conn.close()
+    except Exception as e:
+        return f"Error: {e}", 500
+
+    if estado:
+        movimientos = [m for m in movimientos if m['estado'] == estado]
+    if fecha_filtro:
+        movimientos = [m for m in movimientos
+                       if (m['fecha'].date() if isinstance(m['fecha'], datetime) else m['fecha']) == fecha_filtro]
+    if busqueda:
+        movimientos = [m for m in movimientos
+                       if busqueda in ' '.join(str(m[k]) for k in ['tipo','recurso','usuario','carnet','detalle','estado']).lower()]
+
+    def fecha_orden(m):
+        return m['fecha'] if isinstance(m['fecha'], datetime) else datetime.combine(m['fecha'], datetime.min.time())
+    movimientos.sort(key=fecha_orden, reverse=True)
+    return render_template('admin_historial.html', movimientos=movimientos, recursos_permitidos=permitidos,
+        recurso=recurso, estado=estado, fecha_filtro=fecha_txt, busqueda=request.args.get('busqueda','').strip())
 
 @app.route('/admin/gral')
 @admin_required('gral')

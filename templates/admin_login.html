@@ -167,7 +167,9 @@
 
                     <button type="button"
                             class="btn toggle-password"
-                            onclick="togglePassword()">
+                            id="btnVerContrasena"
+                             aria-label="Manten presionado para ver la contraseña"
+                             title="Manten presionado para ver la contraseña">
                         <i class="bi bi-eye" id="eyeIcon"></i>
                     </button>
                 </div>
@@ -184,20 +186,19 @@
     </div>
 
     <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById("contrasena");
-            const eyeIcon = document.getElementById("eyeIcon");
-
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                eyeIcon.classList.remove("bi-eye");
-                eyeIcon.classList.add("bi-eye-slash");
-            } else {
-                passwordInput.type = "password";
-                eyeIcon.classList.remove("bi-eye-slash");
-                eyeIcon.classList.add("bi-eye");
-            }
-        }
+        const passwordInput = document.getElementById("contrasena");
+        const btnVerContrasena = document.getElementById("btnVerContrasena");
+        const eyeIcon = document.getElementById("eyeIcon");
+        function mostrarContrasena() { passwordInput.type="text"; eyeIcon.classList.remove("bi-eye"); eyeIcon.classList.add("bi-eye-slash"); }
+        function ocultarContrasena() { passwordInput.type="password"; eyeIcon.classList.remove("bi-eye-slash"); eyeIcon.classList.add("bi-eye"); }
+        btnVerContrasena.addEventListener("pointerdown", function(e) { e.preventDefault(); mostrarContrasena(); });
+        btnVerContrasena.addEventListener("pointerup", ocultarContrasena);
+        btnVerContrasena.addEventListener("pointerleave", ocultarContrasena);
+        btnVerContrasena.addEventListener("pointercancel", ocultarContrasena);
+        btnVerContrasena.addEventListener("blur", ocultarContrasena);
+        btnVerContrasena.addEventListener("keydown", function(e) { if(e.key===" " || e.key==="Enter") { e.preventDefault(); mostrarContrasena(); } });
+        btnVerContrasena.addEventListener("keyup", function(e) { if(e.key===" " || e.key==="Enter") { e.preventDefault(); ocultarContrasena(); } });
+        document.addEventListener("visibilitychange", function() { if(document.hidden) ocultarContrasena(); });
     </script>
 
 </body>
