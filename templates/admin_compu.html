@@ -63,7 +63,12 @@
     </nav>
 
     <div class="container pb-5">
-        <h3 class="fw-bold mb-4">Panel de Administración de Computadoras</h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold m-0">Panel de Administración de Computadoras</h3>
+            <a href="/admin/compu/historial" class="btn btn-secondary shadow-sm" style="border-radius: 12px;">
+                <i class="bi bi-clock-history me-2"></i> Ver Historial
+            </a>
+        </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

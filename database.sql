@@ -95,8 +95,8 @@ GO
 -- Datos iniciales de salas
 IF NOT EXISTS (SELECT 1 FROM Salas)
     INSERT INTO Salas (nombre) VALUES
-    ('Sala KEY001'), ('Sala KEY002'), ('Sala KEY003'),
-    ('Sala KEY004'), ('Sala KEY005'), ('Sala KEY006');
+    ('Sala M201'), ('Sala M202'), ('Sala M203'),
+    ('Sala M204'), ('Sala M205'), ('Sala M206');
 GO
 
 -- ============================================================
@@ -479,5 +479,42 @@ BEGIN
         FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
         FOREIGN KEY (id_recurso) REFERENCES RecursosKite(id_recurso)
     );
+END
+GO
+
+-- ============================================================
+-- TABLA: EPPHerramienta
+-- ============================================================
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = 'EPPHerramienta' AND type = 'U')
+BEGIN
+    CREATE TABLE EPPHerramienta (
+        id_epp         INT PRIMARY KEY IDENTITY(1,1),
+        id_herramienta INT           NOT NULL,
+        equipo         NVARCHAR(100) NOT NULL,
+        FOREIGN KEY (id_herramienta) REFERENCES Herramientas(id_herramienta)
+    );
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM EPPHerramienta)
+BEGIN
+    -- Dremel
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (5, 'Lentes de protección');
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (5, 'Guantes de trabajo');
+    -- Taladro
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (6, 'Lentes de protección');
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (6, 'Guantes de trabajo');
+    -- Lijadora eléctrica
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (7, 'Lentes de protección');
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (7, 'Guantes de trabajo');
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (7, 'Gabacha / Mandil');
+    -- Sierra caladora
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (8, 'Lentes de protección');
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (8, 'Guantes de trabajo');
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (8, 'Gabacha / Mandil');
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (8, 'Careta facial');
+    -- Serrucho
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (9, 'Lentes de protección');
+    INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (9, 'Guantes de trabajo');
 END
 GO

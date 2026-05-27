@@ -46,9 +46,17 @@
             margin-bottom: 15px;
         }
 
-        .card-kite .module-icon { color: #ef4444; }
-        .card-compu .module-icon { color: #3b82f6; }
-        .card-salas .module-icon { color: #8b5cf6; }
+        .card-kite .module-icon {
+            color: #ef4444;
+        }
+
+        .card-compu .module-icon {
+            color: #3b82f6;
+        }
+
+        .card-salas .module-icon {
+            color: #8b5cf6;
+        }
     </style>
 </head>
 
@@ -98,10 +106,14 @@
         <!-- Zona de peligro -->
         <div class="row mt-5 justify-content-center">
             <div class="col-md-8">
-                <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,.05); border-left: 5px solid #ef4444;">
-                    <h5 class="fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Zona de peligro</h5>
-                    <p class="text-muted mb-3">Esta acción eliminará todas las reservas activas y restablecerá la disponibilidad de todos los recursos.</p>
-                    <button class="btn btn-danger fw-bold" style="border-radius: 14px;" data-bs-toggle="modal" data-bs-target="#modalRestablecer">
+                <div
+                    style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,.05); border-left: 5px solid #ef4444;">
+                    <h5 class="fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Zona de peligro
+                    </h5>
+                    <p class="text-muted mb-3">Esta acción eliminará todas las reservas activas y restablecerá la
+                        disponibilidad de todos los recursos.</p>
+                    <button class="btn btn-danger fw-bold" style="border-radius: 14px;" data-bs-toggle="modal"
+                        data-bs-target="#modalRestablecer">
                         <i class="bi bi-arrow-counterclockwise me-2"></i>Restablecer todas las reservas
                     </button>
                 </div>
@@ -129,7 +141,8 @@
                     <p class="text-muted small mb-0">Todos los recursos volverán a estar disponibles.</p>
                 </div>
                 <div class="modal-footer" style="border: none;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 14px;">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        style="border-radius: 14px;">Cancelar</button>
                     <form action="/admin/restablecer_reservas" method="POST">
                         <button type="submit" class="btn btn-danger fw-bold" style="border-radius: 14px;">
                             Sí, restablecer todo
@@ -157,4 +170,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>

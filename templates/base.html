@@ -19,7 +19,9 @@
             --fondo: #f4f7fb;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
@@ -56,7 +58,9 @@
             line-height: 1.1;
         }
 
-        .brand span { color: #10b981; }
+        .brand span {
+            color: #10b981;
+        }
 
         .brand small {
             display: block;
@@ -69,7 +73,7 @@
 
         .sidebar-divider {
             border: none;
-            border-top: 1px solid rgba(255,255,255,.12);
+            border-top: 1px solid rgba(255, 255, 255, .12);
             margin: 14px 0;
         }
 
@@ -98,10 +102,13 @@
             transition: background .15s ease, color .15s ease;
         }
 
-        .menu a i { font-size: 17px; flex-shrink: 0; }
+        .menu a i {
+            font-size: 17px;
+            flex-shrink: 0;
+        }
 
         .menu a:hover {
-            background: rgba(255,255,255,.1);
+            background: rgba(255, 255, 255, .1);
             color: white;
         }
 
@@ -109,7 +116,7 @@
             background: var(--azul-brillante);
             color: white;
             font-weight: 600;
-            box-shadow: 0 4px 14px rgba(35,100,232,.35);
+            box-shadow: 0 4px 14px rgba(35, 100, 232, .35);
         }
 
         .sidebar-footer {
@@ -122,7 +129,7 @@
             align-items: center;
             gap: 10px;
             padding: 12px 14px;
-            background: rgba(255,255,255,.07);
+            background: rgba(255, 255, 255, .07);
             border-radius: 14px;
             margin-bottom: 8px;
         }
@@ -196,7 +203,7 @@
             align-items: center;
             justify-content: center;
             color: #65738a;
-            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
             font-size: 18px;
             cursor: pointer;
             text-decoration: none;
@@ -204,7 +211,7 @@
         }
 
         .topbar-actions .btn-icon:hover {
-            box-shadow: 0 4px 14px rgba(0,0,0,.1);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .1);
             color: var(--azul-brillante);
         }
 
@@ -218,39 +225,52 @@
             padding: 8px 14px 8px 10px;
             text-decoration: none;
             color: #374151;
-            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
             transition: box-shadow .15s, color .15s;
             cursor: pointer;
         }
+
         .topbar-user-card:hover {
-            box-shadow: 0 4px 14px rgba(0,0,0,.12);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .12);
             color: var(--azul-brillante);
         }
+
         .topbar-user-info {
             display: flex;
             flex-direction: column;
             line-height: 1.2;
         }
+
         .topbar-username {
             font-weight: 700;
             font-size: 14px;
             color: #1f2937;
         }
+
         .topbar-role {
             font-size: 11px;
             color: #6b7280;
         }
+
         .topbar-user-card:hover .topbar-username {
             color: var(--azul-brillante);
         }
 
         /* ===== FLASH MESSAGES ===== */
-        .flash-zone { margin-bottom: 20px; }
-        .flash-zone .alert { border-radius: 14px; font-size: 14.5px; }
+        .flash-zone {
+            margin-bottom: 20px;
+        }
+
+        .flash-zone .alert {
+            border-radius: 14px;
+            font-size: 14.5px;
+        }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 900px) {
-            .layout { flex-direction: column; }
+            .layout {
+                flex-direction: column;
+            }
 
             .sidebar {
                 width: 100%;
@@ -264,11 +284,25 @@
                 gap: 8px;
             }
 
-            .brand { margin-bottom: 0; }
-            .brand small { display: none; }
-            .sidebar-footer { display: none; }
-            .menu-label { display: none; }
-            .sidebar-divider { display: none; }
+            .brand {
+                margin-bottom: 0;
+            }
+
+            .brand small {
+                display: none;
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .menu-label {
+                display: none;
+            }
+
+            .sidebar-divider {
+                display: none;
+            }
 
             .menu {
                 display: flex;
@@ -282,7 +316,9 @@
                 margin-bottom: 0;
             }
 
-            .main { padding: 20px 16px; }
+            .main {
+                padding: 20px 16px;
+            }
 
             .topbar {
                 flex-direction: column;
@@ -297,114 +333,115 @@
 
 <body>
 
-<div class="layout">
+    <div class="layout">
 
-    <!-- ===== SIDEBAR ===== -->
-    <aside class="sidebar">
-        <div class="brand">
-            Campus<span>Hub</span>
-            <small>Gestión de Recursos Académicos</small>
-        </div>
-
-        <hr class="sidebar-divider">
-
-        <nav class="menu">
-            <div class="menu-label">Principal</div>
-            <a href="/" class="{% if request.path == '/' %}active{% endif %}">
-                <i class="bi bi-grid-1x2"></i> Dashboard
-            </a>
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar">
+            <div class="brand">
+                Campus<span>Hub</span>
+                <small>Gestión de Recursos Académicos</small>
+            </div>
 
             <hr class="sidebar-divider">
-            <div class="menu-label">Reservas</div>
 
-            <a href="/salas" class="{% if '/salas' in request.path %}active{% endif %}">
-                <i class="bi bi-door-open"></i> Salas de Estudio
-            </a>
+            <nav class="menu">
+                <div class="menu-label">Principal</div>
+                <a href="/" class="{% if request.path == '/' %}active{% endif %}">
+                    <i class="bi bi-grid-1x2"></i> Dashboard
+                </a>
 
-            <a href="/kite" class="{% if '/kite' in request.path %}active{% endif %}">
-                <i class="bi bi-tools"></i> Recursos KITE
-            </a>
+                <hr class="sidebar-divider">
+                <div class="menu-label">Reservas</div>
 
-            <a href="/computadoras" class="{% if '/computadoras' in request.path or '/comp_' in request.path %}active{% endif %}">
-                <i class="bi bi-laptop"></i> Computadoras
-            </a>
+                <a href="/salas" class="{% if '/salas' in request.path %}active{% endif %}">
+                    <i class="bi bi-door-open"></i> Salas de Estudio
+                </a>
 
-            <hr class="sidebar-divider">
-            <div class="menu-label">Mi cuenta</div>
+                <a href="/kite" class="{% if '/kite' in request.path %}active{% endif %}">
+                    <i class="bi bi-tools"></i> Recursos KITE
+                </a>
 
-            <a href="/mis_reservas" class="{% if 'mis_reservas' in request.path %}active{% endif %}">
-                <i class="bi bi-clock-history"></i> Mis Reservas
-            </a>
+                <a href="/computadoras"
+                    class="{% if '/computadoras' in request.path or '/comp_' in request.path %}active{% endif %}">
+                    <i class="bi bi-laptop"></i> Computadoras
+                </a>
 
-            <a href="/perfil" class="{% if 'perfil' in request.path %}active{% endif %}">
-                <i class="bi bi-person-circle"></i> Mi Perfil
-            </a>
-        </nav>
+                <hr class="sidebar-divider">
+                <div class="menu-label">Mi cuenta</div>
 
-        <div class="sidebar-footer">
-            {% if session.get('usuario') %}
-            <div class="sidebar-user">
-                <div class="avatar">{{ session['usuario'][0] | upper }}</div>
-                <div>
-                    <div class="uname">{{ session['usuario'] }}</div>
-                    <div class="urole">Estudiante</div>
+                <a href="/mis_reservas" class="{% if 'mis_reservas' in request.path %}active{% endif %}">
+                    <i class="bi bi-clock-history"></i> Mis Reservas
+                </a>
+
+                <a href="/perfil" class="{% if 'perfil' in request.path %}active{% endif %}">
+                    <i class="bi bi-person-circle"></i> Mi Perfil
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                {% if session.get('usuario') %}
+                <div class="sidebar-user">
+                    <div class="avatar">{{ session['usuario'][0] | upper }}</div>
+                    <div>
+                        <div class="uname">{{ session['usuario'] }}</div>
+                        <div class="urole">Estudiante</div>
+                    </div>
+                </div>
+                {% endif %}
+                <a href="/logout" onclick="return confirm('¿Seguro que deseas cerrar sesión?');"
+                    style="display:block; color:#ff6b6b; text-decoration:none; padding: 11px 14px; border-radius:12px;">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                </a>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN ===== -->
+        <main class="main">
+
+            <!-- Topbar -->
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1>{% block page_title %}CampusHub{% endblock %}</h1>
+                    <p>{% block page_subtitle %}{% endblock %}</p>
+                </div>
+                <div class="topbar-actions">
+                    <a href="/mis_reservas" class="btn-icon" title="Mis Reservas">
+                        <i class="bi bi-clock-history"></i>
+                    </a>
+                    <a href="/perfil" class="topbar-user-card" title="Ir a mi perfil">
+                        <i class="bi bi-person-circle fs-5"></i>
+                        <div class="topbar-user-info">
+                            <span class="topbar-username">{{ session.get('usuario', 'Estudiante') }}</span>
+                            <span class="topbar-role">Sesión activa</span>
+                        </div>
+                    </a>
                 </div>
             </div>
-            {% endif %}
-            <a href="/logout"
-                onclick="return confirm('¿Seguro que deseas cerrar sesión?');"
-                style="display:block; color:#ff6b6b; text-decoration:none; padding: 11px 14px; border-radius:12px;">
-                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-            </a>
-        </div>
-    </aside>
 
-    <!-- ===== MAIN ===== -->
-    <main class="main">
-
-        <!-- Topbar -->
-        <div class="topbar">
-            <div class="topbar-title">
-                <h1>{% block page_title %}CampusHub{% endblock %}</h1>
-                <p>{% block page_subtitle %}{% endblock %}</p>
-            </div>
-            <div class="topbar-actions">
-                <a href="/mis_reservas" class="btn-icon" title="Mis Reservas">
-                    <i class="bi bi-clock-history"></i>
-                </a>
-                <a href="/perfil" class="topbar-user-card" title="Ir a mi perfil">
-                    <i class="bi bi-person-circle fs-5"></i>
-                    <div class="topbar-user-info">
-                        <span class="topbar-username">{{ session.get('usuario', 'Estudiante') }}</span>
-                        <span class="topbar-role">Sesión activa</span>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- Flash messages -->
-        <div class="flash-zone">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
+            <!-- Flash messages -->
+            <div class="flash-zone">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
                 {% for category, message in messages %}
                 <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 {% endfor %}
-            {% endif %}
-            {% endwith %}
-        </div>
+                {% endif %}
+                {% endwith %}
+            </div>
 
-        <!-- Page content -->
-        {% block content %}{% endblock %}
+            <!-- Page content -->
+            {% block content %}{% endblock %}
 
-    </main>
+        </main>
 
-</div>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-{% block extra_scripts %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
 
 </body>
+
 </html>

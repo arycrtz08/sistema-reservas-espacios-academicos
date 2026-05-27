@@ -12,13 +12,13 @@
         padding: 28px;
         color: white;
         border: none;
-        box-shadow: 0 16px 32px rgba(0,0,0,.12);
+        box-shadow: 0 16px 32px rgba(0, 0, 0, .12);
         transition: transform .2s ease, box-shadow .2s ease;
     }
 
     .action-card:hover {
         transform: translateY(-6px);
-        box-shadow: 0 20px 38px rgba(0,0,0,.18);
+        box-shadow: 0 20px 38px rgba(0, 0, 0, .18);
     }
 
     .action-card i {
@@ -27,15 +27,23 @@
         display: inline-block;
     }
 
-    .blue   { background: linear-gradient(135deg, #2364e8, #173b9b); }
-    .green  { background: linear-gradient(135deg, #10b981, #087d61); }
-    .purple { background: linear-gradient(135deg, #7c3aed, #4c1d95); }
+    .blue {
+        background: linear-gradient(135deg, #2364e8, #173b9b);
+    }
+
+    .green {
+        background: linear-gradient(135deg, #10b981, #087d61);
+    }
+
+    .purple {
+        background: linear-gradient(135deg, #7c3aed, #4c1d95);
+    }
 
     .white-card {
         background: white;
         border-radius: 22px;
         padding: 24px;
-        box-shadow: 0 10px 25px rgba(0,0,0,.06);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, .06);
     }
 
     .reserve-item {
@@ -46,7 +54,9 @@
         border-bottom: 1px solid #edf0f5;
     }
 
-    .reserve-item:last-child { border-bottom: none; }
+    .reserve-item:last-child {
+        border-bottom: none;
+    }
 
     .status {
         font-size: 12px;
@@ -55,8 +65,15 @@
         font-weight: 700;
     }
 
-    .confirmed { background: #d1fae5; color: #047857; }
-    .pending   { background: #dbeafe; color: #1d4ed8; }
+    .confirmed {
+        background: #d1fae5;
+        color: #047857;
+    }
+
+    .pending {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
 </style>
 {% endblock %}
 

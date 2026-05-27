@@ -1,0 +1,76 @@
+{% extends "base_admin.html" %}
+
+{% block title %}Historial Salas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0">Historial de Salas</h3>
+    <a href="/admin/salas" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Volver</a>
+</div>
+
+<div class="admin-card border-top-secondary mb-4">
+    <form action="/admin/salas/historial" method="GET" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small">Cohorte</label>
+            <input type="text" name="cohorte" class="form-control" placeholder="Ej: 2026" value="{{ cohorte }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Fecha Inicio</label>
+            <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Fecha Fin</label>
+            <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Buscar</button>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card border-top-primary">
+    <div class="table-responsive table-custom border">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Sala</th>
+                    <th>Usuario Reserva</th>
+                    <th>Cohorte</th>
+                    <th>Personas</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in historial %}
+                <tr>
+                    <td>{{ h.fecha.strftime('%Y-%m-%d') if h.fecha else '' }} <br><small class="text-muted">{{
+                            h.inicio.strftime('%H:%M') if h.inicio else '' }} - {{ h.fin.strftime('%H:%M') if h.fin else
+                            '' }}</small></td>
+                    <td class="fw-bold">{{ h.sala }}</td>
+                    <td>
+                        <div class="fw-bold">{{ h.usuario }}</div>
+                        <div class="small text-muted">{{ h.carnet }}</div>
+                    </td>
+                    <td>{{ h.cohorte }}</td>
+                    <td>{{ h.personas }}</td>
+                    <td>
+                        {% if h.estado == 'Finalizada' %}
+                        <span class="badge bg-success">{{ h.estado }}</span>
+                        {% elif h.estado == 'Activa' %}
+                        <span class="badge bg-primary">{{ h.estado }}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ h.estado }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No se encontraron registros.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,199 @@
+{% extends "base_admin.html" %}
+
+{% block title %}Inventario KITE{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0">Inventario KITE</h3>
+    <a href="/admin/kite" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Volver</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="row">
+    <!-- Herramientas -->
+    <div class="col-12 mb-4">
+        <div class="admin-card border-top-primary">
+            <div class="d-flex justify-content-between mb-3">
+                <h5 class="fw-bold"><i class="bi bi-tools"></i> Herramientas</h5>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalHerramienta">Agregar
+                    Herramienta</button>
+            </div>
+
+            <div class="table-responsive table-custom border">
+                <table class="table table-hover mb-0 text-center align-middle">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Disp/Total</th>
+                            <th>EPP</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for h in herramientas %}
+                        <tr>
+                            <td>{{ h.codigo }}</td>
+                            <td class="fw-bold">{{ h.nombre }}</td>
+                            <td>{{ h.categoria }}</td>
+                            <td>{{ h.disponible }} / {{ h.total }}</td>
+                            <td class="small">{{ h.epp | join(', ') }}</td>
+                            <td>
+                                {% if h.activa %}
+                                <span class="badge bg-success">Activa</span>
+                                {% else %}
+                                <span class="badge bg-danger">Inactiva</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form action="/admin/kite/herramienta/toggle/{{ h.id }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-dark">
+                                        <i class="bi bi-power"></i> Toggle
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-muted">No hay herramientas registradas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Impresoras 3D -->
+    <div class="col-12">
+        <div class="admin-card border-top-info">
+            <div class="d-flex justify-content-between mb-3">
+                <h5 class="fw-bold"><i class="bi bi-printer"></i> Impresoras 3D</h5>
+                <button class="btn btn-info text-white btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#modalImpresora">Agregar Impresora</button>
+            </div>
+
+            <div class="table-responsive table-custom border">
+                <table class="table table-hover mb-0 text-center align-middle">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in impresoras %}
+                        <tr>
+                            <td>{{ i.codigo }}</td>
+                            <td class="fw-bold">{{ i.nombre }}</td>
+                            <td>
+                                {% if i.disponible %}
+                                <span class="badge bg-success">Disponible</span>
+                                {% else %}
+                                <span class="badge bg-danger">Ocupada / Inactiva</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form action="/admin/kite/impresora/toggle/{{ i.id }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-dark">
+                                        <i class="bi bi-power"></i> Toggle
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-muted">No hay impresoras registradas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Herramienta -->
+<div class="modal fade" id="modalHerramienta" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Agregar Herramienta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/admin/kite/herramienta/agregar" method="POST">
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label>Nombre</label>
+                        <input type="text" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label>Categoría</label>
+                        <select name="id_categoria" class="form-select" required>
+                            {% for c in categorias %}
+                            <option value="{{ c.id }}">{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Código</label>
+                        <input type="text" name="codigo" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label>Cantidad Total</label>
+                        <input type="number" name="cantidad" class="form-control" min="1" value="1" required>
+                    </div>
+                    <div class="mb-2">
+                        <label>EPP (Separado por comas)</label>
+                        <input type="text" name="epp" class="form-control" placeholder="Ej: Lentes, Guantes">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Impresora -->
+<div class="modal fade" id="modalImpresora" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Agregar Impresora 3D</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/admin/kite/impresora/agregar" method="POST">
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label>Nombre</label>
+                        <input type="text" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label>Código</label>
+                        <input type="text" name="codigo" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info text-white w-100">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

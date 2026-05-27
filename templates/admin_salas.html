@@ -56,23 +56,73 @@
     </nav>
 
     <div class="container pb-5">
-        <h3 class="fw-bold mb-4">Panel de Administración de Salas</h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold m-0">Panel de Administración de Salas</h3>
+            <a href="/admin/salas/historial" class="btn btn-secondary shadow-sm" style="border-radius: 12px;">
+                <i class="bi bi-clock-history me-2"></i> Ver Historial
+            </a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
 
         <div class="row">
             <!-- Bloqueos Activos -->
-            <div class="col-12">
+            <div class="col-12 mb-4">
                 <div class="admin-card">
                     <h5 class="fw-bold mb-3"><i class="bi bi-lock"></i> Bloqueos de Salas (Mantenimiento/Eventos)</h5>
                     <p class="small text-muted">Horarios bloqueados en los que los estudiantes no pueden reservar las
                         salas.</p>
+
+                    <!-- Formulario agregar bloqueo -->
+                    <form action="/admin/salas/bloqueo" method="POST" class="mb-4 bg-light p-3 rounded">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label small">Sala</label>
+                                <select name="id_sala" class="form-select form-select-sm" required>
+                                    {% for s in salas %}
+                                    <option value="{{ s.id }}">{{ s.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">Fecha</label>
+                                <input type="date" name="fecha" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">Hora Inicio</label>
+                                <input type="time" name="hora_inicio" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">Hora Fin</label>
+                                <input type="time" name="hora_fin" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small">Motivo</label>
+                                <input type="text" name="motivo" class="form-control form-control-sm"
+                                    placeholder="Opcional">
+                            </div>
+                            <div class="col-12 mt-2 text-end">
+                                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle"></i>
+                                    Agregar Bloqueo</button>
+                            </div>
+                        </div>
+                    </form>
+
                     <div class="table-responsive table-custom border">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="table table-hover align-middle mb-0 text-center">
                             <thead>
                                 <tr>
                                     <th>Sala</th>
                                     <th>Fecha</th>
                                     <th>Horario Bloqueado</th>
                                     <th>Motivo</th>
+                                    <th>Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -82,24 +132,23 @@
                                     <td>{{ b.fecha }}</td>
                                     <td>{{ b.inicio }} - {{ b.fin }}</td>
                                     <td>{{ b.motivo }}</td>
+                                    <td>
+                                        <form action="/admin/salas/bloqueo/eliminar/{{ b.id }}" method="POST"
+                                            class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"><i
+                                                    class="bi bi-trash"></i></button>
+                                        </form>
+                                    </td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">No hay bloqueos activos
+                                    <td colspan="5" class="text-center text-muted py-4">No hay bloqueos activos
                                         programados.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 mt-3">
-                <div class="alert alert-info" style="border-radius: 16px; border: none;">
-                    <h6 class="fw-bold"><i class="bi bi-info-circle"></i> Nueva funcionalidad</h6>
-                    <p class="mb-0 small">En futuras actualizaciones podrás bloquear nuevas salas directamente desde
-                        este panel para reservas de docentes o mantenimiento.</p>
                 </div>
             </div>
         </div>

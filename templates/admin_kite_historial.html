@@ -1,0 +1,82 @@
+{% extends "base_admin.html" %}
+
+{% block title %}Historial KITE{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0">Historial de Préstamos KITE</h3>
+    <a href="/admin/kite" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Volver</a>
+</div>
+
+<div class="admin-card border-top-secondary mb-4">
+    <form action="/admin/kite/historial" method="GET" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small">Cohorte</label>
+            <input type="text" name="cohorte" class="form-control" placeholder="Ej: 2026" value="{{ cohorte }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Fecha Inicio</label>
+            <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Fecha Fin</label>
+            <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">Tipo</label>
+            <select name="tipo" class="form-select">
+                <option value="todos" {% if tipo=='todos' %}selected{% endif %}>Todos</option>
+                <option value="herramientas" {% if tipo=='herramientas' %}selected{% endif %}>Herramientas</option>
+                <option value="impresoras" {% if tipo=='impresoras' %}selected{% endif %}>Impresoras</option>
+            </select>
+        </div>
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i></button>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card border-top-primary">
+    <div class="table-responsive table-custom border">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Usuario</th>
+                    <th>Cohorte</th>
+                    <th>Detalle</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in historial %}
+                <tr>
+                    <td>{{ h.fecha.strftime('%Y-%m-%d %H:%M') if h.fecha else '' }}</td>
+                    <td><span class="badge bg-dark">{{ h.tipo }}</span></td>
+                    <td>
+                        <div class="fw-bold">{{ h.usuario }}</div>
+                        <div class="small text-muted">{{ h.carnet }}</div>
+                    </td>
+                    <td>{{ h.cohorte }}</td>
+                    <td class="small">{{ h.detalle }}</td>
+                    <td>
+                        {% if h.estado in ['Devuelto', 'Finalizada'] %}
+                        <span class="badge bg-success">{{ h.estado }}</span>
+                        {% elif h.estado == 'Prestado' or h.estado == 'Activa' %}
+                        <span class="badge bg-warning text-dark">{{ h.estado }}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ h.estado }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No se encontraron registros.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

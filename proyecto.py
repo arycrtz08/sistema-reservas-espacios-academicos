@@ -480,6 +480,11 @@ def reservar_sala():
 @app.route('/kite')
 @login_required
 def kite():
+    id_usuario = session['id_usuario']
+    cohorte    = session.get('cohorte', '')
+    msg_bloqueo = check_bloqueo_kite(id_usuario, cohorte)
+    if msg_bloqueo:
+        return render_template('kite_bloqueado.html', mensaje=msg_bloqueo)
     return render_template('kite.html')
 
 @app.route('/kite/impresoras')
@@ -785,8 +790,271 @@ def admin_kite():
         """)
         bloqueos = [{'id':r[0],'tipo':r[1],'usuario':r[2],'cohorte':r[3],'mensaje':r[4]} for r in cursor.fetchall()]
 
+        cursor.execute("SELECT DISTINCT cohorte_sel FROM Usuarios WHERE cohorte_sel IS NOT NULL AND cohorte_sel != '' ORDER BY cohorte_sel DESC")
+        cohortes = [r[0] for r in cursor.fetchall()]
+
         cursor.close(); conn.close()
-        return render_template('admin_kite.html', limites=limites, bloqueos=bloqueos)
+        return render_template('admin_kite.html', limites=limites, bloqueos=bloqueos, cohortes=cohortes)
+    except Exception as e:
+        return f"Error: {e}", 500
+
+@app.route('/admin/kite/bloqueo', methods=['POST'])
+@admin_required('kite')
+def admin_kite_bloqueo():
+    tipo = request.form.get('tipo')
+    carnet = request.form.get('carnet', '').strip()
+    cohorte = request.form.get('cohorte', '').strip()
+    mensaje = request.form.get('mensaje', '').strip()
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        id_usuario = None
+        if tipo == 'persona':
+            cursor.execute("SELECT id_usuario FROM Usuarios WHERE carnet_us=?", (carnet,))
+            row = cursor.fetchone()
+            if not row:
+                flash('Usuario no encontrado con ese carnet.', 'danger')
+                return redirect(url_for('admin_kite'))
+            id_usuario = row[0]
+            cohorte = None
+        
+        cursor.execute("INSERT INTO BloqueoKite (tipo, id_usuario, cohorte, mensaje, activo) VALUES (?, ?, ?, ?, 1)",
+                       (tipo, id_usuario, cohorte, mensaje))
+        conn.commit()
+        cursor.close(); conn.close()
+        flash('Bloqueo agregado.', 'success')
+    except Exception as e:
+        flash(f"Error: {e}", 'danger')
+    return redirect(url_for('admin_kite'))
+
+@app.route('/admin/kite/bloqueo/eliminar/<int:id_bloqueo>', methods=['POST'])
+@admin_required('kite')
+def admin_kite_bloqueo_eliminar(id_bloqueo):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE BloqueoKite SET activo=0 WHERE id_bloqueo=?", (id_bloqueo,))
+        conn.commit()
+        cursor.close(); conn.close()
+        flash('Bloqueo eliminado.', 'success')
+    except Exception as e:
+        flash(f"Error: {e}", 'danger')
+    return redirect(url_for('admin_kite'))
+
+@app.route('/admin/kite/limite', methods=['POST'])
+@admin_required('kite')
+def admin_kite_limite():
+    tipo = request.form.get('tipo')
+    carnet = request.form.get('carnet', '').strip()
+    cohorte = request.form.get('cohorte', '').strip()
+    limite = int(request.form.get('limite', 0))
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        id_usuario = None
+        if tipo == 'persona':
+            cursor.execute("SELECT id_usuario FROM Usuarios WHERE carnet_us=?", (carnet,))
+            row = cursor.fetchone()
+            if not row:
+                flash('Usuario no encontrado con ese carnet.', 'danger')
+                return redirect(url_for('admin_kite'))
+            id_usuario = row[0]
+            cohorte = None
+        
+        cursor.execute("INSERT INTO LimiteFilamento (tipo, id_usuario, cohorte, limite_gramos) VALUES (?, ?, ?, ?)",
+                       (tipo, id_usuario, cohorte, limite))
+        conn.commit()
+        cursor.close(); conn.close()
+        flash('Límite agregado.', 'success')
+    except Exception as e:
+        flash(f"Error: {e}", 'danger')
+    return redirect(url_for('admin_kite'))
+
+@app.route('/admin/kite/limite/eliminar/<int:id_limite>', methods=['POST'])
+@admin_required('kite')
+def admin_kite_limite_eliminar(id_limite):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM LimiteFilamento WHERE id_limite=?", (id_limite,))
+        conn.commit()
+        cursor.close(); conn.close()
+        flash('Límite eliminado.', 'success')
+    except Exception as e:
+        flash(f"Error: {e}", 'danger')
+    return redirect(url_for('admin_kite'))
+
+@app.route('/admin/kite/inventario')
+@admin_required('kite')
+def admin_kite_inventario():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT h.id_herramienta, h.nombre, h.codigo, h.cantidad_total, h.cantidad_disponible, h.activa, c.nombre
+            FROM Herramientas h JOIN CategoriasHerramienta c ON h.id_categoria=c.id_categoria
+        """)
+        herramientas = [{'id':r[0],'nombre':r[1],'codigo':r[2],'total':r[3],'disponible':r[4],'activa':r[5],'categoria':r[6]} for r in cursor.fetchall()]
+        
+        # Add EPP to herramientas
+        for h in herramientas:
+            cursor.execute("SELECT equipo FROM EPPHerramienta WHERE id_herramienta=?", (h['id'],))
+            h['epp'] = [row[0] for row in cursor.fetchall()]
+
+        cursor.execute("SELECT id_impresora, nombre, codigo, disponible FROM Impresoras3D")
+        impresoras = [{'id':r[0],'nombre':r[1],'codigo':r[2],'disponible':r[3]} for r in cursor.fetchall()]
+        
+        cursor.execute("SELECT id_categoria, nombre FROM CategoriasHerramienta")
+        categorias = [{'id':r[0],'nombre':r[1]} for r in cursor.fetchall()]
+        
+        cursor.close(); conn.close()
+        return render_template('admin_kite_inventario.html', herramientas=herramientas, impresoras=impresoras, categorias=categorias)
+    except Exception as e:
+        return f"Error: {e}", 500
+
+@app.route('/admin/kite/herramienta/agregar', methods=['POST'])
+@admin_required('kite')
+def admin_kite_herramienta_agregar():
+    nombre = request.form.get('nombre')
+    id_categoria = request.form.get('id_categoria')
+    codigo = request.form.get('codigo')
+    cantidad = int(request.form.get('cantidad', 1))
+    epps = request.form.get('epp', '').split(',')
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO Herramientas (nombre, id_categoria, codigo, cantidad_total, cantidad_disponible) OUTPUT INSERTED.id_herramienta VALUES (?, ?, ?, ?, ?)",
+                       (nombre, id_categoria, codigo, cantidad, cantidad))
+        id_h = cursor.fetchone()[0]
+        
+        for epp in epps:
+            epp = epp.strip()
+            if epp:
+                cursor.execute("INSERT INTO EPPHerramienta (id_herramienta, equipo) VALUES (?, ?)", (id_h, epp))
+        conn.commit()
+        cursor.close(); conn.close()
+        flash('Herramienta agregada.', 'success')
+    except Exception as e:
+        flash(f"Error: {e}", 'danger')
+    return redirect(url_for('admin_kite_inventario'))
+
+@app.route('/admin/kite/herramienta/toggle/<int:id_herramienta>', methods=['POST'])
+@admin_required('kite')
+def admin_kite_herramienta_toggle(id_herramienta):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE Herramientas SET activa = CASE WHEN activa = 1 THEN 0 ELSE 1 END WHERE id_herramienta=?", (id_herramienta,))
+        conn.commit()
+        cursor.close(); conn.close()
+        flash('Estado de herramienta actualizado.', 'success')
+    except Exception as e:
+        flash(f"Error: {e}", 'danger')
+    return redirect(url_for('admin_kite_inventario'))
+
+@app.route('/admin/kite/impresora/agregar', methods=['POST'])
+@admin_required('kite')
+def admin_kite_impresora_agregar():
+    nombre = request.form.get('nombre')
+    codigo = request.form.get('codigo')
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO Impresoras3D (nombre, codigo) VALUES (?, ?)", (nombre, codigo))
+        conn.commit()
+        cursor.close(); conn.close()
+        flash('Impresora agregada.', 'success')
+    except Exception as e:
+        flash(f"Error: {e}", 'danger')
+    return redirect(url_for('admin_kite_inventario'))
+
+@app.route('/admin/kite/impresora/toggle/<int:id_impresora>', methods=['POST'])
+@admin_required('kite')
+def admin_kite_impresora_toggle(id_impresora):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE Impresoras3D SET disponible = CASE WHEN disponible = 1 THEN 0 ELSE 1 END WHERE id_impresora=?", (id_impresora,))
+        conn.commit()
+        cursor.close(); conn.close()
+        flash('Estado de impresora actualizado.', 'success')
+    except Exception as e:
+        flash(f"Error: {e}", 'danger')
+    return redirect(url_for('admin_kite_inventario'))
+
+@app.route('/admin/kite/historial')
+@admin_required('kite')
+def admin_kite_historial():
+    cohorte = request.args.get('cohorte', '')
+    fecha_inicio = request.args.get('fecha_inicio', '')
+    fecha_fin = request.args.get('fecha_fin', '')
+    tipo = request.args.get('tipo', 'todos')
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        historial = []
+        
+        filtro_u = " AND u.cohorte_sel = ?" if cohorte else ""
+        params_h = []
+        params_i = []
+        if cohorte:
+            params_h.append(cohorte)
+            params_i.append(cohorte)
+            
+        filtro_fecha_h = ""
+        filtro_fecha_i = ""
+        if fecha_inicio:
+            filtro_fecha_h += " AND CAST(ph.fecha_prestamo AS DATE) >= ?"
+            filtro_fecha_i += " AND CAST(ri.fecha AS DATE) >= ?"
+            params_h.append(fecha_inicio)
+            params_i.append(fecha_inicio)
+        if fecha_fin:
+            filtro_fecha_h += " AND CAST(ph.fecha_prestamo AS DATE) <= ?"
+            filtro_fecha_i += " AND CAST(ri.fecha AS DATE) <= ?"
+            params_h.append(fecha_fin)
+            params_i.append(fecha_fin)
+
+        if tipo in ['todos', 'herramientas']:
+            query_h = f"""
+                SELECT ph.id_prestamo, u.usuario, u.carnet_us, u.cohorte_sel, ph.fecha_prestamo, ph.estado,
+                       STUFF((SELECT ', ' + h2.nombre FROM DetallePrestamo dp2 JOIN Herramientas h2 ON dp2.id_herramienta=h2.id_herramienta WHERE dp2.id_prestamo=ph.id_prestamo FOR XML PATH('')), 1,2,'') AS detalle
+                FROM PrestamosHerramienta ph JOIN Usuarios u ON ph.id_usuario=u.id_usuario
+                WHERE 1=1 {{filtro_u}} {{filtro_fecha_h}}
+                ORDER BY ph.fecha_prestamo DESC
+            """.replace('{filtro_u}', filtro_u).replace('{filtro_fecha_h}', filtro_fecha_h)
+            cursor.execute(query_h, params_h)
+            for r in cursor.fetchall():
+                historial.append({
+                    'tipo': 'Herramientas', 'id': r[0], 'usuario': r[1], 'carnet': r[2], 'cohorte': r[3],
+                    'fecha': r[4], 'estado': r[5], 'detalle': r[6]
+                })
+                
+        if tipo in ['todos', 'impresoras']:
+            query_i = f"""
+                SELECT ri.id_reserva, u.usuario, u.carnet_us, u.cohorte_sel, ri.fecha, ri.estado,
+                       i.nombre + ' - ' + CAST(ri.gramos AS NVARCHAR) + 'g ' + ri.filamento AS detalle
+                FROM ReservasImpresora3D ri JOIN Usuarios u ON ri.id_usuario=u.id_usuario
+                JOIN Impresoras3D i ON ri.id_impresora=i.id_impresora
+                WHERE 1=1 {{filtro_u}} {{filtro_fecha_i}}
+                ORDER BY ri.fecha DESC
+            """.replace('{filtro_u}', filtro_u).replace('{filtro_fecha_i}', filtro_fecha_i)
+            cursor.execute(query_i, params_i)
+            for r in cursor.fetchall():
+                historial.append({
+                    'tipo': 'Impresora 3D', 'id': r[0], 'usuario': r[1], 'carnet': r[2], 'cohorte': r[3],
+                    'fecha': r[4], 'estado': r[5], 'detalle': r[6]
+                })
+        
+        historial.sort(key=lambda x: x['fecha'], reverse=True)
+        
+        cursor.close(); conn.close()
+        return render_template('admin_kite_historial.html', historial=historial, cohorte=cohorte, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin, tipo=tipo)
     except Exception as e:
         return f"Error: {e}", 500
 
@@ -855,6 +1123,46 @@ def admin_compu_devolver(id_reserva):
     except Exception as e:
         return f"Error: {e}", 500
 
+@app.route('/admin/compu/historial')
+@admin_required('compu')
+def admin_compu_historial():
+    cohorte = request.args.get('cohorte', '')
+    fecha_inicio = request.args.get('fecha_inicio', '')
+    fecha_fin = request.args.get('fecha_fin', '')
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        filtro_u = " AND u.cohorte_sel = ?" if cohorte else ""
+        params = []
+        if cohorte:
+            params.append(cohorte)
+            
+        filtro_fecha = ""
+        if fecha_inicio:
+            filtro_fecha += " AND CAST(rc.hora_inicio AS DATE) >= ?"
+            params.append(fecha_inicio)
+        if fecha_fin:
+            filtro_fecha += " AND CAST(rc.hora_inicio AS DATE) <= ?"
+            params.append(fecha_fin)
+            
+        query = f"""
+            SELECT rc.id_reserva, u.usuario, u.carnet_us, u.cohorte_sel, c.nombre, c.codigo, rc.hora_inicio, rc.hora_fin, rc.estado, rc.razon
+            FROM ReservasComputadora rc JOIN Usuarios u ON rc.id_usuario=u.id_usuario
+            JOIN Computadoras c ON rc.id_computadora=c.id_computadora
+            WHERE 1=1 {{filtro_u}} {{filtro_fecha}}
+            ORDER BY rc.hora_inicio DESC
+        """.replace('{filtro_u}', filtro_u).replace('{filtro_fecha}', filtro_fecha)
+        
+        cursor.execute(query, params)
+        historial = [{'id':r[0], 'usuario':r[1], 'carnet':r[2], 'cohorte':r[3], 'compu':r[4], 'codigo':r[5], 'inicio':r[6], 'fin':r[7], 'estado':r[8], 'razon':r[9]} for r in cursor.fetchall()]
+        
+        cursor.close(); conn.close()
+        return render_template('admin_compu_historial.html', historial=historial, cohorte=cohorte, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin)
+    except Exception as e:
+        return f"Error: {e}", 500
+
 @app.route('/admin/salas')
 @admin_required('salas')
 def admin_salas():
@@ -872,6 +1180,81 @@ def admin_salas():
 
         cursor.close(); conn.close()
         return render_template('admin_salas.html', bloqueos=bloqueos, salas=salas)
+    except Exception as e:
+        return f"Error: {e}", 500
+
+@app.route('/admin/salas/bloqueo', methods=['POST'])
+@admin_required('salas')
+def admin_salas_bloqueo():
+    id_sala = request.form.get('id_sala')
+    fecha = request.form.get('fecha')
+    hora_inicio = request.form.get('hora_inicio')
+    hora_fin = request.form.get('hora_fin')
+    motivo = request.form.get('motivo', '')
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO BloqueoSalas (id_sala, fecha, hora_inicio, hora_fin, motivo) VALUES (?, ?, ?, ?, ?)",
+                       (id_sala, fecha, hora_inicio, hora_fin, motivo))
+        conn.commit()
+        cursor.close(); conn.close()
+        flash('Bloqueo de sala agregado.', 'success')
+    except Exception as e:
+        flash(f"Error: {e}", 'danger')
+    return redirect(url_for('admin_salas'))
+
+@app.route('/admin/salas/bloqueo/eliminar/<int:id_bloqueo>', methods=['POST'])
+@admin_required('salas')
+def admin_salas_bloqueo_eliminar(id_bloqueo):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM BloqueoSalas WHERE id_bloqueo=?", (id_bloqueo,))
+        conn.commit()
+        cursor.close(); conn.close()
+        flash('Bloqueo de sala eliminado.', 'success')
+    except Exception as e:
+        flash(f"Error: {e}", 'danger')
+    return redirect(url_for('admin_salas'))
+
+@app.route('/admin/salas/historial')
+@admin_required('salas')
+def admin_salas_historial():
+    cohorte = request.args.get('cohorte', '')
+    fecha_inicio = request.args.get('fecha_inicio', '')
+    fecha_fin = request.args.get('fecha_fin', '')
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        filtro_u = " AND u.cohorte_sel = ?" if cohorte else ""
+        params = []
+        if cohorte:
+            params.append(cohorte)
+            
+        filtro_fecha = ""
+        if fecha_inicio:
+            filtro_fecha += " AND rs.fecha >= ?"
+            params.append(fecha_inicio)
+        if fecha_fin:
+            filtro_fecha += " AND rs.fecha <= ?"
+            params.append(fecha_fin)
+            
+        query = f"""
+            SELECT rs.id_reserva, u.usuario, u.carnet_us, u.cohorte_sel, s.nombre, rs.fecha, rs.hora_inicio, rs.hora_fin, rs.estado, rs.cantidad_personas
+            FROM ReservasSalas rs JOIN Usuarios u ON rs.id_usuario=u.id_usuario
+            JOIN Salas s ON rs.id_sala=s.id_sala
+            WHERE 1=1 {{filtro_u}} {{filtro_fecha}}
+            ORDER BY rs.fecha DESC, rs.hora_inicio DESC
+        """.replace('{filtro_u}', filtro_u).replace('{filtro_fecha}', filtro_fecha)
+        
+        cursor.execute(query, params)
+        historial = [{'id':r[0], 'usuario':r[1], 'carnet':r[2], 'cohorte':r[3], 'sala':r[4], 'fecha':r[5], 'inicio':r[6], 'fin':r[7], 'estado':r[8], 'personas':r[9]} for r in cursor.fetchall()]
+        
+        cursor.close(); conn.close()
+        return render_template('admin_salas_historial.html', historial=historial, cohorte=cohorte, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin)
     except Exception as e:
         return f"Error: {e}", 500
 
