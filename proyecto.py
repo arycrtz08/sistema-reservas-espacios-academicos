@@ -586,70 +586,94 @@ def reservar_impresora():
 @login_required
 def kite_herramientas():
     id_usuario = session['id_usuario']
-    if check_bloqueo_kite(id_usuario, session.get('cohorte', '')):
-        return render_template('kite_bloqueado.html', mensaje=check_bloqueo_kite(id_usuario, session.get('cohorte', '')))
+    mensaje_bloqueo = check_bloqueo_kite(id_usuario, session.get('cohorte', ''))
+    if mensaje_bloqueo:
+        return render_template('kite_bloqueado.html', mensaje=mensaje_bloqueo)
 
-    # Checar si tiene préstamo activo
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT TOP 1 id_prestamo FROM PrestamosHerramienta
-            WHERE id_usuario=? AND estado='Prestado'
-            ORDER BY fecha_prestamo DESC
+            SELECT COUNT(*)
+            FROM DetallePrestamo dp
+            JOIN PrestamosHerramienta ph ON ph.id_prestamo = dp.id_prestamo
+            WHERE ph.id_usuario=? AND ph.estado='Prestado' AND dp.estado='Prestada'
         """, (id_usuario,))
-        row = cursor.fetchone()
+        hay_herramientas_activas = cursor.fetchone()[0] > 0
         cursor.close(); conn.close()
-        prestamo_activo = row[0] if row else None
-        return render_template('kite_herramientas.html', prestamo_activo=prestamo_activo)
+        return render_template(
+            'kite_herramientas.html',
+            hay_herramientas_activas=hay_herramientas_activas
+        )
     except Exception as e:
         return f"Error: {e}", 500
+
 
 @app.route('/api/buscar_herramienta')
 @login_required
 def api_buscar_herramienta():
     q = request.args.get('q', '').strip()
-    if not q: return jsonify([])
+    if not q:
+        return jsonify([])
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT h.id_herramienta, h.nombre, h.codigo, h.cantidad_disponible, c.nombre
-            FROM Herramientas h JOIN CategoriasHerramienta c ON h.id_categoria=c.id_categoria
-            WHERE h.cantidad_disponible > 0 AND h.activa=1 AND (h.nombre LIKE ? OR h.codigo LIKE ?)
+            FROM Herramientas h
+            JOIN CategoriasHerramienta c ON h.id_categoria=c.id_categoria
+            WHERE h.cantidad_disponible > 0
+              AND h.activa=1
+              AND (h.nombre LIKE ? OR h.codigo LIKE ?)
         """, (f'%{q}%', f'%{q}%'))
-        herramientas = [{'id':r[0],'nombre':r[1],'codigo':r[2],'disponible':r[3],'categoria':r[4]} for r in cursor.fetchall()]
-
-        # Obtener EPP para cada herramienta
-        for h in herramientas:
-            cursor.execute("""
-                SELECT equipo FROM EPPHerramienta WHERE id_herramienta=?
-            """, (h['id'],))
-            h['epp'] = [row[0] for row in cursor.fetchall()]
-
+        herramientas = [
+            {'id': r[0], 'nombre': r[1], 'codigo': r[2], 'disponible': r[3], 'categoria': r[4]}
+            for r in cursor.fetchall()
+        ]
+        for herramienta in herramientas:
+            cursor.execute("SELECT equipo FROM EPPHerramienta WHERE id_herramienta=?", (herramienta['id'],))
+            herramienta['epp'] = [row[0] for row in cursor.fetchall()]
         cursor.close(); conn.close()
         return jsonify(herramientas)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/prestar_herramienta', methods=['POST'])
 @login_required
 def prestar_herramienta():
     id_usuario = session['id_usuario']
-    ids_h = request.form.getlist('herramientas[]')
+    ids_h = list(dict.fromkeys(request.form.getlist('herramientas[]')))
     if not ids_h:
         flash('Debes seleccionar al menos una herramienta.', 'danger')
+        return redirect(url_for('kite_herramientas'))
+    if not request.form.get('confirmacion_responsabilidad'):
+        flash('Debes aceptar la responsabilidad del préstamo.', 'danger')
         return redirect(url_for('kite_herramientas'))
 
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO PrestamosHerramienta (id_usuario, estado) OUTPUT INSERTED.id_prestamo VALUES (?,'Prestado')", (id_usuario,))
-        id_p = cursor.fetchone()[0]
-
-        for hid in ids_h:
-            cursor.execute("INSERT INTO DetallePrestamo (id_prestamo, id_herramienta) VALUES (?,?)", (id_p, hid))
-            cursor.execute("UPDATE Herramientas SET cantidad_disponible = cantidad_disponible - 1 WHERE id_herramienta=?", (hid,))
+        cursor.execute(
+            "INSERT INTO PrestamosHerramienta (id_usuario, estado) OUTPUT INSERTED.id_prestamo VALUES (?,'Prestado')",
+            (id_usuario,)
+        )
+        id_prestamo = cursor.fetchone()[0]
+        for id_herramienta in ids_h:
+            cursor.execute("""
+                UPDATE Herramientas
+                SET cantidad_disponible = cantidad_disponible - 1
+                WHERE id_herramienta=? AND activa=1 AND cantidad_disponible > 0
+            """, (id_herramienta,))
+            if cursor.rowcount != 1:
+                conn.rollback()
+                cursor.close(); conn.close()
+                flash('Una herramienta ya no está disponible. Intenta de nuevo.', 'danger')
+                return redirect(url_for('kite_herramientas'))
+            cursor.execute("""
+                INSERT INTO DetallePrestamo (id_prestamo, id_herramienta, estado)
+                VALUES (?, ?, 'Prestada')
+            """, (id_prestamo, id_herramienta))
         conn.commit()
         cursor.close(); conn.close()
         flash('Herramientas prestadas con éxito.', 'success')
@@ -657,54 +681,87 @@ def prestar_herramienta():
     except Exception as e:
         return f"Error: {e}", 500
 
-@app.route('/kite/herramientas/devolver/<int:id_prestamo>', methods=['GET', 'POST'])
+
+@app.route('/kite/herramientas/devolver', methods=['GET', 'POST'])
 @login_required
-def devolver_herramienta(id_prestamo):
+def devolver_herramientas():
     id_usuario = session['id_usuario']
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        # Verificar que el préstamo pertenece al usuario
-        cursor.execute("SELECT estado FROM PrestamosHerramienta WHERE id_prestamo=? AND id_usuario=?", (id_prestamo, id_usuario))
-        row = cursor.fetchone()
-        if not row or row[0] != 'Prestado':
+        if request.method == 'POST':
+            seleccionadas = [int(v) for v in request.form.getlist('devolver[]') if v.isdigit()]
+            if not seleccionadas:
+                cursor.close(); conn.close()
+                flash('Selecciona al menos una herramienta para devolver.', 'warning')
+                return redirect(url_for('devolver_herramientas'))
+            danadas = {int(v) for v in request.form.getlist('herramientas_danadas[]') if v.isdigit()}
+            prestamos_afectados = set()
+            devueltas = 0
+            for id_detalle in seleccionadas:
+                cursor.execute("""
+                    SELECT dp.id_prestamo, dp.id_herramienta
+                    FROM DetallePrestamo dp
+                    JOIN PrestamosHerramienta ph ON ph.id_prestamo=dp.id_prestamo
+                    WHERE dp.id_detalle=? AND ph.id_usuario=?
+                      AND ph.estado='Prestado' AND dp.estado='Prestada'
+                """, (id_detalle, id_usuario))
+                detalle = cursor.fetchone()
+                if not detalle:
+                    continue
+                id_prestamo, id_herramienta = detalle[0], detalle[1]
+                prestamos_afectados.add(id_prestamo)
+                if id_detalle in danadas:
+                    nota = request.form.get(f'nota_dano_{id_detalle}', '').strip()
+                    cursor.execute("""
+                        UPDATE DetallePrestamo
+                        SET estado='Devuelta', fecha_devolucion=GETDATE(), danada=1, nota_dano=?
+                        WHERE id_detalle=? AND estado='Prestada'
+                    """, (nota, id_detalle))
+                else:
+                    cursor.execute("""
+                        UPDATE DetallePrestamo
+                        SET estado='Devuelta', fecha_devolucion=GETDATE(), danada=0
+                        WHERE id_detalle=? AND estado='Prestada'
+                    """, (id_detalle,))
+                    cursor.execute("UPDATE Herramientas SET cantidad_disponible = cantidad_disponible + 1 WHERE id_herramienta=?", (id_herramienta,))
+                devueltas += 1
+            for id_prestamo in prestamos_afectados:
+                cursor.execute("""
+                    UPDATE PrestamosHerramienta
+                    SET estado='Devuelto', fecha_devolucion=GETDATE()
+                    WHERE id_prestamo=? AND NOT EXISTS (
+                        SELECT 1 FROM DetallePrestamo WHERE id_prestamo=? AND estado='Prestada'
+                    )
+                """, (id_prestamo, id_prestamo))
+            conn.commit()
             cursor.close(); conn.close()
-            flash('Préstamo no encontrado o ya devuelto.', 'danger')
+            flash('Devolución registrada exitosamente.' if devueltas else 'No se encontraron herramientas pendientes.', 'success' if devueltas else 'warning')
             return redirect(url_for('kite_herramientas'))
 
         cursor.execute("""
-            SELECT h.id_herramienta, h.nombre, h.codigo
-            FROM DetallePrestamo dp JOIN Herramientas h ON dp.id_herramienta = h.id_herramienta
-            WHERE dp.id_prestamo=?
-        """, (id_prestamo,))
-        herramientas = [{'id':r[0],'nombre':r[1],'codigo':r[2]} for r in cursor.fetchall()]
-
-        if request.method == 'POST':
-            danada = request.form.get('hubo_dano') == 'si'
-            id_danada = request.form.get('herramienta_danada')
-            nota = request.form.get('nota_dano', '')
-
-            if danada and id_danada:
-                cursor.execute("UPDATE DetallePrestamo SET danada=1, nota_dano=? WHERE id_prestamo=? AND id_herramienta=?", (nota, id_prestamo, id_danada))
-                # La herramienta dañada no se regresa al inventario disponible, el admin debe revisarla.
-                # Las demás sí:
-                for h in herramientas:
-                    if str(h['id']) != str(id_danada):
-                        cursor.execute("UPDATE Herramientas SET cantidad_disponible = cantidad_disponible + 1 WHERE id_herramienta=?", (h['id'],))
-            else:
-                for h in herramientas:
-                    cursor.execute("UPDATE Herramientas SET cantidad_disponible = cantidad_disponible + 1 WHERE id_herramienta=?", (h['id'],))
-
-            cursor.execute("UPDATE PrestamosHerramienta SET estado='Devuelto', fecha_devolucion=GETDATE() WHERE id_prestamo=?", (id_prestamo,))
-            conn.commit()
-            cursor.close(); conn.close()
-            flash('Devolución registrada exitosamente.', 'success')
-            return redirect(url_for('kite_herramientas'))
-
+            SELECT dp.id_detalle, ph.id_prestamo, h.nombre, h.codigo, ph.fecha_prestamo
+            FROM DetallePrestamo dp
+            JOIN PrestamosHerramienta ph ON ph.id_prestamo=dp.id_prestamo
+            JOIN Herramientas h ON h.id_herramienta=dp.id_herramienta
+            WHERE ph.id_usuario=? AND ph.estado='Prestado' AND dp.estado='Prestada'
+            ORDER BY ph.fecha_prestamo DESC, dp.id_detalle DESC
+        """, (id_usuario,))
+        herramientas = [
+            {'detalle_id': r[0], 'prestamo_id': r[1], 'nombre': r[2], 'codigo': r[3], 'fecha': r[4]}
+            for r in cursor.fetchall()
+        ]
         cursor.close(); conn.close()
-        return render_template('kite_herramientas_devolver.html', prestamo_id=id_prestamo, herramientas=herramientas)
+        return render_template('kite_herramientas_devolver.html', herramientas=herramientas)
     except Exception as e:
         return f"Error: {e}", 500
+
+
+@app.route('/kite/herramientas/devolver/<int:id_prestamo>', methods=['GET', 'POST'])
+@login_required
+def devolver_herramienta(id_prestamo):
+    return redirect(url_for('devolver_herramientas'))
+
 
 # ─── Computadoras ────────────────────────────────────────────────────────────
 @app.route('/computadoras')
@@ -890,6 +947,7 @@ def admin_restablecer_reservas():
         cursor.execute("UPDATE ReservasSalas SET estado='Finalizada' WHERE estado='Activa'")
         cursor.execute("UPDATE ReservasImpresora3D SET estado='Finalizada' WHERE estado='Activa'")
         cursor.execute("UPDATE PrestamosHerramienta SET estado='Devuelto', fecha_devolucion=GETDATE() WHERE estado='Prestado'")
+        cursor.execute("UPDATE DetallePrestamo SET estado='Devuelta', fecha_devolucion=GETDATE() WHERE estado='Prestada'")
         cursor.execute("UPDATE ReservasComputadora SET estado='Devuelta', hora_fin=GETDATE() WHERE estado IN ('Pendiente','Confirmada')")
         # Restablecer disponibilidad
         cursor.execute("UPDATE Salas SET disponible = 1")

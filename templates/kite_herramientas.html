@@ -300,11 +300,11 @@
                                     Confirmar préstamo
                                 </button>
 
-                                {% if prestamo_activo %}
-                                <a href="/kite/herramientas/devolver/{{ prestamo_activo }}"
+                                {% if hay_herramientas_activas %}
+                                <a href="/kite/herramientas/devolver"
                                     class="btn btn-outline-danger d-flex align-items-center justify-content-center px-4"
                                     style="border-radius: 14px; font-weight: 700;">
-                                    <i class="bi bi-box-arrow-in-down me-2"></i> Devolver
+                                    <i class="bi bi-box-arrow-in-down me-2"></i> Devolver herramientas
                                 </a>
                                 {% endif %}
                             </div>
