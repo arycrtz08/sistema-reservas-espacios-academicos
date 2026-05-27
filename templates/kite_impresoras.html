@@ -478,15 +478,29 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        const limite_pla = {{ limite_pla }};
+        const gramos_pla = {{ gramos_pla }};
+        const max_pla_permitido = Math.max(0, limite_pla - gramos_pla);
+
         function toggleOtroFilamento(id) {
             var select = document.getElementById('filamento_select_' + id);
             var input = document.getElementById('filamento_otro_' + id);
+            var form = select.closest('form');
+            var inputGramos = form.querySelector('input[name="gramos"]');
+
             if (select.value === 'Otro') {
                 input.style.display = 'block';
                 input.setAttribute('required', 'required');
+                inputGramos.removeAttribute('max');
             } else {
                 input.style.display = 'none';
                 input.removeAttribute('required');
+                
+                if (select.value === 'PLA') {
+                    inputGramos.setAttribute('max', max_pla_permitido);
+                } else {
+                    inputGramos.removeAttribute('max');
+                }
             }
         }
     </script>

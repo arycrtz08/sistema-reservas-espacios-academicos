@@ -1,4 +1,4 @@
-﻿from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 import pyodbc
 import os
 from dotenv import load_dotenv
@@ -142,7 +142,8 @@ def login():
         if not re.match(r'^KEY_000\d{3}$', carnet):
             return render_template(
                 'login.html',
-                error='El carnet debe tener el formato KEY_000### (ej: KEY_000123).'
+                error='El carnet debe tener el formato KEY_000### (ej: KEY_000123).',
+                usuario=user, carnet_us=carnet, cohorte=cohorte
             )
 
         try:
@@ -171,7 +172,8 @@ def login():
 
                     return render_template(
                         'login.html',
-                        error='El carnet ya está registrado con otro nombre.'
+                        error='El carnet ya está registrado con otro nombre.',
+                        usuario=user, carnet_us=carnet, cohorte=cohorte
                     )
 
                 id_usuario = existing[0]
@@ -223,7 +225,8 @@ def login():
 
             return render_template(
                 'login.html',
-                error=f"Error al iniciar sesión: {e}"
+                error=f"Error al iniciar sesión: {e}",
+                usuario=user, carnet_us=carnet, cohorte=cohorte
             )
 
     return render_template('login.html')
@@ -324,7 +327,7 @@ def mis_reservas():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        salas_r = imp_r = cnc_r = herr_r = comp_r = []
+        salas_r = imp_r = herr_r = comp_r = []
 
         if tipo in ('todas', 'salas'):
             cursor.execute(f"""
@@ -346,15 +349,7 @@ def mis_reservas():
             imp_r = [{'id':r[0],'impresora':r[1],'fecha':r[2],'filamento':r[3],'gramos':r[4],'estado':r[5]}
                      for r in cursor.fetchall()]
 
-        if tipo in ('todas', 'kite', 'cnc'):
-            cursor.execute(f"""
-                SELECT rc.id_reserva, m.nombre, rc.fecha, rc.material, rc.estado
-                FROM ReservasCNC rc JOIN MaquinasCNC m ON rc.id_cnc=m.id_cnc
-                WHERE rc.id_usuario=? {filtro('rc.fecha')}
-                ORDER BY rc.fecha DESC
-            """, (id_usuario,))
-            cnc_r = [{'id':r[0],'cnc':r[1],'fecha':r[2],'material':r[3],'estado':r[4]}
-                     for r in cursor.fetchall()]
+
 
         if tipo in ('todas', 'kite', 'herramientas'):
             cursor.execute(f"""
@@ -381,7 +376,7 @@ def mis_reservas():
 
         cursor.close(); conn.close()
         return render_template('mis_reservas.html',
-            salas=salas_r, impresoras=imp_r, cnc=cnc_r,
+            salas=salas_r, impresoras=imp_r,
             herramientas=herr_r, computadoras=comp_r,
             tipo=tipo, periodo=periodo, fecha_esp=fecha_esp)
     except Exception as e:
@@ -585,51 +580,6 @@ def reservar_impresora():
     except Exception as e:
         return f"Error: {e}", 500
 
-# ─── KITE: CNC ───────────────────────────────────────────────────────────────
-@app.route('/kite/cnc')
-@login_required
-def kite_cnc():
-    if check_bloqueo_kite(session['id_usuario'], session.get('cohorte', '')):
-        return render_template('kite_bloqueado.html', mensaje=check_bloqueo_kite(session['id_usuario'], session.get('cohorte', '')))
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id_cnc, nombre, codigo FROM MaquinasCNC WHERE disponible=1")
-        maquinas = [{'id':r[0],'nombre':r[1],'codigo':r[2]} for r in cursor.fetchall()]
-        cursor.close(); conn.close()
-        return render_template('kite_cnc.html', maquinas=maquinas)
-    except Exception as e:
-        return f"Error: {e}", 500
-
-@app.route('/reservar_cnc', methods=['POST'])
-@login_required
-def reservar_cnc():
-    id_usuario   = session['id_usuario']
-    id_cnc       = request.form['id_cnc']
-    horas        = int(request.form.get('horas', 0))
-    minutos      = int(request.form.get('minutos', 0))
-    tipo_trabajo = request.form['tipo_trabajo']
-    material     = request.form['material']
-
-    tiempo_total_minutos = (horas * 60) + minutos
-    if tiempo_total_minutos <= 0:
-        flash('El tiempo de uso debe ser mayor a 0.', 'danger')
-        return redirect(url_for('kite_cnc'))
-
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO ReservasCNC (id_usuario, id_cnc, tiempo_minutos, hora_fin, tipo_trabajo, material, estado)
-            VALUES (?, ?, ?, DATEADD(minute, ?, GETDATE()), ?, ?, 'Activa')
-        """, (id_usuario, id_cnc, tiempo_total_minutos, tiempo_total_minutos, tipo_trabajo, material))
-        cursor.execute("UPDATE MaquinasCNC SET disponible=0 WHERE id_cnc=?", (id_cnc,))
-        conn.commit()
-        cursor.close(); conn.close()
-        flash("Máquina CNC reservada con éxito.", "success")
-        return redirect(url_for('kite_cnc'))
-    except Exception as e:
-        return f"Error: {e}", 500
 
 # ─── KITE: Herramientas ──────────────────────────────────────────────────────
 @app.route('/kite/herramientas')
@@ -764,7 +714,7 @@ def computadoras():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT id_computadora, codigo, nombre, tiene_cargador, tiene_mouse, disponible FROM Computadoras")
-        lista = [{'id':r[0],'codigo':r[1],'nombre':r[2],'cargador':r[3],'mouse':r[4],'disponible':r[5]} for r in cursor.fetchall()]
+        lista = [{'id':r[0],'codigo':r[1],'nombre':r[2],'tiene_cargador':r[3],'tiene_mouse':r[4],'disponible':r[5]} for r in cursor.fetchall()]
         cursor.close(); conn.close()
         return render_template('computadoras.html', computadoras=lista)
     except Exception as e:
@@ -939,13 +889,11 @@ def admin_restablecer_reservas():
         # Cambiar estado en vez de borrar
         cursor.execute("UPDATE ReservasSalas SET estado='Finalizada' WHERE estado='Activa'")
         cursor.execute("UPDATE ReservasImpresora3D SET estado='Finalizada' WHERE estado='Activa'")
-        cursor.execute("UPDATE ReservasCNC SET estado='Finalizada' WHERE estado='Activa'")
         cursor.execute("UPDATE PrestamosHerramienta SET estado='Devuelto', fecha_devolucion=GETDATE() WHERE estado='Prestado'")
         cursor.execute("UPDATE ReservasComputadora SET estado='Devuelta', hora_fin=GETDATE() WHERE estado IN ('Pendiente','Confirmada')")
         # Restablecer disponibilidad
         cursor.execute("UPDATE Salas SET disponible = 1")
         cursor.execute("UPDATE Impresoras3D SET disponible = 1")
-        cursor.execute("UPDATE MaquinasCNC SET disponible = 1")
         cursor.execute("UPDATE Computadoras SET disponible = 1")
         cursor.execute("UPDATE Herramientas SET cantidad_disponible = cantidad_total")
         conn.commit()

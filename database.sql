@@ -267,26 +267,6 @@ IF NOT EXISTS (SELECT 1 FROM Impresoras3D)
     ('Impresora 3D #7','IMP007');
 GO
 
--- ============================================================
--- TABLA: MaquinasCNC
--- ============================================================
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = 'MaquinasCNC' AND type = 'U')
-BEGIN
-    CREATE TABLE MaquinasCNC (
-        id_cnc     INT PRIMARY KEY IDENTITY(1,1),
-        nombre     NVARCHAR(100) NOT NULL,
-        codigo     NVARCHAR(50)  NOT NULL UNIQUE,
-        disponible BIT           DEFAULT 1
-    );
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM MaquinasCNC)
-    INSERT INTO MaquinasCNC (nombre, codigo) VALUES
-    ('CNC Router #1','CNC001'), ('CNC Router #2','CNC002'),
-    ('CNC Router #3','CNC003'), ('CNC Router #4','CNC004'),
-    ('CNC Router #5','CNC005');
-GO
 
 -- ============================================================
 -- TABLA: ReservasImpresora3D
@@ -320,33 +300,6 @@ BEGIN
 END
 GO
 
--- ============================================================
--- TABLA: ReservasCNC
--- ============================================================
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = 'ReservasCNC' AND type = 'U')
-BEGIN
-    CREATE TABLE ReservasCNC (
-        id_reserva     INT PRIMARY KEY IDENTITY(1,1),
-        id_usuario     INT           NOT NULL,
-        id_cnc         INT           NOT NULL,
-        tiempo_minutos INT           NOT NULL,
-        hora_fin       DATETIME      NULL,
-        tipo_trabajo   NVARCHAR(20)  NOT NULL,
-        material       NVARCHAR(100) NOT NULL,
-        fecha          DATETIME      DEFAULT GETDATE(),
-        estado         NVARCHAR(20)  DEFAULT 'Activa',
-        FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
-        FOREIGN KEY (id_cnc)     REFERENCES MaquinasCNC(id_cnc)
-    );
-END
-ELSE
-BEGIN
-    IF COL_LENGTH('ReservasCNC', 'tiempo_minutos') IS NULL
-        ALTER TABLE ReservasCNC ADD tiempo_minutos INT NULL;
-    IF COL_LENGTH('ReservasCNC', 'hora_fin') IS NULL
-        ALTER TABLE ReservasCNC ADD hora_fin DATETIME NULL;
-END
-GO
 
 -- ============================================================
 -- TABLA: PrestamosHerramienta
